@@ -135,8 +135,8 @@ export function JackpotTicker() {
       <div className="flex items-center justify-between max-w-7xl mx-auto px-2 gap-2 pt-[-2px] pb-[-2px] mt-[2px] mb-[2px]">
         {/* Left Icon */}
         <div className="flex items-center gap-0.5 text-yellow-500/90 flex-shrink-0">
-          <Trophy className="w-5 h-5" />
-          <Sparkles className="w-5 h-5 animate-pulse" />
+          <Trophy className="w-6 h-6" />
+          <Sparkles className="w-6 h-6 animate-pulse" />
         </div>
 
         {/* Carousel Container - Constrained to prevent overflow */}
@@ -157,11 +157,11 @@ export function JackpotTicker() {
                   className="flex-shrink-0"
                   data-testid={`jackpot-${jackpot.tier.toLowerCase()}`}
                 >
-                  <div className={`bg-gradient-to-r ${tierColors[jackpot.tier]} px-1.5 py-0.5 rounded shadow-sm hover:shadow-md transition-shadow duration-300 border border-white/20`}>
+                  <div className={`bg-gradient-to-r ${tierColors[jackpot.tier]} px-2 py-1 rounded shadow-sm hover:shadow-md transition-shadow duration-300 border border-white/20`}>
                     <div className="flex items-center gap-1">
-                      <span className="text-sm">{tierIcons[jackpot.tier]}</span>
+                      <span className="text-base">{tierIcons[jackpot.tier]}</span>
                       <div className="flex flex-col">
-                        <span className="text-[7px] font-bold text-white/90 uppercase tracking-wider leading-none">
+                        <span className="text-xs font-bold text-white/90 uppercase tracking-wider leading-none">
                           {jackpot.tier}
                         </span>
                         <AnimatePresence mode="wait">
@@ -171,7 +171,7 @@ export function JackpotTicker() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 6 }}
                             transition={{ duration: 0.3 }}
-                            className="font-black text-white text-[10px] stat-number leading-tight"
+                            className="font-black text-white text-sm stat-number leading-tight"
                             data-testid={`jackpot-${jackpot.tier.toLowerCase()}-amount`}
                           >
                             {parseFloat(jackpot.amount).toLocaleString(undefined, {
@@ -191,8 +191,8 @@ export function JackpotTicker() {
 
         {/* Right Status Indicator */}
         <div className="flex items-center gap-0.5 text-yellow-500/50 flex-shrink-0 ml-[0px] mr-[0px]">
-          <div className={`w-1 h-1 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-          <span className="uppercase tracking-wide inline ml-[15px] mr-[15px] text-[12px]">{isConnected ? 'Live' : 'Offline'}</span>
+          <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+          <span className="uppercase tracking-wide inline ml-[15px] mr-[15px] text-base">{isConnected ? 'Live' : 'Offline'}</span>
         </div>
       </div>
     </div>

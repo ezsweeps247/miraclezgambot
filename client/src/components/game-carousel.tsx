@@ -175,10 +175,10 @@ function CategorySection({
 
   const getCategoryIcon = () => {
     switch (category) {
-      case 'Originals': return <Gamepad2 className="w-4 h-4 text-blue-500" />;
-      case 'Slots': return <Cherry className="w-4 h-4 text-blue-500" />;
-      case 'Puzzle': return <Puzzle className="w-4 h-4 text-blue-500" />;
-      default: return <Gamepad2 className="w-4 h-4 text-blue-500" />;
+      case 'Originals': return <Gamepad2 className="w-5 h-5 text-blue-500" />;
+      case 'Slots': return <Cherry className="w-5 h-5 text-blue-500" />;
+      case 'Puzzle': return <Puzzle className="w-5 h-5 text-blue-500" />;
+      default: return <Gamepad2 className="w-5 h-5 text-blue-500" />;
     }
   };
 
@@ -233,7 +233,7 @@ function CategorySection({
       {/* Category Header with Blue Icon */}
       <div className="flex items-center gap-3 mb-4">
         {getCategoryIcon()}
-        <h3 className="font-bold text-white text-[15px]">{getCategoryTitle()}</h3>
+        <h3 className="font-bold text-white text-xl">{getCategoryTitle()}</h3>
         
         {/* Navigation Arrows in Header */}
         <div className="ml-auto flex gap-2">
@@ -247,7 +247,7 @@ function CategorySection({
             disabled={!showLeftArrow}
             aria-label="Scroll left"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={() => scrollToDirection('right')}
@@ -259,7 +259,7 @@ function CategorySection({
             disabled={!showRightArrow}
             aria-label="Scroll right"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -297,7 +297,7 @@ function CategorySection({
               onMouseLeave={() => !isMobile && setHoveredGame(null)}
             >
               {/* Game Card */}
-              <div className="relative w-40 h-52 rounded-xl overflow-hidden bg-gradient-to-b from-gray-900 to-black border-2 border-gray-800 hover:border-[#D4AF37]/50 transition-all duration-300 transform hover:scale-105">
+              <div className="relative w-48 h-52 rounded-xl overflow-hidden bg-gradient-to-b from-gray-900 to-black border-2 border-gray-800 hover:border-[#D4AF37]/50 transition-all duration-300 transform hover:scale-105">
                 {/* Game Image */}
                 <div className="relative h-28 overflow-hidden">
                   <img 
@@ -310,19 +310,19 @@ function CategorySection({
 
                 {/* FREE TO PLAY Badge for Enigma */}
                 {game.id === 'enigma' && (
-                  <div className="absolute top-1 right-1 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-lg animate-pulse">
+                  <div className="absolute top-1 right-1 bg-green-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow-lg animate-pulse">
                     FREE
                   </div>
                 )}
 
                 {/* Game Name */}
                 <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black via-black/95 to-transparent">
-                  <h4 className="text-white font-bold mb-1 text-center text-[12px]">{game.name}</h4>
+                  <h4 className="text-white font-bold mb-1 text-center text-base">{game.name}</h4>
                   <div className="flex flex-col items-center gap-0.5">
-                    <span className="text-yellow-400 font-bold text-[12px]">
+                    <span className="text-yellow-400 font-bold text-sm">
                       {game.id === 'enigma' ? '🎮 FREE' : `RTP: ${game.rtp}`}
                     </span>
-                    <span className="font-semibold text-green-400 text-[12px]">
+                    <span className="font-semibold text-green-400 text-sm">
                       {game.id === 'enigma' ? 'PUZZLE' : game.volatility.toUpperCase()}
                     </span>
                   </div>
@@ -332,22 +332,22 @@ function CategorySection({
                 <div className={`absolute inset-0 bg-black/95 flex flex-col justify-center p-2 transition-opacity duration-300 ${
                   (hoveredGame === game.id || tappedGame === game.id) ? 'opacity-100' : 'opacity-0 pointer-events-none'
                 }`}>
-                  <h4 className="text-[#D4AF37] font-bold text-[8px] mb-1">{game.name}</h4>
-                  <p className="text-gray-300 text-[10px] mb-1 line-clamp-2">{game.description}</p>
+                  <h4 className="text-[#D4AF37] font-bold text-sm mb-1">{game.name}</h4>
+                  <p className="text-gray-300 text-xs mb-1 line-clamp-2">{game.description}</p>
                   
                   <div className="space-y-0.5">
                     <div className="flex justify-between text-[9px]">
-                      <span className="text-[8px] text-gray-400">RTP</span>
-                      <span className="text-[10px] text-white font-semibold">{game.rtp}</span>
+                      <span className="text-xs text-gray-400">RTP</span>
+                      <span className="text-sm text-white font-semibold">{game.rtp}</span>
                     </div>
                     <div className="flex justify-between text-[9px]">
-                      <span className="text-[8px] text-gray-400">Edge</span>
-                      <span className="text-[10px] text-white font-semibold">{game.houseEdge}</span>
+                      <span className="text-xs text-gray-400">Edge</span>
+                      <span className="text-sm text-white font-semibold">{game.houseEdge}</span>
                     </div>
                   </div>
 
                   <button 
-                    className="mt-2 bg-gradient-to-b from-purple-900 to-purple-600 text-white font-bold py-1 px-2 text-[10px] rounded hover:from-purple-800 hover:to-purple-500 transition-all shadow-lg hover:shadow-purple-500/50"
+                    className="mt-2 bg-gradient-to-b from-purple-900 to-purple-600 text-white font-bold py-1 px-2 text-sm rounded hover:from-purple-800 hover:to-purple-500 transition-all shadow-lg hover:shadow-purple-500/50"
                     onClick={(e) => {
                       if (isMobile) {
                         e.stopPropagation();
