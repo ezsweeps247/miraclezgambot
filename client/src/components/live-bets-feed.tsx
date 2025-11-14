@@ -152,9 +152,9 @@ export function LiveBetsFeed() {
         <div className="p-4">
           {/* Header */}
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold text-white text-[15px]">Live Bets</h3>
+            <h3 className="font-bold text-white text-xl">Live Bets</h3>
             <div className="flex items-center gap-2">
-              <span className="text-gray-400 text-[12px]">
+              <span className="text-gray-400 text-sm">
                 Displaying {Math.min(displayCount, filteredBets.length)} games
               </span>
               <DropdownMenu>
@@ -162,10 +162,10 @@ export function LiveBetsFeed() {
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-7 text-gray-400 hover:text-white bg-[#1a1a1a] hover:bg-[#2a2a2a] text-[12px]"
+                    className="h-7 text-gray-400 hover:text-white bg-[#1a1a1a] hover:bg-[#2a2a2a] text-sm"
                   >
                     {displayCount}
-                    <ChevronDown className="ml-1 w-3 h-3" />
+                    <ChevronDown className="ml-1 w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-[#0A0A0A] border-[#1a1a1a] text-white">
@@ -185,7 +185,7 @@ export function LiveBetsFeed() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setActiveTab('latest')}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-[3px] [&_svg]:shrink-0 transform hover:scale-105 active:scale-95 from-purple-950/50 to-purple-800/50 hover:from-purple-900/70 hover:to-purple-700/70 hover:text-purple-200 hover:shadow-lg hover:shadow-purple-500/30 min-w-[55px] h-5 px-1.5 py-0 font-semibold transition-all rounded bg-purple-600 text-white hover:bg-purple-700 text-[12px]"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-[3px] [&_svg]:shrink-0 transform hover:scale-105 active:scale-95 from-purple-950/50 to-purple-800/50 hover:from-purple-900/70 hover:to-purple-700/70 hover:text-purple-200 hover:shadow-lg hover:shadow-purple-500/30 min-w-[55px] h-5 px-1.5 py-0 font-semibold transition-all rounded bg-purple-600 text-white hover:bg-purple-700 text-sm"
               >
                 Latest
               </Button>
@@ -193,7 +193,7 @@ export function LiveBetsFeed() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setActiveTab('my')}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-[3px] [&_svg]:shrink-0 transform hover:scale-105 active:scale-95 bg-gradient-to-b from-purple-950/50 to-purple-800/50 hover:from-purple-900/70 hover:to-purple-700/70 hover:shadow-lg hover:shadow-purple-500/30 min-w-[55px] h-5 px-1.5 py-0 font-semibold transition-all rounded text-gray-400 hover:text-white hover:bg-[#2a2a2a] text-[12px]"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-[3px] [&_svg]:shrink-0 transform hover:scale-105 active:scale-95 bg-gradient-to-b from-purple-950/50 to-purple-800/50 hover:from-purple-900/70 hover:to-purple-700/70 hover:shadow-lg hover:shadow-purple-500/30 min-w-[55px] h-5 px-1.5 py-0 font-semibold transition-all rounded text-gray-400 hover:text-white hover:bg-[#2a2a2a] text-sm"
               >
                 Mine
               </Button>
@@ -201,7 +201,7 @@ export function LiveBetsFeed() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setActiveTab('high')}
-                className={`min-w-[65px] h-5 px-1.5 py-0 text-[12px] font-semibold transition-all rounded ${
+                className={`min-w-[65px] h-5 px-1.5 py-0 text-sm font-semibold transition-all rounded ${
                   activeTab === 'high'
                     ? 'bg-purple-600 text-white hover:bg-purple-700'
                     : 'text-gray-400 hover:text-white hover:bg-[#2a2a2a]'
@@ -213,7 +213,7 @@ export function LiveBetsFeed() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setActiveTab('race')}
-                className={`min-w-[55px] h-5 px-1.5 py-0 text-[12px] font-semibold transition-all rounded whitespace-nowrap ${
+                className={`min-w-[55px] h-5 px-1.5 py-0 text-sm font-semibold transition-all rounded whitespace-nowrap ${
                   activeTab === 'race'
                     ? 'bg-purple-600 text-white hover:bg-purple-700'
                     : 'text-gray-400 hover:text-white hover:bg-[#2a2a2a]'
@@ -245,7 +245,7 @@ export function LiveBetsFeed() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         {position && (
-                          <span className={`text-[10px] font-bold ${
+                          <span className={`text-xs font-bold ${
                             position === 1 ? 'text-yellow-500' : 
                             position === 2 ? 'text-gray-400' : 
                             position === 3 ? 'text-orange-500' : 
@@ -254,23 +254,23 @@ export function LiveBetsFeed() {
                             #{position}
                           </span>
                         )}
-                        <span className="font-medium text-white text-[12px]">
+                        <span className="font-medium text-white text-base">
                           {isMyBet ? 'You' : bet.username}
                         </span>
                         {isMega && (
-                          <span className="px-2 py-0.5 text-[8px] font-bold bg-gradient-to-r from-yellow-500 to-yellow-400 text-black rounded-full animate-pulse">
+                          <span className="px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-yellow-500 to-yellow-400 text-black rounded-full animate-pulse">
                             MEGA WIN
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-gray-400 text-[12px]">
+                        <span className="text-gray-400 text-sm">
                           {bet.game}
                         </span>
                         {bet.multiplier && bet.multiplier > 0 && (
                           <>
-                            <span className="text-[8px] text-gray-500">•</span>
-                            <span className="font-semibold text-purple-400 text-[12px]">
+                            <span className="text-xs text-gray-500">•</span>
+                            <span className="font-semibold text-purple-400 text-sm">
                               {bet.multiplier.toFixed(2)}x
                             </span>
                           </>
@@ -280,11 +280,11 @@ export function LiveBetsFeed() {
                     <div className="text-right">
                       <div className="font-medium">
                         {bet.betAmount >= 1000 ? (
-                          <span className="text-yellow-500 text-[10px]">
+                          <span className="text-yellow-500 text-xs">
                             {formatCreditsCompact(bet.betAmount)}
                           </span>
                         ) : (
-                          <span className="text-white text-[12px]">
+                          <span className="text-white text-sm">
                             {bet.betAmount.toFixed(2)}
                           </span>
                         )}
@@ -293,8 +293,8 @@ export function LiveBetsFeed() {
                         <div className={`flex items-center gap-1 text-xs font-bold ${
                           isWin ? 'text-green-500' : 'text-red-500'
                         }`}>
-                          {isWin ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                          <span className="text-[12px]">{isWin ? '+' : ''}{formatCreditsCompact(bet.payout - bet.betAmount)}</span>
+                          {isWin ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                          <span className="text-sm">{isWin ? '+' : ''}{formatCreditsCompact(bet.payout - bet.betAmount)}</span>
                         </div>
                       )}
                     </div>
@@ -303,8 +303,8 @@ export function LiveBetsFeed() {
               })
             ) : (
               <div className="text-center py-8 text-gray-400">
-                <p className="text-[8px]">No bets yet</p>
-                <p className="text-[8px] mt-2">Be the first to place a bet!</p>
+                <p className="text-xs">No bets yet</p>
+                <p className="text-xs mt-2">Be the first to place a bet!</p>
               </div>
             )}
           </div>

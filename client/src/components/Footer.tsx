@@ -104,10 +104,10 @@ export default function Footer() {
             });
           }}
           style={{ fontFamily: 'inherit' }}
-          className="flex items-center gap-2 text-white hover:text-purple-500 transition-colors font-bold text-[12px] text-left"
+          className="flex items-center gap-2 text-white hover:text-purple-500 transition-colors font-bold text-base text-left"
           data-testid="button-live-support"
         >
-          {Icon && <Icon className="w-5 h-5" />}
+          {Icon && <Icon className="w-6 h-6" />}
           <span>{link.title}</span>
         </button>
       );
@@ -119,10 +119,10 @@ export default function Footer() {
           href={link.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 text-white hover:text-purple-500 transition-colors font-bold text-[12px] text-left"
+          className="flex items-center gap-2 text-white hover:text-purple-500 transition-colors font-bold text-base text-left"
           data-testid={`link-footer-${link.title.toLowerCase().replace(/\s+/g, '-')}`}
         >
-          {Icon && <Icon className="w-5 h-5" />}
+          {Icon && <Icon className="w-6 h-6" />}
           <span>{link.title}</span>
         </a>
       );
@@ -131,10 +131,10 @@ export default function Footer() {
     return (
       <Link 
         href={link.url || '#'}
-        className="flex items-center gap-2 text-white hover:text-purple-500 transition-colors font-bold text-[12px] text-left"
+        className="flex items-center gap-2 text-white hover:text-purple-500 transition-colors font-bold text-base text-left"
         data-testid={`link-footer-${link.title.toLowerCase().replace(/\s+/g, '-')}`}
       >
-        {Icon && <Icon className="w-5 h-5" />}
+        {Icon && <Icon className="w-6 h-6" />}
         <span>{link.title}</span>
       </Link>
     );
@@ -150,7 +150,7 @@ export default function Footer() {
             alt="MIRACLEZ Logo" 
             className="h-16 w-auto mb-4"
           />
-          <p className="text-gray-400 max-w-md font-medium text-[12px] text-center">
+          <p className="text-gray-400 max-w-md font-medium text-sm text-center">
             The ultimate online gaming experience with provably fair games and instant payouts.
           </p>
         </div>
@@ -159,7 +159,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 gap-x-16 gap-y-8 mb-8">
           {/* Support Section - Top Left */}
           <div>
-            <h3 className="text-white mb-4 bg-[transparent] text-left text-[13px] font-bold">Support</h3>
+            <h3 className="text-white mb-4 bg-[transparent] text-left text-lg font-bold">Support</h3>
             <div className="flex flex-col gap-1">
               {getLinksForSection('support').map((link, index) => (
                 <div key={index}>
@@ -171,7 +171,7 @@ export default function Footer() {
 
           {/* Platform Section - Top Right */}
           <div>
-            <h3 className="text-white mb-4 text-left text-[13px] font-bold">Platform</h3>
+            <h3 className="text-white mb-4 text-left text-lg font-bold">Platform</h3>
             <div className="flex flex-col gap-1">
               {getLinksForSection('platform').map((link, index) => (
                 <div key={index}>
@@ -183,7 +183,7 @@ export default function Footer() {
 
           {/* Policy Section - Bottom Left */}
           <div>
-            <h3 className="text-white mb-4 text-left text-[13px] font-bold">Policy</h3>
+            <h3 className="text-white mb-4 text-left text-lg font-bold">Policy</h3>
             <div className="flex flex-col gap-1">
               {getLinksForSection('policy').map((link, index) => (
                 <div key={index}>
@@ -195,7 +195,7 @@ export default function Footer() {
 
           {/* Community Section - Bottom Right */}
           <div>
-            <h3 className="text-white mb-4 text-left text-[13px] font-bold">Community</h3>
+            <h3 className="text-white mb-4 text-left text-lg font-bold">Community</h3>
             <div className="flex flex-col gap-1">
               {getLinksForSection('community').map((link, index) => (
                 <div key={index}>
@@ -215,7 +215,7 @@ export default function Footer() {
             className="hover:opacity-80 transition-opacity"
             data-testid="link-social-facebook"
           >
-            <img src={fbIcon} alt="Facebook" className="w-10 h-10" />
+            <img src={fbIcon} alt="Facebook" className="w-12 h-12" />
           </a>
           <a 
             href="https://instagram.com/miraclez" 
@@ -224,7 +224,7 @@ export default function Footer() {
             className="hover:opacity-80 transition-opacity"
             data-testid="link-social-instagram"
           >
-            <img src={instaIcon} alt="Instagram" className="w-10 h-10" />
+            <img src={instaIcon} alt="Instagram" className="w-12 h-12" />
           </a>
           <a 
             href="https://t.me/miraclez" 
@@ -233,7 +233,7 @@ export default function Footer() {
             className="hover:opacity-80 transition-opacity"
             data-testid="link-social-telegram"
           >
-            <img src={tgIcon} alt="Telegram" className="w-10 h-10" />
+            <img src={tgIcon} alt="Telegram" className="w-12 h-12" />
           </a>
           <a 
             href="https://wa.me/miraclez" 
@@ -242,7 +242,7 @@ export default function Footer() {
             className="hover:opacity-80 transition-opacity"
             data-testid="link-social-whatsapp"
           >
-            <img src={waIcon} alt="WhatsApp" className="w-10 h-10" />
+            <img src={waIcon} alt="WhatsApp" className="w-12 h-12" />
           </a>
           <a 
             href="https://twitter.com/miraclez" 
@@ -251,17 +251,17 @@ export default function Footer() {
             className="hover:opacity-80 transition-opacity"
             data-testid="link-social-x"
           >
-            <img src={xIcon} alt="X (Twitter)" className="w-10 h-10" />
+            <img src={xIcon} alt="X (Twitter)" className="w-12 h-12" />
           </a>
         </div>
 
         {/* Disclaimer */}
         <div className="border-t border-gray-700 pt-8 mt-8">
-          <p className="text-gray-400 text-center mb-4 text-[12px]">
+          <p className="text-gray-400 text-center mb-4 text-sm">
             NO PURCHASE IS NECESSARY to play. PROMOTIONS ARE VOID WHERE PROHIBITED BY LAW. To see detailed rules, refer to Terms of Use and our Sweepstakes Rules. Miraclez is a play-for-fun website intended for amusement purposes only. Miraclez does not offer "real-money gambling." Miraclez is a Social Gaming Platform and is only open to Eligible Participants, who at at least eighteen (18) years old or the age of majority in their jurisdiction (whichever occurs later) at the time of entry.
           </p>
           <div className="text-center">
-            <p className="text-gray-400 font-medium text-[12px]">
+            <p className="text-gray-400 font-medium text-sm">
               © {new Date().getFullYear()} MIRACLEZ. All rights reserved.
             </p>
           </div>
