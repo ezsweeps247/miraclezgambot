@@ -106,6 +106,33 @@ Miraclez Gaming is a comprehensive online casino platform built as a Telegram We
 - Comprehensive betting options
 - Real-time spin physics
 
+### 🏰 **Tower Defense**
+- Strategic tower placement
+- Wave-based enemy progression
+- Multiple tower types and upgrades
+- Path-finding AI enemies
+- Real-time strategy gameplay
+- Escalating difficulty
+- RTP: 97.5%
+
+### 🧩 **Fundora Blox**
+- Physics-based block stacking
+- Prize level progression system
+- Perfect placement multipliers
+- Real-time difficulty scaling
+- Skill-based gameplay
+- Cash out at any time
+- RTP: 98.5%
+
+### 🎮 **Enigma (Puzzle Game)**
+- **FREE TO PLAY** - No betting required!
+- Marble physics puzzle mechanics
+- Oxyd stone matching challenges
+- 5 progressive difficulty levels
+- Relaxing puzzle gameplay
+- Brain-teasing mechanics
+- Perfect for casual play
+
 ## 💎 Key Features
 
 ### 🔐 **Provably Fair System**
