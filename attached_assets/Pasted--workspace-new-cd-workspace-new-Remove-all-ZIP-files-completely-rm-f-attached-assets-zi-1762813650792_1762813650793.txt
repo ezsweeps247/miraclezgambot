@@ -1,0 +1,35 @@
+~/workspace_new$ cd ~/workspace_new
+
+# Remove all ZIP files completely
+rm -f attached_assets/*.zip
+git add -A
+git commit -m "Remove all ZIP files"
+git push origin main
+On branch main
+Your branch is ahead of 'origin/main' by 3 commits.
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean
+Git LFS upload missing objects:3), 0 B | 0 B/s                                                                                                             
+  (missing) attached_assets/ezsweeps247-Fundora-Blox-main (1)_1761605004477.zip (59f1b36d0f896d1ddd3c34ea32062899853a0f51d4516d66f50cc22cf393327d)
+  (missing) attached_assets/ezsweeps247-Fundora-Blox-main_1761587657851.zip (58d2af773d85b82b9a33c9a9ce6a5a88f11f421d4f644d822b0afeb2927ce7d8)
+  (missing) attached_assets/ezsweeps247-Fundora-Blox-main_1761432664101.zip (4467e6faa900eb2e185f5eff032ab0fac07a08ded8b39eb06a66df3d2d05e101)
+Uploading LFS objects:   0% (0/3), 0 B | 0 B/s, done.
+Enumerating objects: 22, done.
+Counting objects: 100% (22/22), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (16/16), done.
+Writing objects: 100% (16/16), 18.26 KiB | 18.26 MiB/s, done.
+Total 16 (delta 8), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (8/8), completed with 3 local objects.
+remote: This repository moved. Please use the new location:
+remote:   https://github.com/ezsweeps247/miraclezgambot.git
+remote: error: GH008: Your push referenced at least 3 unknown Git LFS objects:
+remote:     59f1b36d0f896d1ddd3c34ea32062899853a0f51d4516d66f50cc22cf393327d
+remote:     4467e6faa900eb2e185f5eff032ab0fac07a08ded8b39eb06a66df3d2d05e101
+remote:     58d2af773d85b82b9a33c9a9ce6a5a88f11f421d4f644d822b0afeb2927ce7d8
+remote: Try to push them with 'git lfs push --all'.
+To https://github.com/ezsweeps247/MiraclezGamBot.git
+ ! [remote rejected] main -> main (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/ezsweeps247/MiraclezGamBot.git'
+~/workspace_new$ 

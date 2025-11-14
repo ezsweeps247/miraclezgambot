@@ -1,0 +1,134 @@
+import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import crypto from "crypto";
+import db from "./db.js";
+import { roll, sha256 } from "./provablyFair.js";
+import type { User, Seed } from "./types.js";
+
+const app = express();
+app.use(express.json());
+app.use(helmet());
+app.use(cors());
+
+/* Helpers */
+const getUser = (id = 1): User => db.prepare("SELECT * FROM users WHERE id=?").get(id);
+const getActiveSeed = (): Seed => db.prepare("SELECT * FROM seeds WHERE active=1").get();
+const getUserNonceForActiveSeed = (userId = 1) => {
+  const active = getActiveSeed();
+  const r = db.prepare("SELECT COUNT(*) as c FROM bets WHERE user_id=? AND server_seed_hash=?")
+    .get(userId, active.server_seed_hash) as { c: number };
+  return r.c;
+};
+
+// Initialize 1 active seed if none
+(() => {
+  const active = getActiveSeed();
+  if (!active) {
+    const serverSeed = crypto.randomBytes(32).toString("hex");
+    const serverSeedHash = sha256(serverSeed);
+    db.prepare("INSERT INTO seeds(server_seed, server_seed_hash, active) VALUES(?,?,1)").run(serverSeed, serverSeedHash);
+  }
+})();
+
+/* Routes */
+
+// Me (balance)
+app.get("/api/users/me", (req, res) => {
+  const me = getUser(1);
+  res.json({ balance: me.balance });
+});
+
+// Current seed, client seed, and next nonce (for this user)
+app.get("/api/seeds/current", (req, res) => {
+  const me = getUser(1);
+  const active = getActiveSeed();
+  const nonce = getUserNonceForActiveSeed(1);
+  res.json({ serverSeedHash: active.server_seed_hash, clientSeed: me.client_seed, nonce });
+});
+
+// Update client seed
+app.post("/api/seeds/client", (req, res) => {
+  const { clientSeed } = req.body as { clientSeed?: string };
+  if (!clientSeed || typeof clientSeed !== "string" || clientSeed.length < 1) {
+    return res.status(400).send("clientSeed required");
+  }
+  db.prepare("UPDATE users SET client_seed=? WHERE id=1").run(clientSeed);
+  res.json({ ok: true });
+});
+
+// Rotate server seed: reveal the previous one (bets remain tied by hash)
+app.post("/api/seeds/rotate", (req, res) => {
+  const current = getActiveSeed();
+  if (!current) return res.status(500).send("no active seed");
+
+  // deactivate current, keep its server_seed (revealed for verification)
+  db.prepare("UPDATE seeds SET active=0 WHERE id=?").run(current.id);
+
+  // create new active
+  const serverSeed = crypto.randomBytes(32).toString("hex");
+  const serverSeedHash = sha256(serverSeed);
+  db.prepare("INSERT INTO seeds(server_seed, server_seed_hash, active) VALUES(?,?,1)")
+    .run(serverSeed, serverSeedHash);
+
+  // store revealed seed on past bets for convenience
+  db.prepare("UPDATE bets SET server_seed_revealed=? WHERE server_seed_hash=? AND server_seed_revealed IS NULL")
+    .run(current.server_seed, current.server_seed_hash);
+
+  res.json({ revealed: { serverSeed: current.server_seed, serverSeedHash: current.server_seed_hash }, newHash: serverSeedHash });
+});
+
+// Verify tool (stateless)
+app.post("/api/seeds/verify", (req, res) => {
+  const { serverSeed, clientSeed, nonce } = req.body as { serverSeed: string; clientSeed: string; nonce: number };
+  if (!serverSeed || clientSeed === undefined || nonce === undefined) return res.status(400).send("missing fields");
+  const multiplier = roll(serverSeed, clientSeed, Number(nonce));
+  res.json({ multiplier });
+});
+
+// Place one bet (manual/autobet uses this endpoint repeatedly)
+app.post("/api/bets/roll", (req, res) => {
+  const { amount, targetMultiplier } = req.body as { amount: number; targetMultiplier: number };
+  if (typeof amount !== "number" || amount <= 0) return res.status(400).send("invalid amount");
+  if (typeof targetMultiplier !== "number" || targetMultiplier < 1.01) return res.status(400).send("invalid multiplier");
+
+  const user = getUser(1);
+  if (user.balance < amount) return res.status(400).send("Insufficient balance");
+
+  const seed = getActiveSeed();
+  const nonce = getUserNonceForActiveSeed(1);
+  const hit = roll(seed.server_seed, user.client_seed, nonce, 1.0);
+  const won = Number(hit >= targetMultiplier) as 0 | 1;
+  const profit = won ? amount * targetMultiplier - amount : -amount;
+
+  const tx = db.transaction(() => {
+    db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(profit);
+    db.prepare(`INSERT INTO bets (user_id, amount, target_multiplier, chance, hit_multiplier, win, profit,
+      server_seed_hash, client_seed, nonce)
+      VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .run(amount, targetMultiplier, (99 / targetMultiplier), hit, won, profit, seed.server_seed_hash, user.client_seed, nonce);
+  });
+  tx();
+
+  const balance = getUser(1).balance;
+
+  res.json({
+    hitMultiplier: hit,
+    win: won,
+    profit,
+    balance,
+    serverSeedHash: seed.server_seed_hash,
+    clientSeed: user.client_seed,
+    nonce
+  });
+});
+
+// Bets history
+app.get("/api/bets/history", (req, res) => {
+  const limit = Math.max(1, Math.min(200, Number(req.query.limit ?? 50)));
+  const rows = db.prepare("SELECT * FROM bets WHERE user_id=1 ORDER BY id DESC LIMIT ?").all(limit);
+  res.json(rows);
+});
+
+const PORT = 3001;
+app.listen(PORT, () => console.log(`API on http://localhost:${PORT}`));

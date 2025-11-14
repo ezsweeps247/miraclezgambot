@@ -1,0 +1,268 @@
+Prompt for Replit
+
+Role: You are a senior full-stack engineer. Build a production-ready Telegram Casino MVP similar in spirit to bc.game (do not copy their branding), featuring user authentication and core games: Slots, Dice, Crash. Use TypeScript throughout.
+
+Tech stack & project shape
+
+Runtime: Node 20+, TypeScript, pnpm
+
+Bot: node-telegram-bot-api with webhook in prod and polling fallback in dev
+
+Server: Express (JSON API + static hosting for Mini App)
+
+Mini App (Telegram WebApp): Vite + React + Tailwind (simple responsive UI)
+
+DB/ORM: Postgres + Drizzle ORM + drizzle-kit migrations
+
+Realtime: WebSocket (ws) or Server-Sent Events for Crash
+
+Auth: Telegram WebApp initData verification → short-lived JWT for API; bot links chat_id ↔ user
+
+Provably fair: HMAC-SHA256 (serverSeed, ${clientSeed}:${nonce}) for RNG; public verify page
+
+Testing: Vitest for key math + API units
+
+Lint/format: ESLint + Prettier
+
+Deliverables
+
+Full monorepo or single app repo with folders:
+
+/src
+  /bot
+  /server
+  /miniapp
+  /games
+  /db
+  /utils
+/drizzle
+/public (provably-fair docs/verify page)
+
+
+Scripts in package.json:
+
+dev (concurrently run bot, server, miniapp)
+
+build (typecheck + transpile + miniapp build)
+
+start (serve Express + bot webhook)
+
+migrate (drizzle-kit up)
+
+seed (dev demo data)
+
+drizzle.config.ts, migrations, and a seeded admin user.
+
+.env.example with:
+
+TELEGRAM_BOT_TOKEN=
+
+WEBHOOK_URL= (use if present; else polling)
+
+DATABASE_URL= (Postgres)
+
+JWT_SECRET=
+
+HOUSE_EDGE_DICE=0.01
+
+HOUSE_EDGE_SLOTS=0.03
+
+HOUSE_EDGE_CRASH=0.01
+
+SERVER_SEED_ROTATION_DAYS=1
+
+README.md with setup/run steps and provably-fair explanation.
+
+Database schema (Drizzle)
+
+Create normalized tables and relations:
+
+users (id, telegram_id unique, username, created_at)
+
+sessions (id, user_id fk, jwt_id, expires_at)
+
+balances (user_id pk, available bigint, locked bigint, currency text default "CREDITS")
+
+transactions (id, user_id, type: DEPOSIT|WITHDRAW|BET|PAYOUT|REFUND, amount, meta jsonb, created_at)
+
+server_seeds (id, hash, revealed_seed nullable, active boolean, created_at, rotated_at)
+
+client_seeds (id, user_id, seed text, created_at)
+
+bets (id, user_id, game: DICE|SLOTS|CRASH, amount, result enum WIN|LOSE|CASHED, profit bigint, created_at, nonce int, server_seed_id)
+
+dice_bets (bet_id fk, side: UNDER|OVER, target decimal, roll decimal, payout_multiplier decimal)
+
+slot_spins (bet_id fk, reels jsonb, paylines_hit int, payout bigint)
+
+crash_rounds (id, server_seed_id, hash, start_at, end_at, crash_point decimal, status: PENDING|RUNNING|ENDED)
+
+crash_cashes (id, round_id fk, user_id fk, cashout_multiplier decimal, amount bigint, profit bigint, created_at)
+
+Auth & user flows
+
+Bot /start: create or fetch user by from.id, show buttons: Open Casino, Balance, Free Credits (dev).
+
+Mini App launch:
+
+Verify Telegram initData per docs, then mint JWT (httpOnly cookie).
+
+Expose minimal endpoints: /api/me, /api/balance, /api/transactions, /api/provably-fair/*.
+
+Admin guard (feature-flagged route) to credit/debit users in dev.
+
+Provably Fair (must implement end-to-end)
+
+RNG: hmac = HMAC_SHA256(serverSeed, clientSeed + ":" + nonce).
+
+Convert hmac to a fair decimal in [0,1).
+
+Dice roll = floor(value * 10000) / 100 (two decimals 0.00–99.99).
+
+Slots/Crash also derive from the same PRNG stream (document how).
+
+Store server_seeds.hash (SHA256(serverSeed)) before use; reveal serverSeed once rotated or at end of crash round.
+
+API:
+
+GET /api/provably-fair/current → current hash, user clientSeed, user nextNonce
+
+POST /api/provably-fair/client-seed → set clientSeed
+
+GET /api/provably-fair/verify?serverSeed=&clientSeed=&nonce=&game= → recompute and return raw values
+
+Static /verify page showing how to check a bet with copy-paste fields.
+
+Game specs (MVP)
+
+Balances & betting
+
+Credits = integer (cents). All math in integers; format for UI.
+
+Validate bet amount ≥ min and ≤ user balance; lock funds during round; record transactions.
+
+Dice
+
+Inputs: amount, side (UNDER/OVER), target (e.g., 2.00–98.00).
+
+Roll from RNG.
+
+Payout multiplier ≈ (1 - houseEdge) * (100 / target) for UNDER; for OVER use (100 / (100 - target)).
+
+Return: roll, win/lose, profit (can be negative).
+
+Slots (5×3)
+
+Define symbol weights and simple paytable (e.g., 10 lines).
+
+RNG picks symbols per reel using weighted distribution.
+
+Evaluate paylines, sum payouts; house edge ≈ 3% target via paytable.
+
+Return: grid, lines hit, payout.
+
+Crash
+
+Round engine runs every N seconds:
+
+Status: WAITING → RUNNING → ENDED
+
+Multiplier increases smoothly on client; actual crash point derived from RNG + house edge.
+
+Users place bets during WAITING and may cash out during RUNNING.
+
+When crash happens, compute profits: profit = bet * (cashoutMultiplier - 1) if cashed; else lose.
+
+Provide websocket channel:
+
+state events (round id, status, time left),
+
+tick multiplier,
+
+ended with crash point and seed reveal (or reveal via separate endpoint tied to round).
+
+API endpoints (JWT-protected unless noted)
+
+GET /api/me → user profile
+
+GET /api/balance
+
+POST /api/deposit/dev (dev only) → credit demo funds
+
+Dice: POST /api/games/dice/bet { amount, side, target }
+
+Slots: POST /api/games/slots/spin { amount }
+
+Crash:
+
+POST /api/games/crash/bet { amount, roundId }
+
+POST /api/games/crash/cashout { roundId }
+
+GET /api/games/crash/state (http fallback)
+
+WS /ws/crash for realtime
+
+Provably fair: as above
+
+Admin (dev): POST /api/admin/credit { userId, amount }
+
+Mini App UI (React + Tailwind)
+
+Tabs: Home, Dice, Slots, Crash, Wallet
+
+Show balance, last 10 bets, simple toasts.
+
+Dice: slider for target, toggle over/under, amount input, bet button.
+
+Slots: spin button, animate reels (CSS), pop up line wins.
+
+Crash: join/leave bet panel, big multiplier display, cashout button.
+
+Provably-Fair modal linking to /verify.
+
+Bot UX (node-telegram-bot-api)
+
+Commands: /start, /balance, /free (dev only)
+
+Inline keyboard: Open Casino (WebApp), How fairness works (link)
+
+Graceful errors, rate limiting (per-user).
+
+Security & reliability
+
+Input validation with zod.
+
+Use crypto for HMAC/sha256.
+
+Integer math for currency; no floats in DB.
+
+Basic IP allow/deny stubs (for future geofencing/KYC).
+
+Error logging with pino; request logging middleware.
+
+Tests for:
+
+RNG determinism given seeds/nonce
+
+Dice payout math edge cases
+
+Crash round settlement correctness
+
+Slots payline evaluator
+
+Setup & run
+
+On dev: pnpm migrate && pnpm seed && pnpm dev
+
+On start, if WEBHOOK_URL is set, set webhook; else start polling.
+
+Provide a ready-to-use dockerfile (optional) and Replit run command.
+
+Notes & compliance
+
+This is a technical MVP for demonstration. Do not ship without proper KYC/AML, responsible-gaming, geofencing, and local law compliance. Include clear TODO comments where these hooks would go.
+
+Now implement everything above and return the complete repository with code, migrations, and README.
+
+If you want, I can also spin this into a slimmer “Dice-only first” prompt or tailor it to your existing Neon/Railway/Drizzle setup.

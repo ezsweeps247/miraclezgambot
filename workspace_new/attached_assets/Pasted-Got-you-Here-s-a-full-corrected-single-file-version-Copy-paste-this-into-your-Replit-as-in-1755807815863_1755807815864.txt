@@ -1,0 +1,696 @@
+Got you. Here’s a **full, corrected, single-file** version.
+Copy-paste this into your Replit as `index.html` (no other files needed) and hit **Run**.
+
+> Notes:
+>
+> * Branding shows **WELCOME TO Miraclez DICE**.
+> * Currency is **CREDITS**, min bet **1**, max **100**.
+> * RTP is **96%** (house edge 4%) and multipliers are derived from true 2-dice odds.
+> * Full **provably-fair** (server seed hash commit, client seed, nonce, offline verifier).
+> * **ROLL** shakes twice with sound, dice land, history updates.
+> * **TAKE**/**RISK** double-or-some mechanics (pick 3 faces; risk pays 1.92× of win).
+> * **AUTO-PLAY** panel + floating stats.
+> * Small partner tag where “BGAMING” was—defaults to text “MIRACLEZ”. If you want to use your actual logo, change `PARTNER_BADGE_MODE` to `"image"` and paste a data-URI into `PARTNER_BADGE_DATA_URI`.
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Miraclez Dice</title>
+<style>
+  :root{
+    --bg0:#0f1216; --bg1:#13171d; --bg2:#1a1f27; --bg3:#222936;
+    --text:#e8edf3; --muted:#95a1b2; --accent:#ffd43b; --accent2:#ffe08a;
+    --green:#1fd178; --red:#ff5a69; --panel:#0e1116cc;
+    --brand:#ffd43b; --brandText:#111;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; color:var(--text); font:16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+    background: radial-gradient(1200px 600px at 75% 60%, #1a222d 0%, #11151c 55%, #0b0f14 100%) no-repeat fixed;
+    overflow:hidden;
+  }
+  .app{ position:relative; height:100%; width:100%; display:grid; grid-template-columns: 480px 1fr; grid-template-rows: 1fr; }
+
+  /* ---------- LEFT PANE ---------- */
+  .left{
+    border-right:1px solid #1d2430; padding:28px 24px 18px 28px;
+    background: linear-gradient(180deg, #0d1015 0%, #0b0e12 100%);
+  }
+  .welcome{ margin-top:10px; letter-spacing:0.28em; color:#b7c3d6; font-weight:700; }
+  .brandRow{ display:flex; align-items:center; gap:16px; margin:12px 0 22px 0;}
+  .brandTitle{ font-size:40px; font-weight:800; letter-spacing:.02em; display:flex; align-items:center; gap:10px; }
+  .brandBadge{ display:inline-flex; align-items:center; gap:6px; padding:2px 6px; border-radius:4px; background:var(--brand); color:var(--brandText); font-size:14px; font-weight:800; letter-spacing:.12em; }
+  .partnerTag{ display:inline-flex; padding:2px 6px; border:1px solid #323b49; border-radius:3px; font-size:10px; color:#cbd6e6; letter-spacing:.28em; align-items:center; gap:6px; }
+  .partnerTag img{ height:12px; width:auto; display:block; filter:grayscale(100%) brightness(1.4);}
+
+  .history{ margin-top:18px; border-top:1px solid #1f2732; }
+  .historyHeader, .historyRow{ display:grid; grid-template-columns: 90px 90px 110px 70px 1fr; column-gap:12px; align-items:center; }
+  .historyHeader{ color:#8b99ad; font-size:12px; padding:10px 6px;}
+  .historyBody{ max-height:68vh; overflow:auto;}
+  .historyRow{ padding:10px 6px; border-bottom:1px solid #171e29; font-weight:600}
+  .profitPlus{ color:var(--green)}
+  .profitMinus{ color:var(--red)}
+  .gameTag{ color:#cdd7e6; font-weight:700}
+
+  /* ---------- RIGHT PANE ---------- */
+  .right{ position:relative; padding:28px 28px 22px 28px; overflow:hidden;}
+  .topControls{ position:absolute; right:18px; top:16px; display:flex; gap:10px; opacity:.9}
+  .iconBtn{ width:34px; height:34px; border:1px solid #2a3342; border-radius:50%; display:grid; place-items:center; color:#c4cfde; cursor:pointer; background:#0e131a88; backdrop-filter: blur(6px); }
+  .iconBtn:hover{ border-color:#3a4557}
+
+  .ovun{ position:absolute; right:280px; top:46px; display:flex; flex-direction:column; gap:10px; }
+  .ovun button{ font-weight:800; letter-spacing:.08em; border-radius:10px; border:none; cursor:pointer; padding:12px 22px; }
+  .ovun .over{ background:#595f67; color:#0f1115}
+  .ovun .under{ background:#f2f2f2; color:#0c0e13}
+
+  .targetBox{ position:absolute; right:178px; top:38px; width:110px; height:110px; border-radius:22px; display:grid; place-items:center; background:#0a0f15; box-shadow: inset 0 0 0 1px #2a3240; }
+  .targetBox .big{ font-size:64px; color:#ffcf3e; font-weight:900}
+  .arrows{ position:absolute; right:106px; top:56px; display:flex; flex-direction:column; gap:12px;}
+  .arrowBtn{ width:64px; height:48px; border-radius:10px; background:#3e4652; display:grid; place-items:center; color:white; font-size:22px; cursor:pointer; border:none; }
+
+  .multWrap{ position:absolute; right:178px; top:160px; text-align:center; }
+  .muted{ color:#9eb0c7; font-size:13px;}
+  .mult{ font-size:22px; font-weight:900; margin-top:4px}
+
+  /* Dice table scene */
+  .tableScene{ position:absolute; right:40px; bottom:140px; width:640px; height:340px; pointer-events:none;}
+  .cup{
+    position:absolute; right:0; bottom:0; width:260px; height:260px; transform: rotate(30deg);
+    background: radial-gradient(110px 140px at 60% 60%, #667385 0%, #3c4757 55%, #2e3745 65%, #151b24 100%);
+    border-radius: 18px 18px 100% 100% / 18px 18px 60% 60%;
+    filter: drop-shadow(-10px 20px 14px rgba(0,0,0,.35));
+  }
+  .dice{
+    --x:60px; --y:40px; --r:0deg;
+    position:absolute; width:84px; height:84px; border-radius:14px;
+    background:#ffcc2e; display:grid; place-items:center; transform: translate(var(--x),var(--y)) rotate(var(--r));
+    box-shadow: 0 10px 18px rgba(0,0,0,.45);
+  }
+  .pip{ width:14px; height:14px; border-radius:50%; background:#111; }
+  .pipRow{ display:flex; gap:12px }
+  .hide{ display:none !important }
+  .shake{ animation:shake .7s ease-in-out 2 }
+  @keyframes shake{
+    0%{ transform:translate(0,0) rotate(0deg) }
+    25%{ transform:translate(6px,-4px) rotate(-8deg) }
+    50%{ transform:translate(-4px,6px) rotate(8deg) }
+    75%{ transform:translate(5px,-3px) rotate(-6deg) }
+    100%{ transform:translate(0,0) rotate(0deg) }
+  }
+
+  /* Bottom controls */
+  .bottomBar{
+    position:absolute; left:0; right:0; bottom:0; height:110px; border-top:1px solid #1c2330; display:flex; align-items:center; padding:12px 20px; gap:18px; background:linear-gradient(180deg,#0e1218 0%,#0b0f14 100%);
+  }
+  .balance{ color:#b8c6d9; font-weight:700}
+  .flex{ display:flex; align-items:center; gap:12px}
+  .btnRound{ width:72px; height:72px; border-radius:50%; background:#0f151d; border:2px solid #283245; display:grid; place-items:center; cursor:pointer; transition:.2s; }
+  .btnRound.active, .btnRound:hover{ border-color:#3d4a61; box-shadow:0 0 0 3px #0a0f16, 0 0 24px rgba(255,255,255,.05)}
+  .btnPrimary{ width:86px; height:86px; border-radius:50%; background:#f5f6f8; color:#0b0f14; display:grid; place-items:center; font-weight:900; cursor:pointer; border:none; box-shadow: 0 10px 24px rgba(0,0,0,.45); }
+  .betCtrl{ margin-left:auto; display:flex; align-items:center; gap:10px; color:#c9d4e6; font-weight:800; }
+  .mini{ padding:8px 12px; border:1px solid #394559; border-radius:8px; cursor:pointer; background:#0f141b; color:#d3ddef}
+  .numbox{ display:flex; align-items:center; gap:8px; background:#0f141b; border:1px solid #3b475b; border-radius:10px; padding:8px 12px;}
+  .num{ width:120px; text-align:center; padding:8px 0; font-weight:900; font-size:18px; background:transparent; border:none; color:#e9f2ff}
+  .pm{ width:36px; height:36px; border-radius:8px; background:#232b38; border:none; color:#e7eefb; font-size:18px; cursor:pointer }
+  .caps{ text-transform:uppercase; letter-spacing:.18em;}
+  .green{ color:var(--green) }
+  .yellow{ color:#ffcf3e }
+  .muterow{ position:absolute; left:14px; bottom:86px; font-size:12px; color:#9db0c8; opacity:.9}
+
+  /* ---------- Modals ---------- */
+  .modal{ position:fixed; inset:0; display:none; place-items:center; background:rgba(7,10,14,.66); backdrop-filter: blur(4px); z-index:9; }
+  .modal.show{ display:grid }
+  .card{ width:min(880px,92vw); background:#10151d; border:1px solid #273142; border-radius:16px; padding:18px 18px 22px 18px; box-shadow:0 20px 60px rgba(0,0,0,.55)}
+  .card h2{ margin:8px 0 10px 0}
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  .field{ display:flex; gap:8px; align-items:center; margin:8px 0}
+  .field input{ width:100%; padding:10px 12px; border-radius:10px; border:1px solid #334055; background:#0f141c; color:#eaf2ff; font-weight:700}
+  .btn{ padding:10px 14px; border-radius:10px; border:1px solid #3a465a; background:#151c26; color:#e6eefc; cursor:pointer; font-weight:800}
+  .btn.brand{ background:var(--brand); color:#111; border-color:#d9b200}
+  .btn.ghost{ background:transparent}
+  .small{ font-size:12px; color:#9fb1c8}
+
+  /* ---------- Risk screen ---------- */
+  .riskScreen{
+    position:absolute; inset:0; display:none; grid-template-columns: 1fr 1fr; gap:10px;
+    background: radial-gradient(1600px 600px at 80% 40%, #611313 0%, #281313 65%, #140909 100%) ;
+    z-index:5; padding:26px;
+  }
+  .riskScreen.show{ display:grid }
+  .riskGrid{ display:grid; grid-template-columns: repeat(3,102px); grid-template-rows: repeat(2,102px); gap:18px }
+  .riskDie{
+    width:102px; height:102px; display:grid; place-items:center; border-radius:14px; background:#ffcf3e; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,.4);
+    outline:4px solid transparent; transition:.12s;
+  }
+  .riskDie.sel{ outline:4px solid #fff }
+  .prevRow{ display:flex; gap:10px; margin-top:12px}
+  .chip{ width:40px; height:40px; border-radius:8px; background:#ffcf3e; display:grid; place-items:center; color:#111; font-weight:900}
+  .riskButtons{ display:flex; gap:12px; align-items:center; margin-top:16px}
+  .ghostBadge{ padding:10px 14px; border-radius:10px; background:#ffe08933; color:#ffe089; border:1px solid #725f23}
+  .takeBtn{ padding:12px 18px; border-radius:14px; background:#f5f6f8; color:#111; font-weight:900; cursor:pointer}
+  .rollBtn{ padding:12px 18px; border-radius:14px; background:#111; color:#fff; font-weight:900; border:2px solid #fff; cursor:pointer}
+
+  /* ---------- Autoplay panel ---------- */
+  .autoPanel{
+    position:absolute; right:24px; top:86px; width:380px; background:#0c1219ee; border:1px solid #2b3546; border-radius:16px; padding:16px; display:none; z-index:6;
+  }
+  .autoPanel.show{ display:block }
+  .row{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:10px 0}
+  .sw{ display:flex; align-items:center; gap:8px}
+  .switch input{ appearance:none; width:44px; height:26px; border-radius:40px; background:#2b3546; position:relative; cursor:pointer}
+  .switch input:checked{ background:#2f7bff}
+  .switch input::after{ content:""; position:absolute; left:4px; top:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:.18s}
+  .switch input:checked::after{ left:20px}
+  .numbox.small .num{ width:80px}
+  .autoStats{ position:absolute; right:120px; bottom:140px; background:#101723dd; border:1px solid #2f3a4b; border-radius:12px; padding:12px 14px; display:none; z-index:3; }
+  .autoStats.show{ display:block }
+  .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="welcome caps">WELCOME TO</div>
+    <div class="brandRow">
+      <div class="brandTitle">Miraclez <span class="brandBadge">DICE</span></div>
+      <!-- Partner tag (replaces tiny BGAMING mark). To use your image, set PARTNER_BADGE_MODE='image' below. -->
+      <div class="partnerTag" title="Partner"><span>MIRACLEZ</span></div>
+    </div>
+
+    <div class="history">
+      <div class="historyHeader">
+        <div>Bet</div><div>Multiplier</div><div>Game</div><div>Roll</div><div>Profit (CREDITS)</div>
+      </div>
+      <div id="historyBody" class="historyBody"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="topControls">
+      <div class="iconBtn" id="pfBtn" title="Provably fair & verify">?</div>
+      <div class="iconBtn" id="muteBtn" title="Sound on/off">🔊</div>
+      <div class="iconBtn" id="undoBtn" title="Last 10 results">↺</div>
+    </div>
+
+    <div class="ovun">
+      <button id="btnOver" class="over">OVER</button>
+      <button id="btnUnder" class="under">UNDER</button>
+    </div>
+    <div class="targetBox"><div id="targetVal" class="big">6</div></div>
+    <div class="arrows">
+      <button id="btnUp" class="arrowBtn">▲</button>
+      <button id="btnDown" class="arrowBtn">▼</button>
+    </div>
+    <div class="multWrap">
+      <div class="muted">Multiplier</div>
+      <div id="multNum" class="mult">1.68x</div>
+    </div>
+
+    <!-- Dice table and cup -->
+    <div class="tableScene">
+      <div id="dieA" class="dice" style="--x:180px;--y:80px;--r:12deg"></div>
+      <div id="dieB" class="dice" style="--x:280px;--y:140px;--r:-18deg"></div>
+      <div id="cup" class="cup"></div>
+    </div>
+
+    <!-- Risk screen -->
+    <div id="riskScreen" class="riskScreen">
+      <div>
+        <div style="font-size:70px;font-weight:900;letter-spacing:.02em">RISK</div>
+        <div class="small">Take your chance to boost your latest win<br/>Choose <b>three numbers</b> and click the Roll button</div>
+
+        <div class="riskGrid" id="riskGrid"></div>
+        <div style="margin-top:12px" class="small">Previous rolls:</div>
+        <div id="riskPrev" class="prevRow"></div>
+
+        <div class="riskButtons">
+          <button class="btn ghost" id="riskRepeat">REPEAT</button>
+          <button class="btn ghost" id="riskInvert">INVERT</button>
+          <button class="btn ghost" id="riskEven">EVEN</button>
+          <button class="btn ghost" id="riskOdd">ODD</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between">
+        <div class="brandTitle" style="opacity:.9">Miraclez <span class="brandBadge">DICE</span></div>
+        <div>
+          <div class="muted">TAKE</div>
+          <div id="riskTakeAmt" style="font-size:32px;font-weight:900">0 CREDITS</div>
+          <div class="muted" style="margin-top:12px">YOU CAN WIN</div>
+          <div id="riskWinAmt" style="font-size:32px;font-weight:900">0 CREDITS</div>
+          <div class="riskButtons" style="justify-content:flex-end">
+            <button id="riskTake" class="takeBtn">TAKE</button>
+            <button id="riskRoll" class="rollBtn">ROLL</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Autoplay floating stats -->
+    <div id="autoStats" class="autoStats mono small">
+      <div><b>Autoplay stats:</b></div>
+      <div>Bets: <span id="asBets">0</span></div>
+      <div>Profit: <span id="asProfit">0</span> C</div>
+      <div>Max Win: <span id="asMaxWin">0</span> C</div>
+      <div>Max Lose: <span id="asMaxLose">0</span> C</div>
+    </div>
+
+    <!-- Autoplay panel -->
+    <div id="autoPanel" class="autoPanel">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="font-weight:900;letter-spacing:.08em">AUTO-PLAY</div>
+        <button id="autoClose" class="btn">Close</button>
+      </div>
+      <div class="row">
+        <div class="sw"><label class="switch"><input id="apUnlimited" type="checkbox" checked></label><span>Unlimited</span></div>
+        <div class="numbox small">
+          <button class="pm" id="apMinus">−</button>
+          <input id="apCount" class="num mono" type="text" value="20" />
+          <button class="pm" id="apPlus">+</button>
+        </div>
+      </div>
+      <div class="row"><div>On Win:</div>
+        <div class="sw">
+          <label><input type="radio" name="apWin" value="base" checked> Return to base bet</label>
+        </div>
+        <div class="sw">
+          <label><input type="radio" name="apWin" value="inc"> Increase bet by %</label>
+          <div class="numbox small"><input id="apWinPct" class="num mono" type="text" value="100"></div>
+        </div>
+      </div>
+      <div class="row"><div>On Lose:</div>
+        <div class="sw">
+          <label><input type="radio" name="apLose" value="base" checked> Return to base bet</label>
+        </div>
+        <div class="sw">
+          <label><input type="radio" name="apLose" value="inc"> Increase bet by %</label>
+          <div class="numbox small"><input id="apLosePct" class="num mono" type="text" value="100"></div>
+        </div>
+      </div>
+      <div class="row" style="justify-content:flex-end">
+        <button id="autoStart" class="btn brand">Start</button>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="bottomBar">
+      <div class="balance">Balance <span id="balanceVal" class="yellow mono">1,000</span> CREDITS</div>
+      <div class="muterow mono">Max bet 100 CREDITS</div>
+      <div id="btnAuto" class="btnRound" title="Auto-play">
+        <div class="caps" style="font-size:11px;letter-spacing:.18em">AUTO-PLAY</div>
+      </div>
+      <div id="btnRisk" class="btnRound" title="Risk (after a win)">
+        <div class="caps" style="font-size:11px;letter-spacing:.18em">RISK</div>
+      </div>
+      <div id="btnTake" class="btnRound" title="Take winnings">
+        <div class="caps" style="font-size:11px;letter-spacing:.18em">TAKE</div>
+      </div>
+      <button id="btnRoll" class="btnPrimary">ROLL</button>
+      <div class="betCtrl">
+        <button id="betMin" class="mini">Min</button>
+        <button id="betMinus" class="pm">−</button>
+        <div class="numbox"><input id="betAmt" class="num mono" type="text" value="1"/></div>
+        <button id="betPlus" class="pm">+</button>
+        <button id="betMax" class="mini">Max</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Provably Fair Modal -->
+<div id="pfModal" class="modal">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2>Provably Fair • Miraclez Dice</h2>
+      <button id="pfClose" class="btn">Close</button>
+    </div>
+    <div class="small">We commit to a <b>server seed hash</b>. Each roll uses <code>HMAC_SHA256(serverSeed, clientSeed + ":" + nonce + ":" + i)</code> to derive randomness. Change your <b>client seed</b> any time. Nonce increments every action (roll, risk, etc.). RTP is 96% (house edge 4%).</div>
+    <div class="grid2" style="margin-top:10px">
+      <div>
+        <div class="field"><div class="small">Server Seed (secret):</div><input id="pfServer" type="text" readonly></div>
+        <div class="field"><div class="small">Server Seed Hash (commit):</div><input id="pfServerHash" type="text" readonly></div>
+        <div class="field"><div class="small">Client Seed:</div><input id="pfClient" type="text"></div>
+        <div class="field"><div class="small">Nonce:</div><input id="pfNonce" type="text" readonly></div>
+        <div class="field" style="gap:12px">
+          <button id="pfSave" class="btn brand">Save Client Seed</button>
+          <button id="pfRotate" class="btn">Reveal & Rotate Server Seed</button>
+        </div>
+      </div>
+      <div>
+        <div class="small" style="margin-bottom:6px"><b>Verify a Roll</b> (offline): Inputs → expected two dice & sum</div>
+        <div class="field"><div class="small">Server Seed:</div><input id="vServer" type="text"></div>
+        <div class="field"><div class="small">Client Seed:</div><input id="vClient" type="text"></div>
+        <div class="field"><div class="small">Nonce:</div><input id="vNonce" type="number" value="0"></div>
+        <div class="field" style="gap:12px">
+          <button id="vRun" class="btn brand">Verify</button>
+          <div id="vOut" class="small mono"></div>
+        </div>
+      </div>
+    </div>
+    <div class="small" style="margin-top:6px">Server revelations are appended to local <b>history</b> when rotated.</div>
+  </div>
+</div>
+
+<script>
+/* ------------------------- CONFIG ------------------------- */
+const RTP = 0.96;                           // 96% RTP (house edge 4%)
+const MIN_BET = 1, MAX_BET = 100;           // credits
+const MAX_BET_HISTORY = 100;
+const RISK_SELECT_COUNT = 3;                // choose 3 faces out of 6
+const RISK_PAYOUT_FACTOR = RTP * 2;         // 1.92x of the taken win (double minus edge)
+const PARTNER_BADGE_MODE = 'text';          // 'text' or 'image'
+const PARTNER_BADGE_DATA_URI = '';          // if image mode, put data URI here
+
+/* -------------------- UI UTILITIES -------------------- */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const fmt = n => n.toLocaleString(undefined,{maximumFractionDigits:0});
+
+function setDiceGraphic(el, val){
+  // Draw dice pips as simple SVG
+  const p = (x,y)=>`<circle cx="${x}" cy="${y}" r="6" fill="#111"/>`;
+  const map = {
+    1:[p(42,42)],
+    2:[p(22,22),p(62,62)],
+    3:[p(22,22),p(42,42),p(62,62)],
+    4:[p(22,22),p(62,22),p(22,62),p(62,62)],
+    5:[p(22,22),p(62,22),p(42,42),p(22,62),p(62,62)],
+    6:[p(22,22),p(62,22),p(22,42),p(62,42),p(22,62),p(62,62)]
+  };
+  el.innerHTML = `<svg width="84" height="84" viewBox="0 0 84 84" xmlns="http://www.w3.org/2000/svg"
+                  style="border-radius:14px; background:#ffcf3e; box-shadow:0 10px 18px rgba(0,0,0,.45)">
+                  ${map[val].join('')}</svg>`;
+}
+
+/* ------------------- SOUND (WebAudio) ------------------- */
+let audioOn = true;
+const actx = new (window.AudioContext||window.webkitAudioContext)();
+function playShake(){
+  if(!audioOn) return;
+  const dur=.65, o=actx.createOscillator(), g=actx.createGain();
+  o.type='triangle'; o.frequency.value=160;
+  g.gain.setValueAtTime(0.0001, actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.35, actx.currentTime+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime+dur);
+  o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime+dur);
+}
+function playClack(){
+  if(!audioOn) return;
+  const o=actx.createOscillator(), g=actx.createGain();
+  o.type='square'; o.frequency.setValueAtTime(700,actx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(70, actx.currentTime+.12);
+  g.gain.setValueAtTime(.4, actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime+.14);
+  o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime+.16);
+}
+
+/* ------------------- RNG / CRYPTO ------------------- */
+const enc = new TextEncoder();
+const hex = bytes => Array.from(new Uint8Array(bytes)).map(b=>b.toString(16).padStart(2,'0')).join('');
+async function sha256Hex(s){ const h = await crypto.subtle.digest('SHA-256', enc.encode(s)); return hex(h); }
+async function hmacSHA256Hex(keyStr, msgStr){
+  const key = await crypto.subtle.importKey('raw', enc.encode(keyStr), {name:'HMAC', hash:'SHA-256'}, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(msgStr));
+  return hex(sig);
+}
+function randHex(len=32){ const a=new Uint8Array(len/2); crypto.getRandomValues(a); return Array.from(a).map(b=>b.toString(16).padStart(2,'0')).join(''); }
+
+/* mapping of 36 ordered pairs -> two dice + sum */
+const PAIRS = (()=>{ const arr=[]; for(let a=1;a<=6;a++){ for(let b=1;b<=6;b++){ arr.push([a,b,a+b]); } } return arr; })();
+/* counts by sum (2..12) */
+const SUM_CNT = {2:1,3:2,4:3,5:4,6:5,7:6,8:5,9:4,10:3,11:2,12:1};
+function winsCount(target, side){
+  if(side==='UNDER'){ let c=0; for(let s=2;s<=12;s++){ if(s<target) c+=SUM_CNT[s]; } return c; }
+  if(side==='OVER'){ let c=0; for(let s=2;s<=12;s++){ if(s>target) c+=SUM_CNT[s]; } return c; }
+  return 0;
+}
+function fairMultiplier(target, side){
+  const p = winsCount(target, side)/36;
+  if(p<=0) return 0;
+  const mult = (RTP / p);
+  return Math.max(1.01, Math.floor(mult*100)/100); // 2 decimals
+}
+
+/* provably fair state */
+const pf = { serverSeed: '', serverHash: '', clientSeed: '', nonce: 0 };
+async function pfInit(){
+  pf.serverSeed = randHex(64);
+  pf.serverHash = await sha256Hex(pf.serverSeed);
+  pf.clientSeed = localStorage.getItem('clientSeed') || randHex(16);
+  pf.nonce = parseInt(localStorage.getItem('nonce')||'0',10);
+  updatePFUI();
+}
+function persistPF(){ localStorage.setItem('clientSeed', pf.clientSeed); localStorage.setItem('nonce', String(pf.nonce)); }
+async function rotateServerSeed(){
+  alert(`Revealing previous server seed for your records:\n${pf.serverSeed}\n\nHash: ${pf.serverHash}`);
+  pf.serverSeed = randHex(64); pf.serverHash = await sha256Hex(pf.serverSeed); pf.nonce = 0; persistPF(); updatePFUI();
+}
+function updatePFUI(){ $('#pfServer').value='hidden (click Reveal & Rotate to view last seed)'; $('#pfServerHash').value=pf.serverHash; $('#pfClient').value=pf.clientSeed; $('#pfNonce').value=String(pf.nonce); }
+/* derive N random 32-bit ints for a given nonce using HMAC(server, client:nonce:i) */
+async function rngInts(n, nonce){
+  const out = [];
+  for(let i=0;i<n;i++){
+    const h = await hmacSHA256Hex(pf.serverSeed, `${pf.clientSeed}:${nonce}:${i}`);
+    const v = parseInt(h.slice(0,8),16) >>> 0; out.push(v);
+  }
+  return out;
+}
+/* deterministic roll → returns {a,b,sum,index} and consumes nonce */
+async function rollFromSeeds(){
+  const [r0] = await rngInts(1, pf.nonce++); persistPF(); updatePFUI();
+  const idx = r0 % 36; const [a,b,sum] = PAIRS[idx]; return {a,b,sum,idx};
+}
+/* deterministic risk die */
+async function riskDieFromSeeds(){ const [r] = await rngInts(1, pf.nonce++); persistPF(); updatePFUI(); return (r % 6) + 1; }
+/* verify helper (for modal) */
+async function verifyOffline(serverSeed, clientSeed, nonce){
+  const h = await hmacSHA256Hex(serverSeed, `${clientSeed}:${nonce}:0`);
+  const idx = (parseInt(h.slice(0,8),16)>>>0) % 36; const [a,b,sum] = PAIRS[idx];
+  return {a,b,sum,idx};
+}
+
+/* ------------------- GAME STATE ------------------- */
+const state = {
+  balance: 1000,
+  bet: 1,
+  side: 'UNDER',
+  target: 6,
+  lastWin: 0,
+  canRisk: false,
+  riskSelection: new Set([1,3,5]),
+  riskPrev: [],
+  autoplay: { running:false, baseBet:1, remaining:Infinity, onWin:'base', onLose:'base', winPct:100, losePct:100,
+    stats:{bets:0, profit:0, maxWin:0, maxLose:0} }
+};
+
+/* ------------------- UI BINDINGS ------------------- */
+function refreshAll(){
+  $('#balanceVal').textContent = fmt(state.balance);
+  $('#betAmt').value = state.bet;
+  $('#targetVal').textContent = state.target;
+  $('#multNum').textContent = fairMultiplier(state.target, state.side).toFixed(2)+'x';
+  $('#btnOver').style.opacity = state.side==='OVER'?1:0.65;
+  $('#btnUnder').style.opacity = state.side==='UNDER'?1:0.65;
+  $('#btnRisk').classList.toggle('active', state.canRisk);
+  $('#btnTake').classList.toggle('active', state.canRisk);
+}
+function clampBet(){ state.bet = Math.max(MIN_BET, Math.min(MAX_BET, Math.floor(Number($('#betAmt').value)||MIN_BET))); $('#betAmt').value = state.bet; }
+function setPartnerBadge(){
+  if(PARTNER_BADGE_MODE==='image' && PARTNER_BADGE_DATA_URI){
+    const tag = document.querySelector('.partnerTag');
+    tag.innerHTML = `<img src="${PARTNER_BADGE_DATA_URI}" alt="partner"/>`;
+  }
+}
+
+/* History */
+function addHistoryRow({bet,mult,game,roll,profit}){
+  const row=document.createElement('div'); row.className='historyRow mono';
+  row.innerHTML = `<div>${bet}</div><div>${mult.toFixed(2)}X</div><div class="gameTag">${game}</div><div>${roll}</div><div class="${profit>=0?'profitPlus':'profitMinus'}">${profit>=0?'+':''}${profit}</div>`;
+  const body = $('#historyBody'); body.prepend(row); while(body.children.length>MAX_BET_HISTORY) body.lastChild.remove();
+}
+
+/* Dice animation */
+function animateRoll(dA, dB){
+  $('#cup').classList.add('shake'); playShake();
+  return new Promise(res=>{ setTimeout(()=>{ $('#cup').classList.remove('shake'); res(); }, 1400); })
+  .then(()=>{ playClack();
+    dA.style.setProperty('--x', (140+Math.random()*120)+'px');
+    dA.style.setProperty('--y', (20+Math.random()*80)+'px');
+    dA.style.setProperty('--r', (Math.random()*40-20)+'deg');
+    dB.style.setProperty('--x', (280+Math.random()*120)+'px');
+    dB.style.setProperty('--y', (90+Math.random()*100)+'px');
+    dB.style.setProperty('--r', (Math.random()*40-20)+'deg');
+  });
+}
+
+/* Win/Lose resolution */
+function isWin(sum){ return state.side==='UNDER' ? (sum < state.target) : (sum > state.target); }
+
+/* Main roll */
+let rolling=false;
+async function doRoll({fromAuto=false}={}){
+  if(rolling) return;
+  clampBet();
+  if(state.bet>state.balance){ alert('Insufficient balance'); return; }
+  rolling=true; state.canRisk=false; refreshAll();
+
+  // RNG + animation
+  await animateRoll($('#dieA'), $('#dieB'));
+  const {a,b,sum} = await rollFromSeeds();
+  setDiceGraphic($('#dieA'), a); setDiceGraphic($('#dieB'), b);
+
+  const won = isWin(sum);
+  const mult = fairMultiplier(state.target, state.side);
+  let payout = 0;
+
+  if(won){
+    payout = Math.floor(state.bet * mult);
+    state.lastWin = payout;
+    state.canRisk = true;
+    if(fromAuto){ state.balance += (payout - state.bet); state.canRisk=false; }
+  }else{
+    state.lastWin = 0; state.canRisk=false; state.balance -= state.bet;
+  }
+
+  addHistoryRow({ bet: state.bet, mult, game: (state.side==='UNDER'?'under ':'over ')+state.target, roll: sum, profit: won ? (fromAuto?(payout-state.bet):0) : -state.bet });
+
+  refreshAll(); rolling=false;
+  if(fromAuto) afterAutoplayStep(won, payout);
+}
+
+/* TAKE winnings (manual) */
+function takeWinnings(){ if(!state.canRisk) return; state.balance += (state.lastWin - state.bet); state.canRisk=false; state.lastWin=0; refreshAll(); }
+
+/* ------------------- RISK FEATURE ------------------- */
+function buildRiskUI(){
+  const grid=$('#riskGrid'); grid.innerHTML='';
+  for(let i=1;i<=6;i++){
+    const d=document.createElement('div'); d.className='riskDie'; d.dataset.val=i;
+    d.innerHTML = `<svg width="72" height="72" viewBox="0 0 84 84">${[0].map(_=>{
+      const p=(x,y)=>`<circle cx="${x}" cy="${y}" r="6" fill="#111"/>`;
+      const map={1:[p(42,42)],2:[p(22,22),p(62,62)],3:[p(22,22),p(42,42),p(62,62)],4:[p(22,22),p(62,22),p(22,62),p(62,62)],5:[p(22,22),p(62,22),p(42,42),p(22,62),p(62,62)],6:[p(22,22),p(62,22),p(22,42),p(62,42),p(22,62),p(62,62)]}; return map[i].join('');
+    })}</svg>`;
+    if(state.riskSelection.has(i)) d.classList.add('sel');
+    d.onclick=()=>{ 
+      if(state.riskSelection.has(i)){ state.riskSelection.delete(i); d.classList.remove('sel'); }
+      else if(state.riskSelection.size<RISK_SELECT_COUNT){ state.riskSelection.add(i); d.classList.add('sel'); }
+    };
+    grid.appendChild(d);
+  }
+}
+function openRisk(){ if(!state.canRisk) return; buildRiskUI(); $('#riskPrev').innerHTML = state.riskPrev.slice(-8).map(n=>`<div class="chip mono">${n}</div>`).join(''); $('#riskTakeAmt').textContent = fmt(state.lastWin)+' CREDITS'; $('#riskWinAmt').textContent = fmt(Math.floor(state.lastWin * RISK_PAYOUT_FACTOR))+' CREDITS'; $('#riskScreen').classList.add('show'); }
+function closeRisk(){ $('#riskScreen').classList.remove('show'); }
+$('#riskEven').onclick=()=>{ state.riskSelection=new Set([2,4,6]); buildRiskUI(); }
+$('#riskOdd').onclick =()=>{ state.riskSelection=new Set([1,3,5]); buildRiskUI(); }
+$('#riskInvert').onclick=()=>{ const all=[1,2,3,4,5,6]; state.riskSelection=new Set(all.filter(x=>!state.riskSelection.has(x)).slice(0,RISK_SELECT_COUNT)); buildRiskUI(); }
+$('#riskRepeat').onclick=()=>{};
+$('#riskTake').onclick =()=>{ closeRisk(); takeWinnings(); };
+$('#riskRoll').onclick = async ()=>{
+  if(state.riskSelection.size!==RISK_SELECT_COUNT){ alert('Choose exactly three numbers.'); return; }
+  const die = await riskDieFromSeeds();
+  state.riskPrev.push(die);
+  const win = state.riskSelection.has(die);
+  let profit = 0;
+  if(win){
+    const payout = Math.floor(state.lastWin * RISK_PAYOUT_FACTOR);
+    state.balance += (payout - state.bet);
+    profit = payout - state.bet;
+  }else{
+    state.balance -= state.bet;
+    profit = -state.bet;
+  }
+  addHistoryRow({bet: state.bet, mult: win? RISK_PAYOUT_FACTOR : 0, game:'RISK', roll: die, profit});
+  state.canRisk=false; state.lastWin=0; refreshAll(); closeRisk();
+}
+
+/* ------------------- AUTOPLAY ------------------- */
+function openAuto(){ $('#autoPanel').classList.add('show'); }
+function closeAuto(){ $('#autoPanel').classList.remove('show'); }
+$('#btnAuto').onclick=openAuto; $('#autoClose').onclick=closeAuto;
+$('#apUnlimited').onchange=(e)=>{ $('#apCount').disabled = e.target.checked; };
+$('#apMinus').onclick=()=>{ let v=parseInt($('#apCount').value||'0',10); v=Math.max(1,v-1); $('#apCount').value=v; };
+$('#apPlus').onclick =()=>{ let v=parseInt($('#apCount').value||'0',10); v=Math.min(10000,v+1); $('#apCount').value=v; };
+
+$('#autoStart').onclick=()=>{
+  clampBet();
+  state.autoplay.running=true;
+  state.autoplay.baseBet=state.bet;
+  state.autoplay.remaining = $('#apUnlimited').checked? Infinity : Math.max(1, parseInt($('#apCount').value||'0',10));
+  state.autoplay.onWin = document.querySelector('input[name="apWin"]:checked').value;
+  state.autoplay.onLose = document.querySelector('input[name="apLose"]:checked').value;
+  state.autoplay.winPct = Math.max(0, parseInt($('#apWinPct').value||'0',10));
+  state.autoplay.losePct = Math.max(0, parseInt($('#apLosePct').value||'0',10));
+  state.autoplay.stats = {bets:0, profit:0, maxWin:0, maxLose:0};
+  $('#autoStats').classList.add('show');
+  closeAuto();
+  runAutoplayLoop();
+};
+async function runAutoplayLoop(){
+  while(state.autoplay.running && state.autoplay.remaining>0){
+    await doRoll({fromAuto:true});
+    await new Promise(r=>setTimeout(r, 350));
+    state.autoplay.remaining--;
+  }
+  state.autoplay.running=false;
+  $('#autoStats').classList.remove('show');
+}
+function afterAutoplayStep(won, payout){
+  const profit = won ? (payout - state.bet) : -state.bet;
+  const s = state.autoplay.stats;
+  s.bets++; s.profit += profit; s.maxWin = Math.max(s.maxWin, profit); s.maxLose = Math.min(s.maxLose, profit);
+  $('#asBets').textContent = s.bets; $('#asProfit').textContent = s.profit; $('#asMaxWin').textContent = s.maxWin; $('#asMaxLose').textContent = s.maxLose;
+
+  // Next bet sizing
+  let nextBet = state.autoplay.baseBet;
+  if(won){ nextBet = state.autoplay.onWin==='inc' ? Math.floor(state.bet * (1 + state.autoplay.winPct/100)) : state.autoplay.baseBet; }
+  else   { nextBet = state.autoplay.onLose==='inc' ? Math.floor(state.bet * (1 + state.autoplay.losePct/100)) : state.autoplay.baseBet; }
+  state.bet = Math.min(MAX_BET, Math.max(MIN_BET, nextBet)); $('#betAmt').value = state.bet;
+}
+
+/* ------------------- WIRE EVENTS ------------------- */
+$('#btnOver').onclick=()=>{ state.side='OVER'; refreshAll(); };
+$('#btnUnder').onclick=()=>{ state.side='UNDER'; refreshAll(); };
+$('#btnUp').onclick=()=>{ state.target=Math.min(11, state.target+1); refreshAll(); };
+$('#btnDown').onclick=()=>{ state.target=Math.max(3, state.target-1); refreshAll(); };
+
+$('#betMin').onclick=()=>{ state.bet=MIN_BET; refreshAll(); };
+$('#betMax').onclick=()=>{ state.bet=Math.min(MAX_BET, state.balance, MAX_BET); refreshAll(); };
+$('#betMinus').onclick=()=>{ state.bet=Math.max(MIN_BET, state.bet-1); refreshAll(); };
+$('#betPlus').onclick =()=>{ state.bet=Math.min(MAX_BET, state.bet+1); refreshAll(); };
+$('#betAmt').onchange=()=>{ clampBet(); refreshAll(); };
+
+$('#btnRoll').onclick=()=>doRoll();
+$('#btnTake').onclick=takeWinnings;
+$('#btnRisk').onclick=openRisk;
+
+$('#muteBtn').onclick=()=>{ audioOn=!audioOn; $('#muteBtn').textContent = audioOn?'🔊':'🔇'; };
+
+$('#pfBtn').onclick=()=>{ $('#pfModal').classList.add('show'); };
+$('#pfClose').onclick=()=>{ $('#pfModal').classList.remove('show'); };
+$('#pfSave').onclick =()=>{ pf.clientSeed = $('#pfClient').value.trim() || pf.clientSeed; persistPF(); updatePFUI(); };
+$('#pfRotate').onclick =()=>{ rotateServerSeed(); };
+$('#vRun').onclick = async ()=>{
+  const out = await verifyOffline($('#vServer').value.trim(), $('#vClient').value.trim(), parseInt($('#vNonce').value||'0',10));
+  $('#vOut').textContent = `d1=${out.a} d2=${out.b} sum=${out.sum} (pairIndex=${out.idx})`;
+};
+
+/* ------------------- INIT ------------------- */
+(async function(){
+  setPartnerBadge();
+  setDiceGraphic($('#dieA'), 1); setDiceGraphic($('#dieB'), 2);
+  await pfInit(); refreshAll();
+})();
+</script>
+<!-- Optional: Replit dev banner -->
+<script src="https://replit.com/public/js/replit-dev-banner.js"></script>
+</body>
+</html>
+```
+
+If you want your actual tiny partner logo embedded, tell me to swap `PARTNER_BADGE_MODE` to `"image"` and I’ll drop your logo in as a base64 data-URI so it’s still a single file.

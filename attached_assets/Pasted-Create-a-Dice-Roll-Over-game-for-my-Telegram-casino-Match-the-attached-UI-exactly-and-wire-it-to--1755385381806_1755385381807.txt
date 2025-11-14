@@ -1,0 +1,194 @@
+Create a Dice (Roll Over) game for my Telegram casino. Match the attached UI exactly and wire it to a provably-fair backend.
+
+Stack
+
+Frontend: React + Vite + TailwindCSS (dark theme)
+
+Backend: Node.js + Express (TypeScript)
+
+Math: decimal.js (or big.js) for payouts/precision
+
+Crypto: Node crypto for HMAC/SHA256
+
+Exact UI (match screenshot)
+
+Left column fixed at ~300px; right is the play area. Colors: bg #0B0D13, tiles/inputs #1F232B, primary purple #7A3AF9.
+
+Left panel
+
+Segmented tabs: Manual | Auto | Advanced (Manual selected by default; Auto/Advanced can be stubs).
+
+Bet Amount field with coin icon on the left, and quick buttons ½ and 2× on the right. Small currency text (“0.00 CAD”) on the right of the label.
+
+Profit field (read-only), recalculated as bet × (multiplier − 1).
+
+Bet button: full width, purple, disabled until betAmount > 0.
+
+Right panel
+
+Horizontal slider (0–100) with tick labels at 0 / 25 / 50 / 75 / 100.
+
+The region left of the handle = red (lose zone), right of the handle = green (win zone). Handle is purple.
+
+Inputs row beneath the slider (same look as screenshot):
+
+Multiplier (e.g., 2.0000) with a small “link/refresh” icon.
+
+Roll Over (threshold, e.g., 50.50).
+
+Chance (e.g., 49.5000) with a trailing %.
+
+The three inputs are linked; editing any one updates the other two using formulas below.
+
+Spacing, radii, typography, hover, and focus states should visually clone the screenshot.
+
+Game model
+
+Single outcome per bet: roll ∈ [0.0000, 100.0000) with 4 decimal places shown.
+
+Rule (Roll Over): Player wins if roll ≥ threshold.
+
+Slider position sets threshold t (0.00–99.99). Chance p = 100 − t.
+
+Fair multiplier: M_fair = 100 / p.
+
+House edge: constant E = 0.01 (1%).
+
+Displayed multiplier: M = M_fair × (1 − E).
+
+Payout: bet × M on win; lose bet on loss.
+
+Profit (UI field): bet × (M − 1).
+
+Field linking rules
+
+When Chance changes: t = 100 − p, M = (100 / p) × (1 − E).
+
+When Roll Over changes: p = 100 − t, M = (100 / p) × (1 − E).
+
+When Multiplier changes: p = (100 × (1 − E)) / M, t = 100 − p.
+
+Clamp: p ∈ [0.01, 99.99], t ∈ [0.01, 99.99]. Use 4 dp formatting for chance and multiplier.
+
+Provably-Fair RNG (commit–reveal)
+
+Implement standard commit–reveal so any user can verify the roll.
+
+Server seed (secret): 32 random bytes per upcoming bet.
+
+Commitment: serverSeedHash = SHA256(serverSeed). Expose this before the bet.
+
+Client seed: user-provided string (fallback to random 16-byte hex).
+
+Nonce: per-user incrementing integer.
+
+Roll derivation (deterministic)
+
+h = HMAC_SHA256(serverSeed, `${clientSeed}:${nonce}`)
+Take the first 52 bits of h → integer n in [0, 2^52 − 1]
+u = n / 2^52  (uniform in [0,1))
+roll = floor(u * 1_000_000) / 10_000   // 0.0000 – 99.9999
+
+
+(Use Decimal to avoid float drift.)
+
+After resolving the bet, reveal serverSeed alongside the outcome so the player can verify:
+
+Check SHA256(serverSeed) == serverSeedHash
+
+Recompute roll from (serverSeed, clientSeed, nonce)
+
+Rotate to a new serverSeed and expose its serverSeedHash for the next bet.
+
+API (all amounts as strings)
+
+GET /api/dice/next
+
+Returns upcoming commitment: { serverSeedHash: string, clientSeed: string, nonce: number }
+
+POST /api/dice/bet
+
+Body: { betAmount: string, threshold: string, clientSeed?: string, nonce?: number }
+
+Server validates inputs, ties to current serverSeedHash, computes roll, win/loss, payout.
+
+Returns:
+
+{
+  "roundId": "string",
+  "betAmount": "string",
+  "threshold": "string",
+  "chance": "string",
+  "multiplier": "string",
+  "roll": "49.1234",
+  "result": "win" | "lose",
+  "payout": "string",            // bet × multiplier on win, "0" on loss
+  "serverSeedHash": "hex",
+  "serverSeed": "hex",
+  "clientSeed": "string",
+  "nonce": 123,
+  "nextServerSeedHash": "hex"
+}
+
+
+GET /api/dice/verify?serverSeedHash=&serverSeed=&clientSeed=&nonce=
+
+Recomputes and returns { validHash: boolean, roll: "nn.nnnn" }.
+
+Frontend behavior
+
+On load, call /api/dice/next and store serverSeedHash, clientSeed, nonce.
+
+Link the slider, Multiplier, Roll Over, and Chance fields using the equations.
+
+Bet click:
+
+Disable controls, POST /api/dice/bet.
+
+Animate the slider marker to the resulting roll (brief tween), flash green/red for win/loss.
+
+Update Profit and show a small toast with the result.
+
+Replace stored commitment with nextServerSeedHash from the response.
+
+Validation & limits
+
+Clamp threshold and chance to valid ranges (4 dp).
+
+Enforce min/max bet constants.
+
+Reject stale nonce or commitment.
+
+All math via Decimal; display rounding: multiplier/chance to 4 dp, roll to 4 dp, amounts to 8 dp.
+
+Tests
+
+RNG determinism: given (serverSeed, clientSeed, nonce) → same roll every time.
+
+No bias: simulate 1M rolls, mean ~50 and KS test within tolerance (dev script).
+
+Field linking: random edits to one field keep invariants among the three.
+
+Verify endpoint: recomputes the posted roll and validates the commitment.
+
+Deliverables
+
+Full repo (frontend + backend), npm run dev and npm run build.
+
+Tailwind tokens that match the screenshot.
+
+README with:
+
+provably-fair scheme,
+
+roll derivation math,
+
+payout/multiplier formulas,
+
+verification steps.
+
+Notes
+
+Default values: bet=0.00000000, threshold=50.5000, chance=49.5000, multiplier≈2.0000 at E=1%.
+
+Advanced tab can later add: Roll Under mode (toggle), precision (2 vs 4 dp), and custom house e

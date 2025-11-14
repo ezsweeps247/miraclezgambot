@@ -1,0 +1,60 @@
+import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import crypto from "crypto";
+import db from "./db.js";
+import { sha256 } from "./provablyFair.js";
+import type { User, Seed } from "./types.js";
+import { bjRouter } from "./routes/bj.js";
+
+const app = express();
+app.use(express.json());
+app.use(helmet());
+app.use(cors());
+
+const getUser = (id=1): User => db.prepare("SELECT * FROM users WHERE id=?").get(id);
+const getActiveSeed = (): Seed => db.prepare("SELECT * FROM seeds WHERE active=1").get();
+
+(() => {
+  const active = getActiveSeed();
+  if (!active) {
+    const serverSeed = crypto.randomBytes(32).toString("hex");
+    const serverSeedHash = sha256(serverSeed);
+    db.prepare("INSERT INTO seeds(server_seed, server_seed_hash, active) VALUES(?,?,1)").run(serverSeed, serverSeedHash);
+  }
+})();
+
+app.get("/api/users/me", (req, res) => {
+  const me = getUser(1);
+  res.json({ balance: me.balance });
+});
+
+app.get("/api/seeds/current", (req, res) => {
+  const me = getUser(1);
+  const active = getActiveSeed();
+  const r = db.prepare("SELECT COUNT(*) as c FROM bj_hands WHERE user_id=1 AND server_seed_hash=?").get(active.server_seed_hash) as any;
+  res.json({ serverSeedHash: active.server_seed_hash, clientSeed: me.client_seed, nonce: r.c });
+});
+
+app.post("/api/seeds/client", (req, res) => {
+  const { clientSeed } = req.body as { clientSeed?: string };
+  if (!clientSeed) return res.status(400).send("clientSeed required");
+  db.prepare("UPDATE users SET client_seed=? WHERE id=1").run(clientSeed);
+  res.json({ ok: true });
+});
+
+app.post("/api/seeds/rotate", (req, res) => {
+  const current = getActiveSeed();
+  db.prepare("UPDATE seeds SET active=0 WHERE id=?").run(current.id);
+  const serverSeed = crypto.randomBytes(32).toString("hex");
+  const serverSeedHash = sha256(serverSeed);
+  db.prepare("INSERT INTO seeds(server_seed, server_seed_hash, active) VALUES(?,?,1)").run(serverSeed, serverSeedHash);
+  db.prepare("UPDATE bj_hands SET server_seed_revealed=? WHERE server_seed_hash=? AND server_seed_revealed IS NULL")
+    .run(current.server_seed, current.server_seed_hash);
+  res.json({ revealed: { serverSeed: current.server_seed, serverSeedHash: current.server_seed_hash }, newHash: serverSeedHash });
+});
+
+app.use("/api/bj", bjRouter);
+
+const PORT = 3001;
+app.listen(PORT, () => console.log(`API on http://localhost:${PORT}`));

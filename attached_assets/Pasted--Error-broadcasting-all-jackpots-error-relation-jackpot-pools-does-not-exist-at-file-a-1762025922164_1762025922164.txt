@@ -1,0 +1,120 @@
+}
+Error broadcasting all jackpots: error: relation "jackpot_pools" does not exist
+    at file:///app/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (file:///app/node_modules/drizzle-orm/neon-serverless/session.js:76:20)
+    at async DatabaseStorage.getAllJackpotPools (file:///app/dist/index.js:6907:16)
+    at async broadcastAllJackpots (file:///app/dist/index.js:22693:19)
+    at async Timeout._onTimeout (file:///app/dist/index.js:25666:7) {
+  length: 113,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '237',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+Error monitoring ETH: error: column "is_instant" does not exist
+  file: 'parse_relation.c',
+    at file:///app/node_modules/@neondatabase/serverless/index.mjs:1345:74
+  internalPosition: undefined,
+  line: '3716',
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+  internalQuery: undefined,
+  routine: 'errorMissingColumn'
+    at async NeonPreparedQuery.execute (file:///app/node_modules/drizzle-orm/neon-serverless/session.js:76:20)
+  where: undefined,
+}
+    at async DatabaseStorage.getPendingWithdrawals (file:///app/dist/index.js:4387:16)
+  schema: undefined,
+  table: undefined,
+    at async BlockchainMonitor.checkPendingWithdrawals (file:///app/dist/index.js:25870:32)
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+    at async Timeout._onTimeout (file:///app/dist/index.js:25830:9) {
+  length: 111,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '132',
+  hint: undefined,
+  position: '237',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+Error broadcasting all jackpots: error: relation "jackpot_pools" does not exist
+  file: 'parse_relation.c',
+    at file:///app/node_modules/@neondatabase/serverless/index.mjs:1345:74
+  line: '1449',
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+  routine: 'parserOpenTable'
+    at async NeonPreparedQuery.execute (file:///app/node_modules/drizzle-orm/neon-serverless/session.js:76:20)
+    at async DatabaseStorage.getAllJackpotPools (file:///app/dist/index.js:6907:16)
+}
+    at async broadcastAllJackpots (file:///app/dist/index.js:22693:19)
+    at async Timeout._onTimeout (file:///app/dist/index.js:25666:7) {
+  length: 113,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+Error monitoring BTC: error: column "is_instant" does not exist
+    at file:///app/node_modules/@neondatabase/serverless/index.mjs:1345:74
+  position: '132',
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (file:///app/node_modules/drizzle-orm/neon-serverless/session.js:76:20)
+  internalPosition: undefined,
+    at async DatabaseStorage.getPendingWithdrawals (file:///app/dist/index.js:4387:16)
+  internalQuery: undefined,
+    at async BlockchainMonitor.checkPendingWithdrawals (file:///app/dist/index.js:25870:32)
+    at async Timeout._onTimeout (file:///app/dist/index.js:25830:9) {
+  where: undefined,
+  length: 111,
+  schema: undefined,
+  severity: 'ERROR',
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  where: undefined,
+  file: 'parse_relation.c',
+  schema: undefined,
+  line: '1449',
+  table: undefined,
+  routine: 'parserOpenTable'
+  column: undefined,
+}
+  dataType: undefined,
+    at async Timeout._onTimeout (file:///app/dist/index.js:25666:7) {
+Error broadcasting all jackpots: error: relation "jackpot_pools" does not exist
+  constraint: undefined,
+  length: 113,
+    at file:///app/node_modules/@neondatabase/serverless/index.mjs:1345:74
+  severity: 'ERROR',
+  code: '42P01',
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (file:///app/node_modules/drizzle-orm/neon-serverless/session.js:76:20)
+    at async DatabaseStorage.getAllJackpotPools (file:///app/dist/index.js:6907:16)

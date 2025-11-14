@@ -1,0 +1,57 @@
+import { useQuery } from "@tanstack/react-query";
+import { api } from "../lib/api";
+import { BetRow } from "../types";
+
+export default function PastBets() {
+  const { data, refetch, isFetching } = useQuery({
+    queryKey: ["bets"],
+    queryFn: () => api.get<BetRow[]>("/bets/history?limit=50"),
+    refetchInterval: 2000
+  });
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="font-bold">Past Bets</h3>
+        <button className="kbd" onClick={() => refetch()} disabled={isFetching}>refresh</button>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <thead className="text-left opacity-70">
+            <tr>
+              <th className="py-2 pr-4">Time</th>
+              <th className="py-2 pr-4">Bet (Cr)</th>
+              <th className="py-2 pr-4">Target</th>
+              <th className="py-2 pr-4">Chance %</th>
+              <th className="py-2 pr-4">Hit</th>
+              <th className="py-2 pr-4">Result</th>
+              <th className="py-2 pr-4">Profit</th>
+              <th className="py-2 pr-4">ClientSeed</th>
+              <th className="py-2 pr-4">Nonce</th>
+              <th className="py-2">Server Seed Hash</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data?.map(b => (
+              <tr key={b.id} className="border-t border-[#1f2430]">
+                <td className="py-2 pr-4">{new Date(b.created_at).toLocaleTimeString()}</td>
+                <td className="py-2 pr-4">{b.amount.toFixed(8)}</td>
+                <td className="py-2 pr-4">{b.target_multiplier.toFixed(2)}x</td>
+                <td className="py-2 pr-4">{b.chance.toFixed(2)}</td>
+                <td className="py-2 pr-4">{b.hit_multiplier.toFixed(2)}x</td>
+                <td className={`py-2 pr-4 ${b.win ? "text-green-400" : "text-red-400"}`}>{b.win ? "Win" : "Loss"}</td>
+                <td className="py-2 pr-4">{b.profit.toFixed(8)}</td>
+                <td className="py-2 pr-4">{b.client_seed}</td>
+                <td className="py-2 pr-4">{b.nonce}</td>
+                <td className="py-2">{b.server_seed_hash}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="text-[11px] opacity-60 mt-2">
+        Verification tip: once the server seed is rotated, copy the revealed seed into the verifier (in Provably Fair) with the ClientSeed & Nonce from this table.
+      </p>
+    </div>
+  );
+}

@@ -1,0 +1,65 @@
+import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import db from "./db";
+import { sha256, roll } from "./provablyFair";
+
+const app = express();
+app.use(express.json());
+app.use(helmet());
+app.use(cors());
+
+// Init seed if none
+function initSeed() {
+  const active = db.prepare("SELECT * FROM seeds WHERE active=1").get();
+  if (!active) {
+    const serverSeed = crypto.randomBytes(32).toString("hex");
+    const hash = sha256(serverSeed);
+    db.prepare("INSERT INTO seeds (server_seed, server_seed_hash, active) VALUES (?,?,1)").run(serverSeed, hash);
+  }
+}
+initSeed();
+
+// Current seed
+function currentSeed() {
+  return db.prepare("SELECT * FROM seeds WHERE active=1").get();
+}
+
+// Bets route
+app.post("/api/bets/roll", (req, res) => {
+  const { amount, targetMultiplier, clientSeed = "default", userId = 1 } = req.body;
+  const user = db.prepare("SELECT * FROM users WHERE id=?").get(userId);
+  if (!user || user.balance < amount) return res.status(400).json({ error: "Insufficient balance" });
+
+  const seed = currentSeed();
+  const nonce = db.prepare("SELECT COUNT(*) as c FROM bets WHERE server_seed_hash=?").get(seed.server_seed_hash).c;
+  const hit = roll(seed.server_seed, clientSeed, nonce);
+
+  let win = 0, profit = -amount;
+  if (hit >= targetMultiplier) {
+    win = 1;
+    profit = amount * targetMultiplier - amount;
+  }
+  db.prepare("UPDATE users SET balance=balance+? WHERE id=?").run(profit, userId);
+
+  db.prepare(`INSERT INTO bets (user_id, amount, target_multiplier, chance, hit_multiplier, win, profit,
+    server_seed_hash, client_seed, nonce) VALUES (?,?,?,?,?,?,?,?,?,?)`)
+    .run(userId, amount, targetMultiplier, (99 / targetMultiplier), hit, win, profit,
+      seed.server_seed_hash, clientSeed, nonce);
+
+  const balance = db.prepare("SELECT balance FROM users WHERE id=?").get(userId).balance;
+
+  res.json({ hitMultiplier: hit, win, profit, balance, serverSeedHash: seed.server_seed_hash, clientSeed, nonce });
+});
+
+app.get("/api/bets/history", (req, res) => {
+  const rows = db.prepare("SELECT * FROM bets ORDER BY id DESC LIMIT 50").all();
+  res.json(rows);
+});
+
+app.get("/api/seeds/current", (req, res) => {
+  const seed = currentSeed();
+  res.json({ serverSeedHash: seed.server_seed_hash, nonce: 0 });
+});
+
+app.listen(3001, () => console.log("Server running on http://localhost:3001"));

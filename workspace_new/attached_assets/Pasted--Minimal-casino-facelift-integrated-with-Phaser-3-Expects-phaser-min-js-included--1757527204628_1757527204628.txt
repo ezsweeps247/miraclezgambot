@@ -1,0 +1,222 @@
+/* Minimal casino facelift integrated with Phaser 3 */
+/* Expects: phaser.min.js included */
+
+(() => {
+  const socket = io(); // connect to server for multiplayer
+  const MIN_BET = 5, MAX_BET = 20;
+  let balance = 100.00;
+  let currentBet = MIN_BET;
+  let difficulty = 'easy';
+  let doubleAttempts = 0;
+  let lastWin = 0;
+  let provably = { serverHash: null, serverSeed: null };
+
+  // UI hooks
+  const betRange = document.getElementById('betRange');
+  const betValue = document.getElementById('betValue');
+  const diffSel = document.getElementById('difficulty');
+  const balanceEl = document.getElementById('balance');
+  const chatLog = document.getElementById('chatLog');
+  const chatInput = document.getElementById('chatInput');
+  const doubleModal = document.getElementById('doubleModal');
+  const cardsRow = document.getElementById('cardsRow');
+  const takeHalfBtn = document.getElementById('takeHalf');
+  const cashoutBtn = document.getElementById('cashout');
+  const closeModal = document.getElementById('closeModal');
+
+  // Controls
+  betRange.addEventListener('input', e => {
+    currentBet = parseInt(e.target.value,10);
+    betValue.textContent = currentBet;
+  });
+  diffSel.addEventListener('change', e => difficulty = e.target.value);
+  function updateBalance(){ balanceEl.textContent = balance.toFixed(2); }
+
+  // Chat
+  chatInput.addEventListener('keydown', e => {
+    if(e.key === 'Enter' && chatInput.value.trim()){
+      const msg = chatInput.value.trim();
+      socket.emit('chat', msg);
+      chatInput.value = '';
+    }
+  });
+
+  socket.on('chat', (who, msg) => {
+    const el = document.createElement('div');
+    el.textContent = who + ': ' + msg;
+    chatLog.appendChild(el);
+    chatLog.scrollTop = chatLog.scrollHeight;
+  });
+
+  // Request server hash for provably-fair before game start
+  async function fetchServerHash(){
+    const res = await fetch('/api/getServerHash');
+    const j = await res.json();
+    provably.serverHash = j.hash;
+    // serverHash can be displayed in UI for transparency
+    console.log('serverHash', provably.serverHash);
+  }
+  fetchServerHash();
+
+  // Phaser game config
+  const config = {
+    type: Phaser.AUTO,
+    parent: 'gameContainer',
+    width: Math.min(window.innerWidth, 900),
+    height: Math.max(400, Math.round(window.innerHeight * 0.55)),
+    backgroundColor: '#08111a',
+    scene: {
+      preload: preload, create: create, update: update
+    },
+    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH }
+  };
+
+  const game = new Phaser.Game(config);
+
+  // Basic variables for TD
+  let state = { wave: 0, gold: 50, lives: 5, inRound:false };
+
+  function preload(){ /* placeholder: load assets */ }
+  function create(){
+    const scene = this;
+    // Minimal UI text overlays
+    scene.add.text(10,10,'Casino Tower Defense',{fontSize:18, color:'#fff'});
+
+    // Start button
+    const startBtn = scene.add.text(10,40,'Start Round',{backgroundColor:'#0a7',padding:6})
+      .setInteractive()
+      .on('pointerdown', async () => {
+        if(state.inRound) return;
+        if(balance < currentBet) { alert('Not enough balance'); return; }
+        // withdraw bet
+        balance -= currentBet; updateBalance();
+        state.inRound = true;
+        state.wave++;
+        // difficulty modifies volatility by adjusting multiplier and enemy HP
+        const difficultyFactors = {
+          easy: {mult:1.0,hpFactor:0.8},
+          medium: {mult:1.5,hpFactor:1.0},
+          hard: {mult:2.2,hpFactor:1.4}
+        };
+        const df = difficultyFactors[difficulty];
+        // simulate round resolution with randomness affected by volatility
+        const baseWinChance = 0.7 - (df.mult-1)*0.15;
+        const roll = Math.random();
+        const won = roll < baseWinChance;
+        // Payout base = bet * (1 + df.mult * randomFactor)
+        const payout = won ? Math.round((currentBet * (1 + df.mult * (0.8 + Math.random()*0.8))) * 100) / 100 : 0;
+        lastWin = payout;
+        if(won) {
+          balance += payout; updateBalance();
+        }
+        // show double-up if won
+        state.inRound = false;
+        if(won) showDoubleModal();
+        // broadcast minimal snapshot to other players
+        socket.emit('snapshot', {playerId: socket.id, wave: state.wave, won, payout, balance});
+      });
+
+    // Listen for snapshots from server for live view
+    socket.on('snapshot', data => {
+      // for demo: just log
+      console.log('snapshot', data);
+      // update opponent views (simple text)
+      const opp1 = document.getElementById('opp1View');
+      if(opp1) opp1.textContent = `Opponent 1: wave ${data.wave} ${data.won? 'WON $'+data.payout : 'LOST'}`;
+    });
+  }
+
+  function update(){ /* game loop */ }
+
+  // Double-up modal & provably-fair card draw
+  function showDoubleModal(){
+    doubleAttempts = 0;
+    openModal();
+  }
+  function openModal(){
+    doubleModal.classList.remove('hidden');
+    renderCards();
+  }
+  function closeModalFn(){ doubleModal.classList.add('hidden'); }
+  closeModal.addEventListener('click', closeModalFn);
+  takeHalfBtn.addEventListener('click', () => {
+    // halve the amount we double
+    if(lastWin <= 0) return;
+    lastWin = Math.round((lastWin/2) * 100)/100;
+    balance += 0; updateBalance();
+    // player can still choose a card to attempt doubling this half on selection
+  });
+  cashoutBtn.addEventListener('click', () => {
+    // just close and keep balance as is
+    closeModalFn();
+  });
+
+  function renderCards(){
+    cardsRow.innerHTML = '';
+    for(let i=0;i<5;i++){
+      const card = document.createElement('div');
+      card.className='card';
+      card.textContent = '?';
+      card.dataset.index = i;
+      card.addEventListener('click', () => pickCard(i, card));
+      cardsRow.appendChild(card);
+    }
+  }
+
+  // pick card: ask server to reveal a card using provably-fair mechanism
+  async function pickCard(index, cardEl){
+    if(doubleAttempts >= 3){ alert('Max double-up attempts reached'); return; }
+    // clientSeed for verification - produce random clientSeed
+    const clientSeed = (Math.random()+1).toString(36).substr(2,8);
+    // ask server to resolve double-up with {clientSeed, index}
+    const res = await fetch('/api/double', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({clientSeed})
+    });
+    const j = await res.json();
+    // j => {serverSeed, houseCard, playerCard, serverHash, proof}
+    // simple verification UI: show both cards
+    cardEl.textContent = j.playerCard;
+    // reveal house
+    const houseEl = document.createElement('div');
+    houseEl.className='card';
+    houseEl.textContent = j.houseCard;
+    cardsRow.appendChild(houseEl);
+    // check outcome
+    if(cardGreater(j.playerCard, j.houseCard)){
+      // player wins double
+      lastWin = Math.round((lastWin * 2) * 100) / 100;
+      balance += lastWin; updateBalance();
+      doubleAttempts++;
+      // allow continue if attempts < 3: render new choices
+      if(doubleAttempts < 3){
+        setTimeout(() => renderCards(), 800);
+      } else {
+        setTimeout(() => closeModalFn(), 1000);
+      }
+    } else {
+      // player loses the double attempt (lose the wagered lastWin)
+      lastWin = 0;
+      doubleAttempts = 3;
+      setTimeout(() => closeModalFn(), 1000);
+    }
+    // show serverHash/proof for transparency in console
+    console.log('provably', j);
+  }
+
+  function cardGreater(a,b){
+    // card strings like "A♠", "10♦", "K♥" — compare ranks
+    const ranks = {'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
+    const ra = a.slice(0, a.length-1);
+    const rb = b.slice(0, b.length-1);
+    return ranks[ra] > ranks[rb];
+  }
+
+  // init balance display
+  updateBalance();
+
+  // expose for debugging
+  window._casinoTD = { game, socket };
+
+})();

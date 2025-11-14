@@ -1,0 +1,968 @@
+# Create the directory structure and files for the Miracoaster full-stack project
+import os, json, textwrap, zipfile, io, pathlib
+
+root = "/mnt/data/miracoaster"
+dirs = [
+    "public",
+    "public/css",
+    "public/js",
+    "public/admin",
+    "public/assets",
+    "src",
+]
+for d in dirs:
+    os.makedirs(os.path.join(root, d), exist_ok=True)
+
+# package.json
+package_json = {
+  "name": "miracoaster",
+  "version": "1.0.0",
+  "description": "Miracoaster - Provably Fair Crash/Leverage Game with Admin Backend",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "socket.io": "^4.7.5",
+    "sqlite3": "^5.1.7"
+  }
+}
+open(os.path.join(root,"package.json"),"w").write(json.dumps(package_json, indent=2))
+
+# .env.example
+env_example = textwrap.dedent("""\
+JWT_SECRET=change-me
+PORT=3000
+DATABASE_URL=sqlite://./miracoaster.db
+GAME_KEY=miracoaster
+RTP_MODE=medium
+GAME_ENABLED=true
+TICK_MS=1000
+""")
+open(os.path.join(root, ".env.example"), "w").write(env_example)
+
+# src/db.js
+db_js = textwrap.dedent("""\
+import sqlite3 from 'sqlite3';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const dbPath = path.join(__dirname, '..', 'miracoaster.db');
+sqlite3.verbose();
+export const db = new sqlite3.Database(dbPath);
+
+export function initDb(){
+  db.serialize(()=>{
+    db.run(`PRAGMA journal_mode = WAL;`);
+    db.run(`CREATE TABLE IF NOT EXISTS users(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE,
+      password_hash TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'player',
+      balance INTEGER NOT NULL DEFAULT 100000, -- stored in cents
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );`);
+    db.run(`CREATE TABLE IF NOT EXISTS settings(
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      game_key TEXT UNIQUE,
+      game_enabled INTEGER NOT NULL DEFAULT 1,
+      rtp_mode TEXT NOT NULL DEFAULT 'medium',
+      server_seed TEXT,
+      server_hash TEXT,
+      round_id TEXT,
+      nonce INTEGER NOT NULL DEFAULT 0,
+      public_client_seed TEXT DEFAULT 'global'
+    );`);
+    db.run(`INSERT OR IGNORE INTO settings(id, game_key, game_enabled, rtp_mode, nonce) VALUES (1,'miracoaster',1,'medium',0);`);
+    db.run(`CREATE TABLE IF NOT EXISTS bets(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      round_id TEXT NOT NULL,
+      direction TEXT NOT NULL, -- 'up' or 'down'
+      wager INTEGER NOT NULL, -- cents
+      leverage REAL NOT NULL,
+      entry_price REAL NOT NULL,
+      bust_price REAL NOT NULL,
+      exit_price REAL,
+      pnl INTEGER, -- cents
+      roi REAL,
+      status TEXT NOT NULL DEFAULT 'open', -- open/closed/busted/cashed
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      closed_at DATETIME,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    );`);
+    db.run(`CREATE TABLE IF NOT EXISTS transactions(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      amount INTEGER NOT NULL, -- cents, positive or negative
+      reason TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    );`);
+    db.run(`CREATE TABLE IF NOT EXISTS server_seed_history(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      round_id TEXT,
+      server_seed TEXT,
+      server_hash TEXT,
+      revealed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );`);
+  });
+}
+""")
+open(os.path.join(root,"src","db.js"),"w").write(db_js)
+
+# src/util.js
+util_js = textwrap.dedent("""\
+import crypto from 'crypto';
+
+export function nowUtc(){
+  return new Date(new Date().toISOString());
+}
+export function roundIdUTC(date = nowUtc()){
+  const y = date.getUTCFullYear();
+  const m = String(date.getUTCMonth()+1).padStart(2,'0');
+  const d = String(date.getUTCDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+export function nextMidnightUTC(){
+  const n = nowUtc();
+  n.setUTCHours(24,0,0,0);
+  return n;
+}
+export function sha256Hex(s){ return crypto.createHash('sha256').update(s).digest('hex'); }
+export function hmac256Hex(key, msg){ return crypto.createHmac('sha256', key).update(msg).digest('hex'); }
+
+export function randomHex(bytes=32){ return crypto.randomBytes(bytes).toString('hex'); }
+
+export function cents(n){ return Math.round(n*100); }
+export function fromCents(c){ return (c/100); }
+
+export function computeBust(entry, leverage, direction){
+  // direction: 'up' (long) or 'down' (short)
+  if(direction==='up') return entry * (1 - 1/leverage);
+  else return entry * (1 + 1/leverage);
+}
+
+export function feeFromRtpMode(mode){
+  // High 99% => 1% fee; Medium 96% => 4%; Low 92% => 8%
+  const map = { high: 0.01, medium: 0.04, low: 0.08 };
+  return map[mode] ?? 0.04;
+}
+
+export function payoutWithFee(wager, entry, current, leverage, direction, fee){
+  const s = (direction==='up'? 1 : -1);
+  const r = s * (current - entry) / entry * leverage;
+  const profitFactor = r > 0 ? (r - fee*r) : r;
+  const val = Math.max(0, 1 + profitFactor);
+  return wager * val;
+}
+""")
+open(os.path.join(root,"src","util.js"),"w").write(util_js)
+
+# src/auth.js
+auth_js = textwrap.dedent("""\
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import { db } from './db.js';
+
+export const auth = express.Router();
+
+auth.post('/register', (req,res)=>{
+  const { username, password } = req.body;
+  if(!username || !password) return res.status(400).json({error:'username and password required'});
+  const password_hash = bcrypt.hashSync(password, 10);
+  db.run(`INSERT INTO users(username, password_hash, role, balance) VALUES (?,?, 'player', 100000)`, [username, password_hash], function(err){
+    if(err) return res.status(400).json({error:'username taken'});
+    return res.json({ok:true});
+  });
+});
+
+auth.post('/login', (req,res)=>{
+  const { username, password } = req.body;
+  db.get(`SELECT * FROM users WHERE username=?`, [username], (err, row)=>{
+    if(err || !row) return res.status(401).json({error:'invalid credentials'});
+    const ok = bcrypt.compareSync(password, row.password_hash);
+    if(!ok) return res.status(401).json({error:'invalid credentials'});
+    const token = jwt.sign({ uid: row.id, role: row.role, username: row.username }, process.env.JWT_SECRET || 'dev', { expiresIn: '7d' });
+    res.json({ token, user: { id: row.id, username: row.username, role: row.role, balance: row.balance } });
+  });
+});
+
+export function requireAuth(req,res,next){
+  const h = req.headers.authorization || '';
+  const t = h.startsWith('Bearer ') ? h.slice(7) : null;
+  if(!t) return res.status(401).json({error:'no token'});
+  try{
+    req.user = jwt.verify(t, process.env.JWT_SECRET || 'dev');
+    next();
+  }catch(e){
+    return res.status(401).json({error:'invalid token'});
+  }
+}
+
+export function requireAdmin(req,res,next){
+  if(req.user?.role!=='admin') return res.status(403).json({error:'admin only'});
+  next();
+}
+""")
+open(os.path.join(root,"src","auth.js"),"w").write(auth_js)
+
+# src/engine.js - price engine
+engine_js = textwrap.dedent("""\
+import { db } from './db.js';
+import { roundIdUTC, nextMidnightUTC, randomHex, sha256Hex, hmac256Hex } from './util.js';
+
+let tickMs = parseInt(process.env.TICK_MS || '1000', 10);
+let timer = null;
+
+const listeners = new Set();
+function emit(ev){ for(const fn of listeners) try{ fn(ev); }catch{} }
+
+let state = {
+  roundId: null,
+  serverSeed: null,
+  serverHash: null,
+  price: 1000.00,
+  tickIndex: 0,
+  zPrev: 0
+};
+
+function schedule(){
+  if(timer) clearInterval(timer);
+  timer = setInterval(()=>tick(), tickMs);
+}
+
+export function onTick(fn){ listeners.add(fn); return ()=>listeners.delete(fn); }
+export function setSpeed(ms){ tickMs = ms; schedule(); }
+export function getState(){ return { ...state }; }
+
+function seedRound(){
+  const roundId = roundIdUTC();
+  db.get(`SELECT server_seed, server_hash, round_id FROM settings WHERE id=1`, [], (err, row)=>{
+    if(!row || row.round_id !== roundId){
+      const serverSeed = randomHex(32);
+      const serverHash = sha256Hex(serverSeed);
+      db.run(`INSERT INTO server_seed_history(round_id, server_seed, server_hash) VALUES (?,?,?)`, [roundId, serverSeed, serverHash]);
+      db.run(`UPDATE settings SET server_seed=?, server_hash=?, round_id=?, nonce=0 WHERE id=1`, [serverSeed, serverHash, roundId]);
+      state.serverSeed = serverSeed; state.serverHash = serverHash; state.roundId = roundId;
+      state.price = 1000.00; state.tickIndex = 0; state.zPrev = 0;
+    }else{
+      state.serverSeed = row.server_seed; state.serverHash = row.server_hash; state.roundId = row.round_id;
+    }
+  });
+}
+
+function gbmStep(){
+  // Derive RNG via HMAC(seed, `${roundId}:${tickIndex}`)
+  const H = hmac256Hex(state.serverSeed, `${state.roundId}:${state.tickIndex}`);
+  // convert to two uniforms
+  const a = parseInt(H.slice(0,8),16) / 0xffffffff;
+  const b = parseInt(H.slice(8,16),16) / 0xffffffff;
+  // Box-Muller to normal
+  const z0 = Math.sqrt(-2*Math.log(a || 1e-12)) * Math.cos(2*Math.PI*(b || 1e-12));
+  // smooth
+  const z = 0.85*state.zPrev + 0.15*z0;
+  state.zPrev = z;
+  const mu = 0.0, sigma = 0.012;
+  const dt = 1.0;
+  const next = state.price * Math.exp(mu*dt + sigma*Math.sqrt(dt)*z);
+  state.price = Math.max(10, next);
+  state.tickIndex += 1;
+}
+
+function checkRoundBoundary(){
+  const now = new Date();
+  const rid = roundIdUTC(now);
+  if(rid !== state.roundId){
+    seedRound();
+  }
+}
+
+function settleBusts(currentPrice){
+  // Close bets that bust
+  db.all(`SELECT b.*, s.rtp_mode FROM bets b, settings s WHERE b.status='open'`, [], (err, rows)=>{
+    if(err || !rows) return;
+    for(const r of rows){
+      const bustHit = (r.direction==='up') ? (currentPrice <= r.bust_price) : (currentPrice >= r.bust_price);
+      if(bustHit){
+        // lose wager
+        db.run(`UPDATE bets SET status='busted', exit_price=?, pnl=?, roi=?, closed_at=CURRENT_TIMESTAMP WHERE id=?`, [currentPrice, -r.wager, -1.0, r.id]);
+        db.run(`UPDATE users SET balance = balance - ? WHERE id=?`, [r.wager, r.user_id]);
+      }
+    }
+  });
+}
+
+export function cashoutValue(wager, entry, curr, leverage, direction, fee){
+  const s = (direction==='up'? 1 : -1);
+  const r = s * (curr - entry) / entry * leverage;
+  const profitFactor = r > 0 ? (r - fee*r) : r;
+  const val = Math.max(0, 1 + profitFactor);
+  return Math.round(wager * val);
+}
+
+export function tick(){
+  checkRoundBoundary();
+  gbmStep();
+  // settle
+  settleBusts(state.price);
+  emit({ type:'tick', price: state.price, tickIndex: state.tickIndex, roundId: state.roundId, serverHash: state.serverHash });
+}
+
+export function startEngine(){
+  seedRound();
+  schedule();
+}
+""")
+open(os.path.join(root,"src","engine.js"),"w").write(engine_js)
+
+# src/server.js
+server_js = textwrap.dedent("""\
+import 'dotenv/config';
+import express from 'express';
+import http from 'http';
+import cors from 'cors';
+import { Server as IOServer } from 'socket.io';
+import { db, initDb } from './db.js';
+import { auth, requireAuth, requireAdmin } from './auth.js';
+import { startEngine, onTick, getState, setSpeed, cashoutValue } from './engine.js';
+import { cents, fromCents, computeBust, feeFromRtpMode } from './util.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+initDb();
+
+const app = express();
+const server = http.createServer(app);
+const io = new IOServer(server, { cors: { origin: '*' } });
+
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
+// Auth
+app.use('/api/auth', auth);
+
+// status endpoints
+app.get('/api/status', (req,res)=>{
+  db.get(`SELECT game_enabled, rtp_mode, server_hash, round_id FROM settings WHERE id=1`, [], (err, row)=>{
+    const st = getState();
+    res.json({ price: st.price, tickIndex: st.tickIndex, roundId: st.roundId, commit: row?.server_hash, enabled: !!row?.game_enabled, rtpMode: row?.rtp_mode });
+  });
+});
+
+// Player me
+app.get('/api/me', requireAuth, (req,res)=>{
+  db.get(`SELECT id, username, role, balance FROM users WHERE id=?`, [req.user.uid], (err, user)=>{
+    if(!user) return res.status(404).json({error:'not found'});
+    db.get(`SELECT * FROM bets WHERE user_id=? AND status='open' ORDER BY id DESC LIMIT 1`, [user.id], (err, bet)=>{
+      res.json({ user, openBet: bet || null });
+    });
+  });
+});
+
+// Place bet
+app.post('/api/bet', requireAuth, (req,res)=>{
+  const { direction, wager, leverage } = req.body;
+  if(!['up','down'].includes(direction)) return res.status(400).json({error:'direction'});
+  const L = Math.max(1, Math.min(1000, Number(leverage)||1));
+  const wCents = cents(Number(wager||0));
+  if(wCents < 100) return res.status(400).json({error:'min wager 1.00'});
+
+  db.get(`SELECT game_enabled, rtp_mode FROM settings WHERE id=1`, [], (err, st)=>{
+    if(!st?.game_enabled) return res.status(403).json({error:'game disabled'});
+    db.get(`SELECT balance FROM users WHERE id=?`, [req.user.uid], (err2, u)=>{
+      if(!u || u.balance < wCents) return res.status(400).json({error:'insufficient balance'});
+      db.get(`SELECT * FROM bets WHERE user_id=? AND status='open'`, [req.user.uid], (err3, open)=>{
+        if(open) return res.status(400).json({error:'close your open position first'});
+        const st2 = getState();
+        const entry = st2.price;
+        const bust = computeBust(entry, L, direction);
+        db.run(`INSERT INTO bets(user_id, round_id, direction, wager, leverage, entry_price, bust_price, status) VALUES (?,?,?,?,?,?,?, 'open')`,
+          [req.user.uid, st2.roundId, direction, wCents, L, entry, bust],
+          function(err4){
+            if(err4) return res.status(500).json({error:'db'});
+            return res.json({ ok:true, betId: this.lastID, entry_price: entry, bust_price: bust, leverage: L, rtp_mode: st.rtp_mode });
+          }
+        );
+      });
+    });
+  });
+});
+
+// Cashout
+app.post('/api/cashout', requireAuth, (req,res)=>{
+  const st = getState();
+  db.get(`SELECT b.*, s.rtp_mode FROM bets b, settings s WHERE b.user_id=? AND b.status='open'`, [req.user.uid], (err, b)=>{
+    if(!b) return res.status(400).json({error:'no open bet'});
+    const fee = feeFromRtpMode(b.rtp_mode);
+    const payout = cashoutValue(b.wager, b.entry_price, st.price, b.leverage, b.direction, fee);
+    const pnl = payout - b.wager;
+    const roi = b.wager ? (pnl / b.wager) : 0;
+    db.serialize(()=>{
+      db.run(`UPDATE bets SET status='cashed', exit_price=?, pnl=?, roi=?, closed_at=CURRENT_TIMESTAMP WHERE id=?`, [st.price, pnl, roi, b.id]);
+      db.run(`UPDATE users SET balance = balance + ? WHERE id=?`, [payout - b.wager, req.user.uid]);
+    });
+    res.json({ ok:true, exit_price: st.price, payout_cents: payout, pnl_cents: pnl, roi });
+  });
+});
+
+// Admin APIs
+app.post('/api/admin/login', (req,res)=>{
+  const { username, password } = req.body;
+  db.get(`SELECT * FROM users WHERE username=? AND role='admin'`, [username], (err,row)=>{
+    if(!row) return res.status(401).json({error:'invalid credentials'});
+    const bcrypt = require('bcryptjs');
+    const ok = bcrypt.compareSync(password, row.password_hash);
+    if(!ok) return res.status(401).json({error:'invalid credentials'});
+    const jwt = require('jsonwebtoken');
+    const token = jwt.sign({ uid: row.id, role: row.role, username: row.username }, process.env.JWT_SECRET || 'dev', { expiresIn: '7d' });
+    res.json({ token });
+  });
+});
+
+app.use('/api/admin', requireAuth, requireAdmin);
+
+app.get('/api/admin/analytics', (req,res)=>{
+  db.serialize(()=>{
+    db.get(`SELECT COUNT(*) as players FROM users WHERE role='player'`,[], (e1, r1)=>{
+      db.get(`SELECT COUNT(*) as open_bets FROM bets WHERE status='open'`,[], (e2,r2)=>{
+        db.get(`SELECT COALESCE(SUM(wager),0) as total_wagered FROM bets`,[], (e3,r3)=>{
+          db.get(`SELECT rtp_mode, game_enabled FROM settings WHERE id=1`,[],(e4,r4)=>{
+            res.json({ players: r1?.players||0, open_bets: r2?.open_bets||0, total_wagered_cents: r3?.total_wagered||0, rtp_mode: r4?.rtp_mode, game_enabled: !!r4?.game_enabled });
+          });
+        });
+      });
+    });
+  });
+});
+
+app.post('/api/admin/users/:id/credit', (req,res)=>{
+  const uid = Number(req.params.id);
+  const amount = Math.round(Number(req.body.amount||0)*100);
+  if(!amount) return res.status(400).json({error:'amount'});
+  db.serialize(()=>{
+    db.run(`UPDATE users SET balance = balance + ? WHERE id=?`, [amount, uid]);
+    db.run(`INSERT INTO transactions(user_id, amount, reason) VALUES (?,?,?)`, [uid, amount, 'admin credit']);
+  });
+  res.json({ok:true});
+});
+
+app.post('/api/admin/users/:id/debit', (req,res)=>{
+  const uid = Number(req.params.id);
+  const amount = Math.round(Number(req.body.amount||0)*100);
+  if(!amount) return res.status(400).json({error:'amount'});
+  db.serialize(()=>{
+    db.run(`UPDATE users SET balance = balance - ? WHERE id=?`, [amount, uid]);
+    db.run(`INSERT INTO transactions(user_id, amount, reason) VALUES (?,?,?)`, [uid, -amount, 'admin debit']);
+  });
+  res.json({ok:true});
+});
+
+app.post('/api/admin/settings/enabled', (req,res)=>{
+  const enabled = !!req.body.enabled;
+  db.run(`UPDATE settings SET game_enabled=? WHERE id=1`, [enabled?1:0]);
+  io.emit('admin:status', { enabled });
+  res.json({ok:true, enabled});
+});
+
+app.post('/api/admin/settings/rtp', (req,res)=>{
+  const mode = String(req.body.mode||'medium');
+  if(!['high','medium','low'].includes(mode)) return res.status(400).json({error:'mode'});
+  db.run(`UPDATE settings SET rtp_mode=? WHERE id=1`, [mode]);
+  io.emit('admin:status', { rtp_mode: mode });
+  res.json({ok:true, rtp_mode: mode});
+});
+
+// Provably fair info
+app.get('/api/pf', (req,res)=>{
+  db.get(`SELECT server_hash, round_id FROM settings WHERE id=1`, [], (err, row)=>{
+    res.json({ server_hash: row?.server_hash, round_id: row?.round_id });
+  });
+});
+
+// Socket.io
+io.on('connection', (socket)=>{
+  const s = getState();
+  socket.emit('tick', { price: s.price, roundId: s.roundId, tickIndex: s.tickIndex });
+});
+
+onTick((ev)=>{
+  if(ev.type==='tick'){
+    io.emit('tick', { price: ev.price, roundId: ev.roundId, tickIndex: ev.tickIndex });
+  }
+});
+
+// seed initial admin if missing
+function seedAdmin(){
+  const bcrypt = require('bcryptjs');
+  const pass = bcrypt.hashSync('admin123', 10);
+  db.run(`INSERT OR IGNORE INTO users(id, username, password_hash, role, balance) VALUES (1,'admin',?, 'admin', 0)`, [pass]);
+}
+seedAdmin();
+
+// start
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, ()=>{
+  console.log('Server listening on '+PORT);
+  startEngine();
+});
+""")
+open(os.path.join(root,"src","server.js"),"w").write(server_js)
+
+# public index.html
+index_html = textwrap.dedent("""\
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Miracoaster</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><img src="/assets/logo.svg" alt="M" class="logo"/> <span id="price">₥ 1000.00</span></div>
+    <div class="round">ROUND ENDS IN <span id="countdown">--:--:--</span></div>
+    <div class="controls">
+      <select id="tickSel">
+        <option value="1000">Tick: 1s</option>
+        <option value="500">Tick: 500ms</option>
+        <option value="200">Tick: 200ms</option>
+      </select>
+      <button id="loginBtn">Login</button>
+      <a href="/admin/" target="_blank">Admin</a>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="chart-wrap">
+      <canvas id="chart" width="1200" height="480"></canvas>
+    </section>
+    <aside class="panel">
+      <div class="card">
+        <div class="tabs">
+          <button class="tab active" data-tab="manual">MANUAL</button>
+          <button class="tab" data-tab="auto" disabled>AUTO</button>
+        </div>
+        <div id="manualTab">
+          <div class="btn-row">
+            <button id="btnUp" class="dir up active">↑ Up</button>
+            <button id="btnDown" class="dir down">↓ Down</button>
+          </div>
+          <label>Wager
+            <div class="wager"><input id="wager" type="number" min="1" step="1" value="10"/><div class="xbtns"><button id="half">½</button><button id="double">×2</button></div></div>
+          </label>
+          <label>Payout Multiplier (Leverage)
+            <input id="lev" type="range" min="1" max="1000" value="10"/>
+            <div class="help"><span>x1 · Safe</span><span>Wild · x1000</span></div>
+          </label>
+          <div class="bust">Bust Price: <b id="bustPrice">--</b></div>
+          <button id="place" class="cta">PLACE BET</button>
+          <button id="cashout" class="cta alt" style="display:none">CASH OUT</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div><b>Balance:</b> <span id="balance">1,000.00</span></div>
+        <div><b>Open Position:</b> <span id="open">None</span></div>
+        <div class="pf"><a id="pfLink" href="#">Provably Fair</a></div>
+      </div>
+    </aside>
+  </main>
+
+  <section class="table-wrap">
+    <table id="betsTable">
+      <thead><tr><th>PLAYER</th><th>BET</th><th>ENTRY</th><th>WAGER</th><th>BUST</th><th>LEV</th><th>EXIT</th><th>P&L</th><th>ROI</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <div id="pfModal" class="modal hidden">
+    <div class="modal-card">
+      <h3>Provably Fair — Miracoaster</h3>
+      <div>Server Seed Hash (commit): <code id="commit">...</code></div>
+      <div>Round ID: <code id="roundId">...</code></div>
+      <button id="pfClose">Close</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/chart.js"></script>
+  <script src="/js/client.js"></script>
+</body>
+</html>
+""")
+open(os.path.join(root,"public","index.html"),"w").write(index_html)
+
+# admin frontend
+admin_html = textwrap.dedent("""\
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Miracoaster Admin</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+  <div class="admin-login card" id="loginCard">
+    <h3>Admin Login</h3>
+    <input type="text" id="aUser" placeholder="username" value="admin"/>
+    <input type="password" id="aPass" placeholder="password" value="admin123"/>
+    <button id="aLogin">Login</button>
+    <div class="small">Default admin: <code>admin / admin123</code> (change after first login)</div>
+  </div>
+
+  <div class="admin-dash hidden" id="adminDash">
+    <header class="topbar">
+      <div class="brand"><img src="/assets/logo.svg" class="logo"/> Admin</div>
+      <div class="controls"><button id="logout">Logout</button></div>
+    </header>
+    <main class="layout admin-grid">
+      <section class="card">
+        <h3>Game Controls</h3>
+        <div>Enabled: <label><input type="checkbox" id="gameEnabled"> Toggle</label></div>
+        <div>RTP Mode:
+          <select id="rtpMode">
+            <option value="high">High (99%)</option>
+            <option value="medium" selected>Medium (96%)</option>
+            <option value="low">Low (92%)</option>
+          </select>
+          <button id="saveRtp">Save</button>
+        </div>
+      </section>
+      <section class="card">
+        <h3>Live Analytics</h3>
+        <div>Players: <b id="aPlayers">0</b></div>
+        <div>Open Bets: <b id="aOpen">0</b></div>
+        <div>Total Wagered: <b id="aWager">0.00</b></div>
+        <div>RTP: <b id="aRtp">96%</b></div>
+        <button id="refreshAnalytics">Refresh</button>
+      </section>
+      <section class="card">
+        <h3>Adjust User Balance</h3>
+        <input id="uid" type="number" placeholder="User ID"/>
+        <input id="amount" type="number" step="0.01" placeholder="Amount (credits)"/>
+        <button id="credit">Credit +</button>
+        <button id="debit">Debit −</button>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>
+""")
+open(os.path.join(root,"public","admin","index.html"),"w").write(admin_html)
+
+# styles.css
+styles_css = textwrap.dedent("""\
+:root{ --bg:#0f1218; --card:#121722; --muted:#a6b2c5; --line:#ffb300; --text:#e7eefb; --ok:#1fd178; --bad:#ff5a69 }
+*{ box-sizing:border-box }
+body{ margin:0; font:14px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial; background:var(--bg); color:var(--text) }
+.topbar{ display:flex; align-items:center; justify-content:space-between; padding:10px 16px; background:#0b0f14; border-bottom:1px solid #1a2230 }
+.brand{ display:flex; align-items:center; gap:8px }
+.logo{ width:22px; height:22px }
+.layout{ display:grid; grid-template-columns: 1fr 360px; gap:16px; padding:16px }
+.chart-wrap{ background:#0c1118; border:1px solid #1b2330; border-radius:8px; padding:8px; overflow:hidden }
+.panel .card{ background:var(--card); border:1px solid #20283a; border-radius:10px; padding:12px; margin-bottom:12px }
+.tabs{ display:flex; gap:8px; margin-bottom:8px }
+.tab{ background:#1a2130; color:#cfe0ff; border:1px solid #2a3346; padding:6px 10px; border-radius:8px; cursor:pointer }
+.tab.active{ background:#eaeef6; color:#0b0f14 }
+.btn-row{ display:flex; gap:8px; margin:8px 0 }
+.dir{ flex:1; padding:8px; border-radius:8px; border:none; font-weight:800; cursor:pointer }
+.dir.up{ background:#243c23; color:#a5e6a5 }
+.dir.down{ background:#3c1f21; color:#f2a6ae }
+.dir.active{ outline:2px solid #fff }
+.wager{ display:flex; gap:8px }
+.wager input{ flex:1; padding:8px; border-radius:8px; border:1px solid #2a3346; background:#0c1118; color:#fff }
+.xbtns button{ margin-left:4px }
+.help{ display:flex; justify-content:space-between; color:var(--muted); font-size:12px }
+.bust{ margin:8px 0; color:#ffdd88 }
+.cta{ width:100%; padding:12px; border:none; border-radius:10px; margin-top:8px; background:#77f077; color:#0b0f14; font-weight:900; cursor:pointer }
+.cta.alt{ background:#f2f2f2 }
+.table-wrap{ padding:0 16px 16px }
+table{ width:100%; border-collapse:collapse; background:var(--card); border:1px solid #20283a; border-radius:8px; overflow:hidden }
+th, td{ padding:8px 10px; border-bottom:1px solid #1b2330; font-variant-numeric: tabular-nums }
+td.ok{ color:var(--ok) } td.bad{ color:var(--bad) }
+.modal{ position:fixed; inset:0; display:grid; place-items:center; background:rgba(0,0,0,.5) }
+.modal.hidden{ display:none }
+.modal-card{ width:min(520px,92vw); background:var(--card); border:1px solid #2a3346; padding:16px; border-radius:12px }
+.admin-login.card{ width:min(420px,92vw); margin:60px auto; background:var(--card); border:1px solid #2a3346; padding:16px; border-radius:12px; display:grid; gap:8px }
+.hidden{ display:none }
+.admin-grid{ grid-template-columns: repeat(3, 1fr) }
+.small{ color:var(--muted); font-size:12px }
+.controls select, .controls button, .controls a{ margin-left:8px }
+""")
+open(os.path.join(root,"public","css","styles.css"),"w").write(styles_css)
+
+# chart.js
+chart_js = textwrap.dedent("""\
+(function(){
+  const canvas = document.getElementById('chart');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  const data = [];
+  const maxLen = 1200;
+  let minY=1e9, maxY=0;
+
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    if(data.length<2) return;
+    minY = Math.min(...data);
+    maxY = Math.max(...data);
+    const pad = 30;
+    const range = (maxY-minY)||1;
+    ctx.beginPath();
+    for(let i=0;i<data.length;i++){
+      const x = pad + (w-2*pad)*i/(data.length-1);
+      const y = h - pad - (h-2*pad) * (data[i]-minY)/range;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle = '#ffb300';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    // fill under
+    const grad = ctx.createLinearGradient(0,0,0,h);
+    grad.addColorStop(0,'rgba(255,179,0,0.18)');
+    grad.addColorStop(1,'rgba(255,179,0,0.02)');
+    ctx.lineTo(w-pad, h-pad);
+    ctx.lineTo(pad, h-pad);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+
+  window.ChartMini = {
+    push(p){
+      data.push(p);
+      if(data.length>maxLen) data.shift();
+      draw();
+    },
+    reset(){ data.length=0; }
+  };
+})();
+""")
+open(os.path.join(root,"public","js","chart.js"),"w").write(chart_js)
+
+# client.js
+client_js = textwrap.dedent("""\
+const socket = io();
+const priceEl = document.getElementById('price');
+const countdownEl = document.getElementById('countdown');
+const placeBtn = document.getElementById('place');
+const cashoutBtn = document.getElementById('cashout');
+const wagerEl = document.getElementById('wager');
+const levEl = document.getElementById('lev');
+const bustEl = document.getElementById('bustPrice');
+const balanceEl = document.getElementById('balance');
+const openEl = document.getElementById('open');
+const upBtn = document.getElementById('btnUp');
+const downBtn = document.getElementById('btnDown');
+const loginBtn = document.getElementById('loginBtn');
+
+let direction='up';
+let currentPrice=1000;
+let token = localStorage.getItem('token')||null;
+let user = null;
+
+function fmt(n){ return Number(n).toFixed(2); }
+
+function updateBust(){
+  const L = Number(levEl.value);
+  const P0 = currentPrice;
+  const bust = direction==='up' ? P0*(1-1/L) : P0*(1+1/L);
+  bustEl.textContent = fmt(bust);
+}
+levEl.addEventListener('input', updateBust);
+upBtn.onclick=()=>{ direction='up'; upBtn.classList.add('active'); downBtn.classList.remove('active'); updateBust(); }
+downBtn.onclick=()=>{ direction='down'; downBtn.classList.add('active'); upBtn.classList.remove('active'); updateBust(); }
+document.getElementById('half').onclick=()=>{ wagerEl.value = Math.max(1, Math.floor((Number(wagerEl.value)||1)/2)); }
+document.getElementById('double').onclick=()=>{ wagerEl.value = Math.min(1000000, Math.floor((Number(wagerEl.value)||1)*2)); }
+
+socket.on('tick', (msg)=>{
+  currentPrice = msg.price;
+  priceEl.textContent = '₥ '+fmt(currentPrice);
+  ChartMini.push(currentPrice);
+  updateBust();
+});
+
+function toMidnightUTC(){
+  const now = new Date();
+  const midnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()+1, 0,0,0));
+  return midnight;
+}
+setInterval(()=>{
+  const remain = toMidnightUTC() - new Date();
+  if(remain<0){ countdownEl.textContent='00:00:00'; return; }
+  const h = Math.floor(remain/3600000);
+  const m = Math.floor((remain%3600000)/60000);
+  const s = Math.floor((remain%60000)/1000);
+  countdownEl.textContent = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+},1000);
+
+async function api(path, opt={}){
+  opt.headers = Object.assign({'Content-Type':'application/json'}, opt.headers||{});
+  if(token) opt.headers['Authorization']='Bearer '+token;
+  const r = await fetch(path, opt);
+  if(!r.ok) throw new Error((await r.json()).error||(''+r.status));
+  return await r.json();
+}
+
+async function refreshMe(){
+  if(!token){ balanceEl.textContent='(login)'; openEl.textContent='None'; return; }
+  try{
+    const { user: u, openBet } = await api('/api/me');
+    user=u;
+    balanceEl.textContent = fmt(u.balance/100);
+    openEl.textContent = openBet? (openBet.direction.toUpperCase()+' @'+fmt(openBet.entry_price)+' x'+openBet.leverage) : 'None';
+    placeBtn.style.display = openBet? 'none' : 'block';
+    cashoutBtn.style.display = openBet? 'block' : 'none';
+  }catch(e){
+    console.log(e);
+  }
+}
+refreshMe();
+
+placeBtn.onclick=async ()=>{
+  try{
+    const body = { direction, wager: Number(wagerEl.value), leverage: Number(levEl.value) };
+    const r = await api('/api/bet', { method:'POST', body: JSON.stringify(body) });
+    await refreshMe();
+    alert('Bet placed! Entry '+fmt(r.entry_price)+' Bust '+fmt(r.bust_price));
+  }catch(e){ alert('Error: '+e.message); }
+};
+cashoutBtn.onclick=async ()=>{
+  try{
+    const r = await api('/api/cashout', { method:'POST' });
+    await refreshMe();
+    alert('Cashed out. Payout '+fmt(r.payout_cents/100));
+  }catch(e){ alert('Error: '+e.message); }
+};
+
+loginBtn.onclick=async ()=>{
+  if(token){ localStorage.removeItem('token'); token=null; user=null; refreshMe(); loginBtn.textContent='Login'; return;}
+  const username = prompt('username:','player');
+  const password = prompt('password:','player123');
+  try{
+    // first, try register (idempotent)
+    await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+  }catch(_){}
+  const r = await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+  if(r.ok){
+    const j = await r.json(); token=j.token; localStorage.setItem('token', token); loginBtn.textContent='Logout'; refreshMe();
+  }else{
+    alert('login failed');
+  }
+};
+
+document.getElementById('pfLink').onclick=async (e)=>{
+  e.preventDefault();
+  const r = await api('/api/pf', { method:'GET', headers:{} });
+  document.getElementById('commit').textContent = r.server_hash || '(pending)';
+  document.getElementById('roundId').textContent = r.round_id || '(pending)';
+  document.getElementById('pfModal').classList.remove('hidden');
+};
+document.getElementById('pfClose').onclick=()=>{ document.getElementById('pfModal').classList.add('hidden'); };
+
+// Tick speed selector (client hint only)
+document.getElementById('tickSel').onchange = (e)=>{
+  fetch('/api/status'); // no-op placeholder; could call admin speed if exposed
+};
+""")
+open(os.path.join(root,"public","js","client.js"),"w").write(client_js)
+
+# admin.js
+admin_js = textwrap.dedent("""\
+let token = localStorage.getItem('admin_token')||null;
+
+function headers(){ return token? {'Authorization':'Bearer '+token, 'Content-Type':'application/json'} : {'Content-Type':'application/json'}; }
+
+async function api(path, opt={}){
+  opt.headers = Object.assign({}, headers(), opt.headers||{});
+  const r = await fetch(path, opt);
+  if(!r.ok) throw new Error((await r.json()).error||(''+r.status));
+  return await r.json();
+}
+
+async function login(){
+  const u = document.getElementById('aUser').value;
+  const p = document.getElementById('aPass').value;
+  try{
+    const r = await fetch('/api/admin/login',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u,password:p})});
+    if(!r.ok) throw new Error('login failed');
+    const j = await r.json();
+    token = j.token; localStorage.setItem('admin_token', token);
+    document.getElementById('loginCard').classList.add('hidden');
+    document.getElementById('adminDash').classList.remove('hidden');
+    refresh();
+  }catch(e){ alert(e.message); }
+}
+
+async function refresh(){
+  const a = await api('/api/admin/analytics', { method:'GET' });
+  document.getElementById('aPlayers').textContent = a.players;
+  document.getElementById('aOpen').textContent = a.open_bets;
+  document.getElementById('aWager').textContent = (a.total_wagered_cents/100).toFixed(2);
+  document.getElementById('aRtp').textContent = ({high:'99%',medium:'96%',low:'92%'})[a.rtp_mode] || a.rtp_mode;
+  document.getElementById('gameEnabled').checked = !!a.game_enabled;
+}
+
+document.getElementById('aLogin').onclick = login;
+document.getElementById('logout').onclick = ()=>{ localStorage.removeItem('admin_token'); token=null; location.reload(); };
+document.getElementById('refreshAnalytics').onclick = refresh;
+document.getElementById('saveRtp').onclick = async ()=>{
+  const mode = document.getElementById('rtpMode').value;
+  await api('/api/admin/settings/rtp',{ method:'POST', body: JSON.stringify({mode}) });
+  await refresh();
+};
+document.getElementById('gameEnabled').onchange = async (e)=>{
+  await api('/api/admin/settings/enabled',{ method:'POST', body: JSON.stringify({enabled: e.target.checked}) });
+  await refresh();
+};
+document.getElementById('credit').onclick = async ()=>{
+  const uid = Number(document.getElementById('uid').value||0);
+  const amount = Number(document.getElementById('amount').value||0);
+  await api(`/api/admin/users/${uid}/credit`, { method:'POST', body: JSON.stringify({amount}) });
+  alert('Credited.');
+};
+document.getElementById('debit').onclick = async ()=>{
+  const uid = Number(document.getElementById('uid').value||0);
+  const amount = Number(document.getElementById('amount').value||0);
+  await api(`/api/admin/users/${uid}/debit`, { method:'POST', body: JSON.stringify({amount}) });
+  alert('Debited.');
+};
+""")
+open(os.path.join(root,"public","js","admin.js"),"w").write(admin_js)
+
+# simple logo
+logo_svg = """<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+<defs><linearGradient id="g" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ffd76a"/><stop offset="1" stop-color="#ffb300"/></linearGradient></defs>
+<path d="M8 48c0-16 8-32 24-32s24 16 24 32h-8c0-12-6-24-16-24S16 36 16 48H8z" fill="url(#g)" stroke="#231a00" stroke-width="2" />
+</svg>"""
+open(os.path.join(root,"public","assets","logo.svg"),"w").write(logo_svg)
+
+# zip the project
+zip_path = "/mnt/data/miracoaster-fullstack.zip"
+zf = zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED)
+for dirpath, _, filenames in os.walk(root):
+    for fn in filenames:
+        p = os.path.join(dirpath, fn)
+        zf.write(p, os.path.relpath(p, root))
+zf.close()
+
+zip_path

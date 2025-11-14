@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Casino TD</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/phaser.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- Top bar with bet & difficulty -->
+    <div id="topbar">
+      <div id="betControls">
+        Bet: $<span id="betValue">5</span>
+        <input id="betRange" type="range" min="5" max="20" step="1" value="5">
+      </div>
+      <div id="diffControls">
+        Difficulty:
+        <select id="difficulty">
+          <option value="easy">Easy (Low Volatility)</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard (High Volatility)</option>
+        </select>
+      </div>
+      <div id="wallet">Balance: $<span id="balance">100.00</span></div>
+    </div>
+
+    <!-- Multiplayer layout -->
+    <div id="grid">
+      <div id="playerView" class="view">Your Game</div>
+      <div id="opp1View" class="view">Opponent 1</div>
+      <div id="opp2View" class="view">Opponent 2</div>
+      <div id="chatView" class="view chat">
+        <div id="chatLog"></div>
+        <input id="chatInput" placeholder="Say hi..." />
+      </div>
+    </div>
+
+    <!-- Game container for Phaser -->
+    <div id="gameContainer"></div>
+
+    <!-- Double-up modal -->
+    <div id="doubleModal" class="modal hidden">
+      <div class="modalContent">
+        <h3>Double-up?</h3>
+        <p>Choose a facedown card. Beat the house to double.</p>
+        <div id="cardsRow"></div>
+        <div class="modalActions">
+          <button id="takeHalf">Double Half</button>
+          <button id="cashout">Cashout</button>
+        </div>
+        <button id="closeModal" class="closeBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game scripts -->
+  <script src="js/mixins.js"></script>
+  <script src="js/enemies.js"></script>
+  <script src="js/bullets.js"></script>
+  <script src="js/turrets.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

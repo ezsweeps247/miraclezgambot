@@ -1,0 +1,68 @@
+// Simple Node server for dev. NOT production-ready.
+const express = require('express');
+const http = require('http');
+const { randomBytes, createHmac } = require('crypto');
+const app = express();
+const server = http.createServer(app);
+const io = require('socket.io')(server);
+app.use(express.json());
+app.use(express.static(__dirname)); // serve project files
+
+// In-memory server seed store (one per 'house round'). Replace with DB for prod.
+let serverSeed = null;
+let serverHash = null;
+
+function newServerSeed(){
+  serverSeed = randomBytes(32).toString('hex');
+  serverHash = createHmac('sha256','house-secret').update(serverSeed).digest('hex');
+  // NOTE: using HMAC with a server secret to produce a tamperproof hash; in prod expose only hash, reveal seed later.
+  return {serverSeed, serverHash};
+}
+newServerSeed();
+
+// API: get serverHash (public)
+app.get('/api/getServerHash', (req,res) => {
+  res.json({hash: serverHash});
+});
+
+// API: resolve double-up - simple card draw provably fair demo
+app.post('/api/double', (req,res) => {
+  const clientSeed = req.body.clientSeed || '';
+  const nonce = Date.now().toString();
+  // create HMAC of serverSeed with clientSeed+nonce to generate randomness
+  const hmac = createHmac('sha256', serverSeed).update(clientSeed + ':' + nonce).digest('hex');
+  // use bytes to pick cards
+  function pickCardFromHex(hex, offset){
+    const byte = parseInt(hex.substr(offset,2),16);
+    const ranks = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+    const suits = ['♠','♥','♦','♣'];
+    const r = ranks[byte % ranks.length];
+    const s = suits[(byte >> 2) % suits.length];
+    return r + s;
+  }
+  const playerCard = pickCardFromHex(hmac, 0);
+  const houseCard = pickCardFromHex(hmac, 2);
+  // For transparency reveal serverSeed, nonce, and hmac (in prod reveal serverSeed only AFTER hash published earlier)
+  res.json({
+    serverHash,
+    serverSeed, // reveal seed (for demo). In production only reveal after initial serverHash was shown before round.
+    nonce,
+    hmac,
+    playerCard,
+    houseCard
+  });
+});
+
+// Socket.io for chat and snapshots
+io.on('connection', socket => {
+  console.log('conn', socket.id);
+  socket.on('chat', msg => {
+    io.emit('chat', socket.id.substring(0,6), msg);
+  });
+  socket.on('snapshot', data => {
+    io.emit('snapshot', data);
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, ()=>console.log('Server running on', PORT));

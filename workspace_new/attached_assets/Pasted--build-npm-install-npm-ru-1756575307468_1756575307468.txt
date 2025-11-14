@@ -1,0 +1,123 @@
+║────────────────────────────────────────────────────────────║
+║ build      │ npm install && npm run build                  ║
+║────────────────────────────────────────────────────────────║
+║ start      │ npm run start                                 ║
+╚════════════════════════════════════════════════════════════╝
+
+internal
+load build definition from Dockerfile
+0ms
+
+internal
+load metadata for ghcr.io/railwayapp/nixpacks:ubuntu-1745885067
+220ms
+
+internal
+load .dockerignore
+0ms
+
+internal
+load build context
+0ms
+
+stage-0
+COPY .nixpacks/assets /assets/ cached
+0ms
+
+stage-0
+RUN nix-env -if .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix && nix-collect-garbage -d cached
+0ms
+
+stage-0
+COPY .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix cached
+0ms
+
+stage-0
+RUN nix-env -if .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix && nix-collect-garbage -d cached
+0ms
+
+stage-0
+COPY .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix cached
+0ms
+
+stage-0
+WORKDIR /app/ cached
+0ms
+
+stage-0
+COPY . /app/.
+338ms
+
+stage-0
+RUN  caddy fmt --overwrite /assets/Caddyfile
+326ms
+
+stage-0
+COPY . /app/.
+78ms
+
+stage-0
+RUN npm ci
+11s
+Run `npm audit` for details.
+
+stage-0
+COPY . /app/.
+252ms
+
+stage-0
+RUN npm install && npm run build
+15s
+npm warn config production Use `--omit=dev` instead.
+up to date, audited 805 packages in 3s
+148 packages are looking for funding
+  run `npm fund` for details
+19 vulnerabilities (3 low, 12 moderate, 2 high, 2 critical)
+To address issues that do not require attention, run:
+  npm audit fix
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+Some issues need review, and may require choosing
+a different dependency.
+Run `npm audit` for details.
+npm warn config production Use `--omit=dev` instead.
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+vite v5.4.19 building for production...
+transforming...
+Browserslist: browsers data (caniuse-lite) is 10 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+/grid.svg referenced in /grid.svg didn't resolve at build time, it will remain unchanged to be resolved at runtime
+✓ 3446 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                                       2.25 kB │ gzip:   0.90 kB
+../dist/public/assets/mira logo_1755876002183-Cli2Fnox.png    774.26 kB
+../dist/public/assets/index-CWTk9eK7.css                      179.33 kB │ gzip:  29.05 kB
+../dist/public/assets/index-Dt8baGWD.js                     1,650.09 kB │ gzip: 456.58 kB
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 9.16s
+✘ [ERROR] "await" can only be used inside an "async" function
+    server/games/mines.ts:195:21:
+      195 │     multiplierTable: await generateMultiplierTable(mines),
+          ╵                      ~~~~~
+  Consider adding the "async" keyword here:
+    server/games/mines.ts:131:7:
+      131 │ export function startRound(
+          │        ^
+          ╵        async
+1 error
+Dockerfile:30
+-------------------
+28 |     # build phase
+29 |     COPY . /app/.
+30 | >>> RUN --mount=type=cache,id=s/2481bea0-5b9e-4bf5-ae91-f89e886f5f3e-node_modules/cache,target=/app/node_modules/.cache npm install && npm run build
+31 |
+32 |
+-------------------
+ERROR: failed to build: failed to solve: process "/bin/bash -ol pipefail -c npm install && npm run build" did not complete successfully: exit code: 1
+Error: Docker build failed

@@ -1,0 +1,1129 @@
+# This script writes a complete Replit-ready Blackjack project to /mnt/data
+# and zips it for download. It includes a provably-fair backend and a React UI.
+
+import os, json, textwrap, zipfile, shutil, pathlib
+
+root = "/mnt/data/blackjack-credits"
+if os.path.exists(root):
+    shutil.rmtree(root)
+os.makedirs(root, exist_ok=True)
+
+def write(path, content):
+    abspath = os.path.join(root, path)
+    os.makedirs(os.path.dirname(abspath), exist_ok=True)
+    with open(abspath, "w", encoding="utf-8") as f:
+        f.write(content)
+
+# package.json
+write("package.json", textwrap.dedent("""\
+{
+  "name": "blackjack-credits",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \\"npm:dev:server\\" \\"npm:dev:client\\"",
+    "dev:server": "ts-node-dev --respawn --transpile-only server/index.ts",
+    "dev:client": "vite --config vite.config.ts",
+    "build": "vite build --config vite.config.ts"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.51.1",
+    "better-sqlite3": "^9.6.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.12",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.0.1",
+    "postcss": "^8.4.45",
+    "tailwindcss": "^3.4.10",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.3"
+  }
+}
+"""))
+
+# tsconfig
+write("tsconfig.json", textwrap.dedent("""\
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "strict": false,
+    "types": ["node"]
+  },
+  "include": ["server/**/*.ts", "client/src/**/*.ts", "client/src/**/*.tsx"]
+}
+"""))
+
+# vite config
+write("vite.config.ts", textwrap.dedent("""\
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  root: "client",
+  plugins: [react()],
+  server: {
+    host: true,
+    port: 5173,
+    proxy: { "/api": "http://localhost:3001" }
+  },
+  build: {
+    outDir: "dist",
+    emptyOutDir: true
+  }
+});
+"""))
+
+# tailwind config
+write("tailwind.config.js", textwrap.dedent("""\
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./client/index.html", "./client/src/**/*.{ts,tsx}"],
+  theme: { extend: {} },
+  plugins: []
+};
+"""))
+
+# client files
+write("client/index.html", textwrap.dedent("""\
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blackjack • Credits</title>
+  </head>
+  <body class="bg-[#0e1014] text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+"""))
+
+write("client/src/index.css", textwrap.dedent("""\
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { --accent: #7c3aed; } /* purple */
+.card { @apply bg-[#11141a] rounded-xl border border-[#1f2430] shadow; }
+.input { @apply bg-[#0b0e13] border border-[#1f2430] rounded-lg px-3 py-2 w-full outline-none focus:border-purple-500; }
+.button { @apply rounded-lg px-4 py-2 font-semibold; background: var(--accent); }
+.button:disabled { @apply opacity-60 cursor-not-allowed; }
+.tab { @apply px-4 py-2 rounded-md text-sm font-semibold; }
+.tab-active { @apply bg-[#171b23]; }
+.kbd { @apply text-xs bg-[#0b0e13] border border-[#1f2430] px-2 py-1 rounded; }
+
+/* Cards */
+.cardwrap { perspective: 1000px; }
+.playingcard {
+  @apply rounded-lg border border-[#1f2430];
+  width: 80px; height: 120px;
+  background: white;
+  color: #0e1014;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+.playingcard .corner {
+  position: absolute; top: 6px; left: 6px; font-size: 14px;
+}
+.playingcard .suit-large { font-size: 28px; }
+.playingcard.red { color: #e11d48; }
+
+/* Card back */
+.cardback {
+  width: 80px; height: 120px;
+  border-radius: 12px;
+  border: 2px solid #1f2430;
+  background: linear-gradient(135deg, #0ea5e9, #1e3a8a);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+.cardback::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  background: url("/logo-df.png") center/contain no-repeat;
+  opacity: 0.9;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+}
+"""))
+
+write("client/src/types.ts", textwrap.dedent("""\
+export type BJCard = { rank: number; suit: number }; // rank: 1..13 (A..K), suit: 0..3 (♠♥♦♣ order: S,H,D,C)
+export type BJHandState = {
+  id: number;
+  status: 'in_play' | 'settled';
+  baseBet: number;
+  ppBet: number;
+  plus3Bet: number;
+  insuranceOffered: boolean;
+  insuranceBet: number;
+  playerHands: { cards: BJCard[]; bet: number; doubled: boolean; finished: boolean; result?: string; payout?: number; }[];
+  dealer: { cards: BJCard[]; hidden: boolean };
+  serverSeedHash: string;
+  clientSeed: string;
+  handNonce: number;
+  created_at: string;
+  balance: number;
+  messages?: string[];
+};
+export type HistoryRow = {
+  id: number;
+  created_at: string;
+  base_bet: number;
+  pp_bet: number;
+  plus3_bet: number;
+  insurance_bet: number;
+  result_summary: string;
+  profit: number;
+  server_seed_hash: string;
+  server_seed_revealed: string | null;
+  client_seed: string;
+  hand_nonce: number;
+};
+export type SeedCurrent = { serverSeedHash: string; clientSeed: string; nonce: number };
+export type Me = { balance: number };
+"""))
+
+write("client/src/lib/api.ts", textwrap.dedent("""\
+export const api = {
+  async get<T=any>(path: string): Promise<T> {
+    const r = await fetch(`/api${path}`);
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async post<T=any>(path: string, body?: any): Promise<T> {
+    const r = await fetch(`/api${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  }
+};
+"""))
+
+write("client/src/lib/format.ts", textwrap.dedent("""\
+export const fmtCr = (x: number, dp=8) => `${x.toFixed(dp)} Credits`;
+export const fmtCrShort = (x: number, dp=2) => `${x.toFixed(dp)} Cr`;
+
+export const suitChar = (s: number) => ['♠','♥','♦','♣'][s];
+export const isRed = (s: number) => s === 1 || s === 2;
+export const rankStr = (r: number) => ({1:'A',11:'J',12:'Q',13:'K'} as any)[r] || String(r);
+"""))
+
+write("client/src/main.tsx", textwrap.dedent("""\
+import React from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const qc = new QueryClient();
+createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <QueryClientProvider client={qc}>
+      <App />
+    </QueryClientProvider>
+  </React.StrictMode>
+);
+"""))
+
+write("client/src/App.tsx", textwrap.dedent("""\
+import Blackjack from "./components/Blackjack";
+import PastHands from "./components/PastHands";
+import ProvablyFairCard from "./components/ProvablyFairCard";
+import { api } from "./lib/api";
+import { Me } from "./types";
+import { useEffect, useMemo, useState } from "react";
+
+export default function App() {
+  const [balance, setBalance] = useState<number>(0);
+  const refresh = useMemo(() => async () => {
+    const me = await api.get<Me>("/users/me"); setBalance(me.balance);
+  }, []);
+  useEffect(() => { refresh(); }, [refresh]);
+
+  return (
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-extrabold tracking-tight">SHUFFLE • Blackjack (Credits)</h1>
+          <div className="text-sm opacity-80">Balance: <span className="font-semibold">{balance.toFixed(2)} Credits</span></div>
+        </div>
+
+        <div className="grid grid-cols-12 gap-6 mt-6">
+          <div className="col-span-12 md:col-span-3 space-y-4">
+            <Blackjack onBalance={setBalance} />
+            <div className="card p-4"><ProvablyFairCard /></div>
+            <p className="text-xs text-right opacity-70"><button className="underline">Provably Fair ✓</button></p>
+          </div>
+          <div className="col-span-12 md:col-span-9 space-y-4">
+            <PastHands />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+"""))
+
+write("client/src/components/Card.tsx", textwrap.dedent("""\
+import { BJCard } from "../types";
+import { isRed, rankStr, suitChar } from "../lib/format";
+
+export default function Card({ card, faceDown=false }: { card?: BJCard; faceDown?: boolean; }) {
+  if (faceDown) return <div className="cardback" />;
+  if (!card) return <div className="playingcard" />;
+  const red = isRed(card.suit);
+  return (
+    <div className={"playingcard " + (red ? "red" : "")}>
+      <div className="corner">{rankStr(card.rank)}{suitChar(card.suit)}</div>
+      <div className="suit-large">{suitChar(card.suit)}</div>
+    </div>
+  );
+}
+"""))
+
+write("client/src/components/Blackjack.tsx", textwrap.dedent("""\
+import { useEffect, useRef, useState } from "react";
+import { api } from "../lib/api";
+import Card from "./Card";
+import { BJHandState } from "../types";
+import { fmtCr } from "../lib/format";
+
+export default function Blackjack({ onBalance }:{ onBalance: (b:number)=>void }) {
+  const [tab, setTab] = useState<"standard"|"side">("standard");
+  const [amount, setAmount] = useState(10);
+  const [ppBet, setPpBet] = useState(0);
+  const [plus3Bet, setPlus3Bet] = useState(0);
+  const [state, setState] = useState<BJHandState | null>(null);
+  const running = useRef(false);
+
+  const half = (setter: (v:number)=>void, cur:number) => setter(Math.max(0, cur/2));
+  const dbl = (setter: (v:number)=>void, cur:number) => setter(cur*2);
+
+  const start = async () => {
+    const r = await api.post<BJHandState>("/bj/start", { bet: amount, ppBet, plus3Bet });
+    setState(r); onBalance(r.balance);
+  };
+  const act = async (type: "hit"|"stand"|"double"|"split") => {
+    if (!state || running.current) return;
+    running.current = true;
+    const r = await api.post<BJHandState>("/bj/action", { handId: state.id, action: type, handIndex: 0 });
+    setState(r); onBalance(r.balance);
+    running.current = false;
+  };
+
+  return (
+    <div className="card p-4 space-y-3">
+      <div className="flex gap-2">
+        <button onClick={()=>setTab("standard")} className={"tab "+(tab==="standard"?"tab-active":"")}>Standard</button>
+        <button onClick={()=>setTab("side")} className={"tab "+(tab==="side"?"tab-active":"")}>Side bet</button>
+      </div>
+
+      {tab==="standard" ? (
+        <>
+          <Field label="Bet Amount">
+            <div className="flex gap-2">
+              <input className="input" type="number" step="0.00000001" value={amount} onChange={e=>setAmount(Number(e.target.value))} />
+              <button className="kbd" onClick={()=>half(setAmount, amount)}>½</button>
+              <button className="kbd" onClick={()=>dbl(setAmount, amount)}>2x</button>
+            </div>
+            <div className="text-[11px] mt-1 opacity-60">{fmtCr(amount)}</div>
+          </Field>
+        </>
+      ) : (
+        <>
+          <Field label="Bet Amount">
+            <div className="flex gap-2">
+              <input className="input" type="number" step="0.00000001" value={amount} onChange={e=>setAmount(Number(e.target.value))} />
+              <button className="kbd" onClick={()=>half(setAmount, amount)}>½</button>
+              <button className="kbd" onClick={()=>dbl(setAmount, amount)}>2x</button>
+            </div>
+          </Field>
+          <Field label="Side Bet (Perfect Pairs)">
+            <div className="flex gap-2">
+              <input className="input" type="number" step="0.00000001" value={ppBet} onChange={e=>setPpBet(Number(e.target.value))} />
+              <button className="kbd" onClick={()=>half(setPpBet, ppBet)}>½</button>
+              <button className="kbd" onClick={()=>dbl(setPpBet, ppBet)}>2x</button>
+            </div>
+            <div className="text-[11px] mt-1 opacity-60">{fmtCr(ppBet)}</div>
+          </Field>
+          <Field label="Side Bet (21 + 3)">
+            <div className="flex gap-2">
+              <input className="input" type="number" step="0.00000001" value={plus3Bet} onChange={e=>setPlus3Bet(Number(e.target.value))} />
+              <button className="kbd" onClick={()=>half(setPlus3Bet, plus3Bet)}>½</button>
+              <button className="kbd" onClick={()=>dbl(setPlus3Bet, plus3Bet)}>2x</button>
+            </div>
+            <div className="text-[11px] mt-1 opacity-60">{fmtCr(plus3Bet)}</div>
+          </Field>
+        </>
+      )}
+
+      <div className="grid grid-cols-2 gap-2">
+        <button className="button w-full" onClick={start}>Bet</button>
+        <div className="flex gap-2">
+          <button className="kbd" onClick={()=>act("hit")}>Hit</button>
+          <button className="kbd" onClick={()=>act("stand")}>Stand</button>
+          <button className="kbd" onClick={()=>act("split")}>Split</button>
+          <button className="kbd" onClick={()=>act("double")}>Double</button>
+        </div>
+      </div>
+
+      {/* Table area */}
+      <div className="card p-4">
+        <div className="flex items-center justify-between opacity-70 text-xs mb-2">
+          <div>BLACKJACK PAYS 3 TO 2</div>
+          <div>INSURANCE PAYS 2 TO 1</div>
+        </div>
+        {!state ? (
+          <div className="h-[200px] flex items-center justify-center opacity-60">Place a bet to start</div>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <div className="text-sm opacity-70 mb-1">Dealer</div>
+              <div className="flex gap-2">
+                {state.dealer.cards.map((c, i) => <Card key={i} card={c} faceDown={i===1 && state.dealer.hidden} />)}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm opacity-70 mb-1">Player</div>
+              <div className="flex gap-4 flex-wrap">
+                {state.playerHands.map((h, idx) => (
+                  <div key={idx} className="flex gap-2 items-center">
+                    <div className="flex gap-2">
+                      {h.cards.map((c, j) => <Card key={j} card={c} />)}
+                    </div>
+                    <div className="text-xs opacity-70">{h.doubled ? "Doubled" : ""} {h.finished ? "(Done)" : ""}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {state?.messages && state.messages.length>0 && (
+              <ul className="text-xs opacity-80 list-disc ml-6">
+                {state.messages.map((m,i)=>(<li key={i}>{m}</li>))}
+              </ul>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Field({label, children}:{label: string; children: any}){
+  return (
+    <div>
+      <div className="text-xs opacity-70 mb-1">{label}</div>
+      {children}
+    </div>
+  );
+}
+"""))
+
+write("client/src/components/PastHands.tsx", textwrap.dedent("""\
+import { useQuery } from "@tanstack/react-query";
+import { api } from "../lib/api";
+import { HistoryRow } from "../types";
+
+export default function PastHands() {
+  const { data, refetch, isFetching } = useQuery({
+    queryKey: ["bj-history"],
+    queryFn: () => api.get<HistoryRow[]>("/bj/history?limit=50"),
+    refetchInterval: 3000
+  });
+
+  return (
+    <div className="card p-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-bold text-lg"># Provably Fair</h3>
+      </div>
+      <div className="mt-4">
+        <h4 className="font-bold mb-2">Recent Hands</h4>
+        <div className="space-y-2 max-h-[400px] overflow-auto pr-1">
+          {data?.map((r) => (
+            <div key={r.id} className={"p-3 rounded-lg border " + (r.profit>=0 ? "border-green-700 bg-green-950/30" : "border-red-700 bg-red-950/30")}>
+              <div className="flex items-center justify-between">
+                <div className="font-semibold">{r.result_summary}</div>
+                <div className="text-sm">{r.profit.toFixed(2)} Credits</div>
+              </div>
+              <div className="text-xs opacity-80 mt-1">
+                Bet: {r.base_bet.toFixed(2)} | PP: {r.pp_bet.toFixed(2)} | 21+3: {r.plus3_bet.toFixed(2)} | Ins: {r.insurance_bet.toFixed(2)}
+              </div>
+              <div className="text-[11px] opacity-60 mt-1">
+                Seed Hash: {r.server_seed_hash} • Nonce: {r.hand_nonce}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+"""))
+
+write("client/src/components/ProvablyFairCard.tsx", textwrap.dedent("""\
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "../lib/api";
+import { SeedCurrent } from "../types";
+import { useState } from "react";
+
+export default function ProvablyFairCard() {
+  const qc = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["seed-current"],
+    queryFn: () => api.get<SeedCurrent>("/seeds/current")
+  });
+
+  const [clientSeed, setClientSeed] = useState("");
+
+  const saveClientSeed = async () => {
+    await api.post("/seeds/client", { clientSeed });
+    await qc.invalidateQueries({ queryKey: ["seed-current"] });
+  };
+
+  const rotate = async () => {
+    await api.post("/seeds/rotate");
+    await qc.invalidateQueries({ queryKey: ["seed-current"] });
+    await qc.invalidateQueries({ queryKey: ["bj-history"] });
+  };
+
+  return (
+    <div>
+      <h3 className="font-bold mb-2">Provably Fair</h3>
+      <div className="text-xs opacity-70">Server Seed Hash</div>
+      <div className="input mt-1 text-[12px]">{data?.serverSeedHash}</div>
+
+      <div className="grid grid-cols-2 gap-2 mt-3">
+        <div>
+          <div className="text-xs opacity-70 mb-1">Client Seed (current)</div>
+          <div className="input text-[12px]">{data?.clientSeed}</div>
+        </div>
+        <div>
+          <div className="text-xs opacity-70 mb-1">Nonce (your hands)</div>
+          <div className="input text-[12px]">{data?.nonce ?? 0}</div>
+        </div>
+      </div>
+
+      <div className="mt-3">
+        <div className="text-xs opacity-70 mb-1">Set New Client Seed</div>
+        <div className="flex gap-2">
+          <input className="input" value={clientSeed} onChange={e => setClientSeed(e.target.value)} placeholder="e.g. my-seed-123" />
+          <button className="kbd" onClick={saveClientSeed}>save</button>
+        </div>
+      </div>
+
+      <div className="mt-3">
+        <button className="button w-full" onClick={rotate}>Rotate Server Seed</button>
+      </div>
+    </div>
+  );
+}
+"""))
+
+# Server files
+
+write("server/db.ts", textwrap.dedent("""\
+import Database from "better-sqlite3";
+
+const db = new Database("blackjack.db");
+db.pragma("journal_mode = WAL");
+
+db.prepare(`
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY,
+  username TEXT,
+  balance REAL NOT NULL DEFAULT 0,
+  client_seed TEXT
+)`).run();
+
+db.prepare(`
+CREATE TABLE IF NOT EXISTS seeds (
+  id INTEGER PRIMARY KEY,
+  server_seed TEXT,
+  server_seed_hash TEXT,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)`).run();
+
+db.prepare(`
+CREATE TABLE IF NOT EXISTS bj_hands (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER,
+  base_bet REAL,
+  pp_bet REAL,
+  plus3_bet REAL,
+  insurance_bet REAL,
+  state_json TEXT,       -- serialized runtime state (deck, drawCount, etc.)
+  status TEXT,           -- 'in_play' | 'settled'
+  result_summary TEXT,
+  profit REAL,
+  server_seed_hash TEXT,
+  server_seed_revealed TEXT,
+  client_seed TEXT,
+  hand_nonce INTEGER,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)`).run();
+
+const user = db.prepare("SELECT * FROM users WHERE id=1").get();
+if (!user) {
+  db.prepare("INSERT INTO users (id, username, balance, client_seed) VALUES (1, 'demo', 1000, ?)").run(
+    Math.random().toString(36).slice(2)
+  );
+}
+
+export default db;
+"""))
+
+write("server/provablyFair.ts", textwrap.dedent("""\
+import crypto from "crypto";
+
+export const sha256 = (s: string) => crypto.createHash("sha256").update(s).digest("hex");
+export const hmacSHA256 = (key: string, msg: string) =>
+  crypto.createHmac("sha256", key).update(msg).digest("hex");
+
+function rFromHex(hex: string) {
+  // Use first 13 bytes -> 52 bits. Return [0,1)
+  const slice = hex.slice(0, 26);
+  const n = parseInt(slice, 16);
+  return n / 2**52;
+}
+
+export function pfRandom(serverSeed: string, clientSeed: string, handNonce: number, drawIndex: number) {
+  const digest = hmacSHA256(serverSeed, `${clientSeed}:${handNonce}:${drawIndex}`);
+  return rFromHex(digest);
+}
+
+/** Draws an index into remaining 'n' cards deterministically. */
+export function drawIndex(serverSeed: string, clientSeed: string, handNonce: number, drawIndex: number, n: number) {
+  const r = pfRandom(serverSeed, clientSeed, handNonce, drawIndex);
+  return Math.floor(r * n); // 0..n-1
+}
+"""))
+
+write("server/types.ts", textwrap.dedent("""\
+export type User = { id: number; username: string; balance: number; client_seed: string };
+export type Seed = { id: number; server_seed: string; server_seed_hash: string; active: number };
+"""))
+
+write("server/index.ts", textwrap.dedent("""\
+import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import crypto from "crypto";
+import db from "./db.js";
+import { sha256 } from "./provablyFair.js";
+import type { User, Seed } from "./types.js";
+import { bjRouter } from "./routes/bj.js";
+
+const app = express();
+app.use(express.json());
+app.use(helmet());
+app.use(cors());
+
+const getUser = (id=1): User => db.prepare("SELECT * FROM users WHERE id=?").get(id);
+const getActiveSeed = (): Seed => db.prepare("SELECT * FROM seeds WHERE active=1").get();
+
+// init seed
+(() => {
+  const active = getActiveSeed();
+  if (!active) {
+    const serverSeed = crypto.randomBytes(32).toString("hex");
+    const serverSeedHash = sha256(serverSeed);
+    db.prepare("INSERT INTO seeds(server_seed, server_seed_hash, active) VALUES(?,?,1)").run(serverSeed, serverSeedHash);
+  }
+})();
+
+app.get("/api/users/me", (req, res) => {
+  const me = getUser(1);
+  res.json({ balance: me.balance });
+});
+
+app.get("/api/seeds/current", (req, res) => {
+  const me = getUser(1);
+  const active = getActiveSeed();
+  // nonce = number of hands for this user under current seed
+  const r = db.prepare("SELECT COUNT(*) as c FROM bj_hands WHERE user_id=1 AND server_seed_hash=?").get(active.server_seed_hash) as any;
+  res.json({ serverSeedHash: active.server_seed_hash, clientSeed: me.client_seed, nonce: r.c });
+});
+
+app.post("/api/seeds/client", (req, res) => {
+  const { clientSeed } = req.body as { clientSeed?: string };
+  if (!clientSeed) return res.status(400).send("clientSeed required");
+  db.prepare("UPDATE users SET client_seed=? WHERE id=1").run(clientSeed);
+  res.json({ ok: true });
+});
+
+app.post("/api/seeds/rotate", (req, res) => {
+  const current = getActiveSeed();
+  db.prepare("UPDATE seeds SET active=0 WHERE id=?").run(current.id);
+  const serverSeed = crypto.randomBytes(32).toString("hex");
+  const serverSeedHash = sha256(serverSeed);
+  db.prepare("INSERT INTO seeds(server_seed, server_seed_hash, active) VALUES(?,?,1)").run(serverSeed, serverSeedHash);
+
+  // reveal on past hands
+  db.prepare("UPDATE bj_hands SET server_seed_revealed=? WHERE server_seed_hash=? AND server_seed_revealed IS NULL")
+    .run(current.server_seed, current.server_seed_hash);
+
+  res.json({ revealed: { serverSeed: current.server_seed, serverSeedHash: current.server_seed_hash }, newHash: serverSeedHash });
+});
+
+import { roll as _roll } from "./routes/bj.js"; // not used but ensures module compiles
+
+app.use("/api/bj", bjRouter);
+
+const PORT = 3001;
+app.listen(PORT, () => console.log(`API on http://localhost:${PORT}`));
+"""))
+
+# Blackjack router with full logic
+write("server/routes/bj.ts", textwrap.dedent("""\
+import { Router } from "express";
+import db from "../db.js";
+import { drawIndex } from "../provablyFair.js";
+import type { User, Seed } from "../types.js";
+
+export const bjRouter = Router();
+
+const getUser = (id=1): User => db.prepare("SELECT * FROM users WHERE id=?").get(id);
+const getActiveSeed = (): Seed => db.prepare("SELECT * FROM seeds WHERE active=1").get();
+
+type Card = { rank: number; suit: number }; // rank 1..13 (A..K), suit 0..3 (S,H,D,C)
+type RuntimeState = {
+  deck: number[];           // remaining card indexes 0..51
+  drawCount: number;        // increments per draw
+  playerHands: { cards: Card[]; bet: number; doubled: boolean; finished: boolean }[];
+  dealer: { cards: Card[]; hidden: boolean };
+  splitDone: boolean;
+};
+
+function codeToCard(code: number): Card {
+  const suit = Math.floor(code / 13);
+  const rank = (code % 13) + 1;
+  return { rank, suit };
+}
+function makeDeck(): number[] { return Array.from({length:52}, (_,i)=>i); }
+
+function drawCard(state: RuntimeState, serverSeed: string, clientSeed: string, handNonce: number): Card {
+  const idx = drawIndex(serverSeed, clientSeed, handNonce, state.drawCount++, state.deck.length);
+  const code = state.deck.splice(idx,1)[0];
+  return codeToCard(code);
+}
+
+function isBlackjack(cards: Card[]): boolean {
+  return cards.length === 2 && bestTotal(cards) === 21;
+}
+
+function cardValue(rank: number): number {
+  if (rank === 1) return 11; // Ace initially as 11
+  if (rank >= 10) return 10;
+  return rank;
+}
+function bestTotal(cards: Card[]): number {
+  let total = 0;
+  let aces = 0;
+  for (const c of cards) {
+    if (c.rank === 1) aces++;
+    total += cardValue(c.rank);
+  }
+  while (total > 21 && aces > 0) { total -= 10; aces--; }
+  return total;
+}
+
+/* Perfect Pairs payout: Perfect 25:1, Colored 12:1, Mixed 6:1 */
+function perfectPairsPayout(c1: Card, c2: Card): number {
+  if (c1.rank !== c2.rank) return 0;
+  const sameSuit = c1.suit === c2.suit;
+  const sameColor = (c1.suit%2) === (c2.suit%2); // S(0) & D(2) even, H(1) & C(3) odd — but colors differ; we'll map explicitly
+  // map S♠(0) & C♣(3) black ; H♥(1) & D♦(2) red
+  const colorA = (c1.suit===0 || c1.suit===3) ? 'black' : 'red';
+  const colorB = (c2.suit===0 || c2.suit===3) ? 'black' : 'red';
+  if (sameSuit) return 25;
+  if (colorA === colorB) return 12;
+  return 6;
+}
+
+/* 21+3: Straight Flush 40:1, Three of a Kind 30:1, Straight 10:1, Flush 5:1 */
+function plus3Payout(p1: Card, p2: Card, dealerUp: Card): number {
+  const cards = [p1,p2,dealerUp];
+  const suits = new Set(cards.map(c=>c.suit)).size;
+  const ranks = cards.map(c=>c.rank).sort((a,b)=>a-b);
+  const allSameRank = ranks[0]===ranks[1] && ranks[1]===ranks[2];
+
+  const isFlush = suits===1;
+  // Straight: handle A as 1 or 14
+  const isStraight = (()=>{
+    const r = [...ranks];
+    const straight = (a:number,b:number,c:number) => (b===a+1 && c===b+1);
+    if (straight(r[0],r[1],r[2])) return true;
+    // A,2,3
+    if (r[0]===1 && r[1]===2 && r[2]===3) return true;
+    // Q,K,A (12,13,1) -> treat Ace high (14)
+    const r2 = r.map(x=>x===1?14:x).sort((a,b)=>a-b);
+    if (straight(r2[0],r2[1],r2[2])) return true;
+    return false;
+  })();
+
+  if (isFlush && isStraight) return 40;
+  if (allSameRank) return 30;
+  if (isStraight) return 10;
+  if (isFlush) return 5;
+  return 0;
+}
+
+function summarizeResult(hands: {cards: Card[]; bet:number; doubled:boolean; finished:boolean; result?: string; payout?: number;}[], dealer: Card[]): string {
+  const lines: string[] = [];
+  const dT = bestTotal(dealer);
+  for (let i=0;i<hands.length;i++) {
+    const h = hands[i];
+    const t = bestTotal(h.cards);
+    lines.push(`Hand ${i+1}: ${t} vs Dealer ${dT} — ${h.result ?? ""}`.trim());
+  }
+  return lines.join(" | ");
+}
+
+// Compute settlement vs dealer
+function settleAgainstDealer(state: RuntimeState): { profit: number; messages: string[] } {
+  const dealerTotal = bestTotal(state.dealer.cards);
+  const messages: string[] = [];
+  let profit = 0;
+  for (const h of state.playerHands) {
+    const wager = h.bet;
+    const total = bestTotal(h.cards);
+    let payout = 0;
+    if (total > 21) { payout = 0; h.result = "Bust"; }
+    else if (dealerTotal > 21) { payout = 2*wager; h.result = "Win"; }
+    else if (total > dealerTotal) { payout = 2*wager; h.result = "Win"; }
+    else if (total === dealerTotal) { payout = 1*wager; h.result = "Push"; }
+    else { payout = 0; h.result = "Lose"; }
+    h.payout = payout;
+    profit += (payout - wager); // since base wager already deducted
+  }
+  messages.push(`Dealer stands on ${dealerTotal}`);
+  return { profit, messages };
+}
+
+/* ---------- Routes ---------- */
+
+// Start a new hand
+bjRouter.post("/start", (req, res) => {
+  const { bet, ppBet=0, plus3Bet=0 } = req.body as { bet: number; ppBet?: number; plus3Bet?: number };
+  if (bet<=0) return res.status(400).send("invalid bet");
+  if (ppBet<0 || plus3Bet<0) return res.status(400).send("invalid side bet");
+
+  const user = getUser(1);
+  const seed = getActiveSeed();
+
+  const nonceRow = db.prepare("SELECT COUNT(*) as c FROM bj_hands WHERE user_id=1 AND server_seed_hash=?").get(seed.server_seed_hash) as any;
+  const handNonce = nonceRow.c;
+
+  const need = bet + ppBet + plus3Bet;
+  if (user.balance < need) return res.status(400).send("Insufficient balance");
+
+  // Initialize runtime state
+  const rt: RuntimeState = {
+    deck: makeDeck(),
+    drawCount: 0,
+    playerHands: [{ cards: [], bet, doubled: false, finished: false }],
+    dealer: { cards: [], hidden: true },
+    splitDone: false
+  };
+
+  // Deal initial 4 cards: P, D, P, D
+  rt.playerHands[0].cards.push(drawCard(rt, seed.server_seed, user.client_seed, handNonce));
+  rt.dealer.cards.push(drawCard(rt, seed.server_seed, user.client_seed, handNonce));
+  rt.playerHands[0].cards.push(drawCard(rt, seed.server_seed, user.client_seed, handNonce));
+  rt.dealer.cards.push(drawCard(rt, seed.server_seed, user.client_seed, handNonce));
+
+  // Deduct wagers
+  db.prepare("UPDATE users SET balance = balance - ? WHERE id=1").run(need);
+  let balance = getUser(1).balance;
+  let messages: string[] = [];
+
+  // Resolve side bets immediately
+  if (ppBet>0) {
+    const payout = perfectPairsPayout(rt.playerHands[0].cards[0], rt.playerHands[0].cards[1]);
+    if (payout>0) {
+      const ret = ppBet * (payout + 1);
+      db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(ret);
+      balance += ret;
+      messages.push(`Perfect Pairs hit: ${payout}:1 (return ${ret.toFixed(2)})`);
+    } else {
+      messages.push(`Perfect Pairs lost`);
+    }
+  }
+  if (plus3Bet>0) {
+    const payout = plus3Payout(rt.playerHands[0].cards[0], rt.playerHands[0].cards[1], rt.dealer.cards[0]);
+    if (payout>0) {
+      const ret = plus3Bet * (payout + 1);
+      db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(ret);
+      balance += ret;
+      messages.push(`21+3 hit: ${payout}:1 (return ${ret.toFixed(2)})`);
+    } else {
+      messages.push(`21+3 lost`);
+    }
+  }
+
+  // Check naturals / insurance possibility
+  const playerBJ = isBlackjack(rt.playerHands[0].cards);
+  const dealerBJ = isBlackjack(rt.dealer.cards);
+
+  let result_summary = "";
+  let profit = 0;
+  let status: "in_play" | "settled" = "in_play";
+
+  if (dealerBJ) {
+    // reveal and settle immediately
+    rt.dealer.hidden = false;
+    status = "settled";
+    // player blackjack -> push, else lose
+    if (playerBJ) {
+      // push
+      db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(bet); // return stake
+      balance += bet;
+      profit += 0;
+      messages.push("Dealer Blackjack. Player Blackjack. Push.");
+      rt.playerHands[0].finished = true;
+      rt.playerHands[0].result = "Push";
+      rt.playerHands[0].payout = bet;
+    } else {
+      messages.push("Dealer Blackjack. Player loses.");
+      rt.playerHands[0].finished = true;
+      rt.playerHands[0].result = "Lose";
+      rt.playerHands[0].payout = 0;
+      profit -= bet;
+    }
+  } else if (playerBJ) {
+    // pay 3:2 immediately
+    status = "settled";
+    const ret = bet * 2.5; // stake + 1.5x profit
+    db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(ret);
+    balance += ret;
+    rt.playerHands[0].finished = true;
+    rt.playerHands[0].result = "Blackjack 3:2";
+    rt.playerHands[0].payout = ret;
+    messages.push("Player Blackjack! Paid 3:2");
+    profit += (ret - bet); // net
+  } else {
+    messages.push("Hand in play");
+  }
+
+  const insert = db.prepare(`INSERT INTO bj_hands (user_id, base_bet, pp_bet, plus3_bet, insurance_bet, state_json, status,
+    result_summary, profit, server_seed_hash, client_seed, hand_nonce)
+    VALUES (1, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?)`);
+  insert.run(bet, ppBet, plus3Bet, JSON.stringify(rt), status, result_summary, profit, seed.server_seed_hash, user.client_seed, handNonce);
+  const handId = db.prepare("SELECT last_insert_rowid() as id").get().id as number;
+
+  // Fill summary
+  if (status === "settled") {
+    const summary = summarizeResult(rt.playerHands, rt.dealer.cards);
+    const finalProfit = profit;
+    db.prepare("UPDATE bj_hands SET result_summary=?, profit=?, state_json=? WHERE id=?")
+      .run(summary, finalProfit, JSON.stringify(rt), handId);
+  }
+
+  res.json({
+    id: handId,
+    status,
+    baseBet: bet, ppBet, plus3Bet,
+    insuranceOffered: rt.dealer.cards[0].rank===1,
+    insuranceBet: 0,
+    playerHands: rt.playerHands,
+    dealer: rt.dealer,
+    serverSeedHash: seed.server_seed_hash,
+    clientSeed: user.client_seed,
+    handNonce,
+    created_at: new Date().toISOString(),
+    balance,
+    messages
+  });
+});
+
+// Player action
+bjRouter.post("/action", (req, res) => {
+  const { handId, action, handIndex=0 } = req.body as { handId: number; action: "hit"|"stand"|"double"|"split"; handIndex?: number };
+  const row = db.prepare("SELECT * FROM bj_hands WHERE id=?").get(handId) as any;
+  if (!row) return res.status(404).send("hand not found");
+  if (row.status !== "in_play") {
+    // return current state
+    const seed = getActiveSeed();
+    const user = getUser(1);
+    const rt: RuntimeState = JSON.parse(row.state_json);
+    return res.json({
+      id: row.id, status: row.status,
+      baseBet: row.base_bet, ppBet: row.pp_bet, plus3Bet: row.plus3_bet,
+      insuranceOffered: rt.dealer.cards[0].rank===1,
+      insuranceBet: row.insurance_bet,
+      playerHands: rt.playerHands, dealer: rt.dealer,
+      serverSeedHash: row.server_seed_hash, clientSeed: row.client_seed,
+      handNonce: row.hand_nonce, created_at: row.created_at, balance: getUser(1).balance,
+      messages: ["Hand already settled"]
+    });
+  }
+  const seed = getActiveSeed();
+  const user = getUser(1);
+  const rt: RuntimeState = JSON.parse(row.state_json);
+  const messages: string[] = [];
+  const active = rt.playerHands[handIndex];
+
+  function saveAndRespond(status: "in_play"|"settled", profitDelta=0) {
+    let summary = row.result_summary;
+    if (status === "settled") {
+      summary = summarizeResult(rt.playerHands, rt.dealer.cards);
+    }
+    db.prepare("UPDATE bj_hands SET state_json=?, status=?, result_summary=?, profit=? WHERE id=?")
+      .run(JSON.stringify(rt), status, summary, row.profit + profitDelta, handId);
+    return res.json({
+      id: row.id, status,
+      baseBet: row.base_bet, ppBet: row.pp_bet, plus3Bet: row.plus3_bet,
+      insuranceOffered: rt.dealer.cards[0].rank===1,
+      insuranceBet: row.insurance_bet,
+      playerHands: rt.playerHands, dealer: rt.dealer,
+      serverSeedHash: row.server_seed_hash, clientSeed: row.client_seed,
+      handNonce: row.hand_nonce, created_at: row.created_at,
+      balance: getUser(1).balance, messages
+    });
+  }
+
+  if (action === "hit") {
+    if (active.finished) { messages.push("Hand already finished"); return saveAndRespond("in_play"); }
+    active.cards.push(drawCard(rt, seed.server_seed, row.client_seed, row.hand_nonce));
+    const t = bestTotal(active.cards);
+    if (t > 21) { active.finished = true; active.result = "Bust"; }
+    // If all finished, dealer plays
+    if (rt.playerHands.every(h=>h.finished)) {
+      rt.dealer.hidden = false;
+      // Dealer draws to 17+ (S17)
+      while (bestTotal(rt.dealer.cards) < 17) {
+        rt.dealer.cards.push(drawCard(rt, seed.server_seed, row.client_seed, row.hand_nonce));
+      }
+      const { profit, messages: msgs } = settleAgainstDealer(rt);
+      messages.push(...msgs);
+      // Credit returns
+      let delta = 0;
+      for (const h of rt.playerHands) {
+        const ret = h.payout ?? 0;
+        if (ret>0) { db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(ret); delta += (ret - h.bet); }
+        else { delta -= h.bet; }
+      }
+      return saveAndRespond("settled", delta);
+    }
+    return saveAndRespond("in_play");
+  }
+
+  if (action === "stand") {
+    if (active.finished) { messages.push("Hand already finished"); return saveAndRespond("in_play"); }
+    active.finished = true;
+    if (rt.playerHands.every(h=>h.finished)) {
+      rt.dealer.hidden = false;
+      while (bestTotal(rt.dealer.cards) < 17) {
+        rt.dealer.cards.push(drawCard(rt, seed.server_seed, row.client_seed, row.hand_nonce));
+      }
+      const { profit, messages: msgs } = settleAgainstDealer(rt);
+      messages.push(...msgs);
+      let delta = 0;
+      for (const h of rt.playerHands) {
+        const ret = h.payout ?? 0;
+        if (ret>0) { db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(ret); delta += (ret - h.bet); }
+        else { delta -= h.bet; }
+      }
+      return saveAndRespond("settled", delta);
+    }
+    return saveAndRespond("in_play");
+  }
+
+  if (action === "double") {
+    if (active.finished || active.cards.length !== 2) { messages.push("Double only on first two cards"); return saveAndRespond("in_play"); }
+    // deduct extra bet
+    db.prepare("UPDATE users SET balance = balance - ? WHERE id=1").run(active.bet);
+    active.bet *= 2;
+    active.doubled = true;
+    // draw one card and stand
+    active.cards.push(drawCard(rt, seed.server_seed, row.client_seed, row.hand_nonce));
+    active.finished = true;
+    if (rt.playerHands.every(h=>h.finished)) {
+      rt.dealer.hidden = false;
+      while (bestTotal(rt.dealer.cards) < 17) {
+        rt.dealer.cards.push(drawCard(rt, seed.server_seed, row.client_seed, row.hand_nonce));
+      }
+      const { profit, messages: msgs } = settleAgainstDealer(rt);
+      messages.push(...msgs);
+      let delta = 0;
+      for (const h of rt.playerHands) {
+        const ret = h.payout ?? 0;
+        if (ret>0) { db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(ret); delta += (ret - (h.bet)); }
+        else { delta -= (h.bet); }
+      }
+      return saveAndRespond("settled", delta);
+    }
+    return saveAndRespond("in_play");
+  }
+
+  if (action === "split") {
+    if (rt.splitDone) { messages.push("Split already used (one split allowed)"); return saveAndRespond("in_play"); }
+    if (active.cards.length !== 2 || active.cards[0].rank !== active.cards[1].rank) {
+      messages.push("Split requires a pair");
+      return saveAndRespond("in_play");
+    }
+    // deduct extra bet for new hand
+    db.prepare("UPDATE users SET balance = balance - ? WHERE id=1").run(active.bet);
+    const newHand = { cards: [active.cards.pop()!], bet: active.bet, doubled: false, finished: false };
+    active.cards = [ active.cards[0] ];
+    // Draw one card to each hand
+    const seedRow = getActiveSeed();
+    active.cards.push(drawCard(rt, seedRow.server_seed, row.client_seed, row.hand_nonce));
+    newHand.cards.push(drawCard(rt, seedRow.server_seed, row.client_seed, row.hand_nonce));
+    rt.playerHands.push(newHand);
+    rt.splitDone = true;
+    return saveAndRespond("in_play");
+  }
+
+  return res.status(400).send("Unknown action");
+});
+
+bjRouter.get("/history", (req, res) => {
+  const limit = Math.max(1, Math.min(200, Number(req.query.limit ?? 50)));
+  const rows = db.prepare("SELECT id, created_at, base_bet, pp_bet, plus3_bet, insurance_bet, result_summary, profit, server_seed_hash, server_seed_revealed, client_seed, hand_nonce FROM bj_hands WHERE user_id=1 ORDER BY id DESC LIMIT ?").all(limit);
+  res.json(rows);
+});
+"""))
+
+# Copy provided logo image into project public folder
+logo_path = "/mnt/data/4c203cc7-09ed-403d-bbb4-25bd4de0be01.png"
+public_dir = os.path.join(root, "client/public")
+os.makedirs(public_dir, exist_ok=True)
+if os.path.exists(logo_path):
+    shutil.copy(logo_path, os.path.join(public_dir, "logo-df.png"))
+
+# Zip project
+zip_path = "/mnt/data/blackjack-credits.zip"
+with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+    for folder, _, files in os.walk(root):
+        for f in files:
+            p = os.path.join(folder, f)
+            z.write(p, os.path.relpath(p, root))
+
+zip_path

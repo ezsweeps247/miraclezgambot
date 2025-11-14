@@ -1,0 +1,161 @@
+CREATE TABLE "dice_bets_backup" (
+	"bet_id" uuid,
+	"side" text,
+	"target" numeric(5, 2),
+	"roll" numeric(5, 2),
+	"payout_multiplier" numeric(12, 8)
+);
+CREATE TABLE "admin_logs" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"admin_id" uuid NOT NULL,
+	"action" varchar(100) NOT NULL,
+	"target_user_id" varchar,
+	"details" jsonb,
+	"ip_address" varchar(45),
+	"user_agent" text,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+CREATE TABLE "roulette_spins" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"server_seed_hash" text NOT NULL,
+	"server_seed_revealed" text,
+	"client_seed" text NOT NULL,
+	"nonce" integer NOT NULL,
+	"bets" jsonb NOT NULL,
+	"result" integer NOT NULL,
+	"bet_amount" bigint NOT NULL,
+	"payout" bigint NOT NULL,
+	"profit" bigint NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+CREATE TABLE "limbo_games" (
+	"id" varchar PRIMARY KEY NOT NULL,
+	"user_id" varchar NOT NULL,
+	"amount" numeric(20, 8) NOT NULL,
+	"target_multiplier" numeric(10, 2) NOT NULL,
+	"hit_multiplier" numeric(10, 2) NOT NULL,
+	"win" boolean NOT NULL,
+	"chance" numeric(5, 2) NOT NULL,
+	"payout" numeric(20, 8) NOT NULL,
+	"profit" numeric(20, 8) NOT NULL,
+	"server_seed_hash" varchar NOT NULL,
+	"server_seed" varchar NOT NULL,
+	"client_seed" varchar NOT NULL,
+	"nonce" integer NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+CREATE TABLE "admin_users" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"username" varchar(50) NOT NULL,
+	"password" varchar(255) NOT NULL,
+	"email" varchar(255),
+	"full_name" varchar(100),
+	"role" varchar(50) DEFAULT 'admin' NOT NULL,
+	"is_active" boolean DEFAULT true NOT NULL,
+	"last_login" timestamp,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "admin_users_username_key" UNIQUE("username"),
+	CONSTRAINT "admin_users_email_key" UNIQUE("email")
+);
+CREATE TABLE "hilo_rounds" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" uuid NOT NULL,
+	"stake" numeric(20, 8) DEFAULT '0',
+	"prediction" varchar,
+	"start_card" integer NOT NULL,
+	"next_card" integer,
+	"multiplier" numeric(10, 4) DEFAULT '0',
+	"win" boolean DEFAULT false,
+	"profit" numeric(20, 8) DEFAULT '0',
+	"server_seed_hash" varchar(64) NOT NULL,
+	"server_seed_revealed" varchar(64),
+	"client_seed" varchar(64) NOT NULL,
+	"round_nonce" integer NOT NULL,
+	"draw_history" jsonb DEFAULT '[]'::jsonb,
+	"status" varchar DEFAULT 'in_play',
+	"runtime" jsonb,
+	"created_at" timestamp DEFAULT now(),
+	CONSTRAINT "hilo_rounds_prediction_check" CHECK ((prediction)::text = ANY ((ARRAY['higher'::character varying, 'lower'::character varying, 'equal'::character varying])::text[])),
+	CONSTRAINT "hilo_rounds_status_check" CHECK ((status)::text = ANY ((ARRAY['in_play'::character varying, 'settled'::character varying])::text[]))
+);
+CREATE TABLE "keno_games" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" varchar NOT NULL,
+	"bet_amount" numeric(10, 2) NOT NULL,
+	"picks" integer[] NOT NULL,
+	"drawn_numbers" integer[] NOT NULL,
+	"risk" varchar NOT NULL,
+	"hits" integer NOT NULL,
+	"multiplier" numeric(10, 2) NOT NULL,
+	"payout" numeric(10, 2) NOT NULL,
+	"profit" numeric(10, 2) NOT NULL,
+	"server_seed_hash" varchar NOT NULL,
+	"server_seed" varchar NOT NULL,
+	"client_seed" varchar NOT NULL,
+	"nonce" integer NOT NULL,
+	"played_at" timestamp DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE "blackjack_hands" (
+	"id" varchar PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" varchar NOT NULL,
+	"round_id" varchar,
+	"hand_number" integer,
+	"bet_amount" numeric,
+	"side_bets" jsonb DEFAULT '{}'::jsonb,
+	"insurance_amount" numeric DEFAULT '0',
+	"status" varchar DEFAULT 'active',
+	"result" varchar,
+	"player_cards" jsonb,
+	"player_value" integer,
+	"split_from" varchar,
+	"dealer_cards" jsonb,
+	"dealer_value" integer,
+	"player_blackjack" boolean DEFAULT false,
+	"dealer_blackjack" boolean DEFAULT false,
+	"payout" numeric DEFAULT '0',
+	"created_at" timestamp DEFAULT now(),
+	"completed_at" timestamp,
+	"base_bet" numeric DEFAULT '0',
+	"pp_bet" numeric DEFAULT '0',
+	"plus3_bet" numeric DEFAULT '0',
+	"insurance_bet" numeric DEFAULT '0',
+	"result_summary" text,
+	"profit" numeric DEFAULT '0',
+	"server_seed_hash" varchar,
+	"server_seed_revealed" varchar,
+	"client_seed" varchar,
+	"hand_nonce" integer,
+	"state_json" jsonb
+);
+ALTER TABLE "dice_bets" RENAME COLUMN "bet_id" TO "id";
+ALTER TABLE "dice_bets" DROP CONSTRAINT "dice_bets_bet_id_bets_id_fk";
+ALTER TABLE "dice_bets" ALTER COLUMN "target" SET DATA TYPE integer;
+ALTER TABLE "dice_bets" ALTER COLUMN "roll" SET DATA TYPE numeric(5, 4);
+truncate table "dice_bets" cascade;
+ALTER TABLE "dice_bets" ADD COLUMN "user_id" uuid NOT NULL;
+ALTER TABLE "dice_bets" ADD COLUMN "amount" numeric(18, 8) NOT NULL;
+ALTER TABLE "dice_bets" ADD COLUMN "result" text NOT NULL;
+ALTER TABLE "dice_bets" ADD COLUMN "payout" numeric(18, 8) NOT NULL;
+ALTER TABLE "dice_bets" ADD COLUMN "profit" numeric(18, 8) NOT NULL;
+ALTER TABLE "dice_bets" ADD COLUMN "server_seed_hash" text NOT NULL;
+ALTER TABLE "dice_bets" ADD COLUMN "server_seed" text;
+ALTER TABLE "dice_bets" ADD COLUMN "client_seed" text NOT NULL;
+ALTER TABLE "dice_bets" ADD COLUMN "nonce" integer NOT NULL;
+ALTER TABLE "dice_bets" ADD COLUMN "created_at" timestamp DEFAULT now() NOT NULL;
+ALTER TABLE "bets" ADD COLUMN "potential_win" bigint;
+ALTER TABLE "users" ADD COLUMN "is_in_self_exclusion" boolean DEFAULT false NOT NULL;
+ALTER TABLE "users" ADD COLUMN "is_in_cooling_off" boolean DEFAULT false NOT NULL;
+ALTER TABLE "users" ADD COLUMN "self_exclusion_until" timestamp;
+ALTER TABLE "users" ADD COLUMN "self_exclusion_type" text;
+ALTER TABLE "users" ADD COLUMN "cooling_off_until" timestamp;
+ALTER TABLE "users" ADD COLUMN "last_session_start" timestamp;
+ALTER TABLE "users" ADD COLUMN "total_session_time" bigint DEFAULT 0;
+ALTER TABLE "admin_logs" ADD CONSTRAINT "admin_logs_admin_id_fkey" FOREIGN KEY ("admin_id") REFERENCES "public"."admin_users"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "roulette_spins" ADD CONSTRAINT "roulette_spins_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "hilo_rounds" ADD CONSTRAINT "hilo_rounds_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "dice_bets" ADD CONSTRAINT "dice_bets_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "dice_bets" DROP COLUMN "payout_multiplier";
+ALTER TABLE "dice_bets" ADD CONSTRAINT "dice_bets_side_check" CHECK (side = ANY (ARRAY['UNDER'::text, 'OVER'::text]));
+ALTER TABLE "dice_bets" ADD CONSTRAINT "dice_bets_result_check" CHECK (result = ANY (ARRAY['WIN'::text, 'LOSE'::text]));

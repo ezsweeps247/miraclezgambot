@@ -1,0 +1,424 @@
+import { Router } from "express";
+import db from "../db.js";
+import { drawIndex } from "../provablyFair.js";
+import type { User, Seed } from "../types.js";
+
+export const bjRouter = Router();
+
+const getUser = (id=1): User => db.prepare("SELECT * FROM users WHERE id=?").get(id);
+const getActiveSeed = (): Seed => db.prepare("SELECT * FROM seeds WHERE active=1").get();
+
+type Card = { rank: number; suit: number }; // rank 1..13 (A..K), suit 0..3 (♠♥♦♣)
+type RuntimeState = {
+  deck: number[];
+  drawCount: number;
+  playerHands: { cards: Card[]; bet: number; doubled: boolean; finished: boolean }[];
+  dealer: { cards: Card[]; hidden: boolean; peeked: boolean };
+  splitDone: boolean;
+  actionsCount: number;
+};
+
+function codeToCard(code: number): Card {
+  const suit = Math.floor(code / 13);
+  const rank = (code % 13) + 1;
+  return { rank, suit };
+}
+function makeDeck(): number[] { return Array.from({length:52}, (_,i)=>i); }
+
+function drawCard(state: RuntimeState, serverSeed: string, clientSeed: string, handNonce: number): Card {
+  const idx = drawIndex(serverSeed, clientSeed, handNonce, state.drawCount++, state.deck.length);
+  const code = state.deck.splice(idx,1)[0];
+  return codeToCard(code);
+}
+
+function isBlackjack(cards: Card[]): boolean {
+  return cards.length === 2 && bestTotal(cards) === 21;
+}
+
+function cardValue(rank: number): number {
+  if (rank === 1) return 11;
+  if (rank >= 10) return 10;
+  return rank;
+}
+function bestTotal(cards: Card[]): number {
+  let total = 0, aces = 0;
+  for (const c of cards) { if (c.rank === 1) aces++; total += cardValue(c.rank); }
+  while (total > 21 && aces > 0) { total -= 10; aces--; }
+  return total;
+}
+
+/* Perfect Pairs: Perfect 25:1, Colored 12:1, Mixed 6:1 */
+function perfectPairsPayout(c1: Card, c2: Card): number {
+  if (c1.rank !== c2.rank) return 0;
+  if (c1.suit === c2.suit) return 25;
+  const color = (s:number)=> (s===0||s===3) ? 'black' : 'red';
+  return color(c1.suit) === color(c2.suit) ? 12 : 6;
+}
+
+/* 21+3: SF 40:1, Trips 30:1, Straight 10:1, Flush 5:1 */
+function plus3Payout(p1: Card, p2: Card, dealerUp: Card): number {
+  const cards = [p1,p2,dealerUp];
+  const suits = new Set(cards.map(c=>c.suit)).size;
+  const ranks = cards.map(c=>c.rank).sort((a,b)=>a-b);
+  const allSameRank = ranks[0]===ranks[1] && ranks[1]===ranks[2];
+  const isFlush = suits===1;
+  const isStraight = (()=> {
+    const r = [...ranks];
+    const straight = (a:number,b:number,c:number)=> (b===a+1 && c===b+1);
+    if (straight(r[0],r[1],r[2])) return true;
+    if (r[0]===1 && r[1]===2 && r[2]===3) return true;         // A,2,3
+    const r2 = r.map(x=>x===1?14:x).sort((a,b)=>a-b);          // Q,K,A
+    if (straight(r2[0],r2[1],r2[2])) return true;
+    return false;
+  })();
+  if (isFlush && isStraight) return 40;
+  if (allSameRank) return 30;
+  if (isStraight) return 10;
+  if (isFlush) return 5;
+  return 0;
+}
+
+function summarizeResult(hands: {cards: Card[]; bet:number; doubled:boolean; finished:boolean; result?: string; payout?: number;}[], dealer: Card[]): string {
+  const lines: string[] = [];
+  const dT = bestTotal(dealer);
+  for (let i=0;i<hands.length;i++) {
+    const h = hands[i];
+    const t = bestTotal(h.cards);
+    lines.push(`Hand ${i+1}: ${t} vs Dealer ${dT} — ${h.result ?? ""}`.trim());
+  }
+  return lines.join(" | ");
+}
+
+function settleAgainstDealer(state: RuntimeState): { profit: number; messages: string[] } {
+  const dealerTotal = bestTotal(state.dealer.cards);
+  const messages: string[] = [];
+  let profit = 0;
+  for (const h of state.playerHands) {
+    const wager = h.bet;
+    const total = bestTotal(h.cards);
+    let payout = 0;
+    if (total > 21) { payout = 0; h.result = "Bust"; }
+    else if (dealerTotal > 21) { payout = 2*wager; h.result = "Win"; }
+    else if (total > dealerTotal) { payout = 2*wager; h.result = "Win"; }
+    else if (total === dealerTotal) { payout = 1*wager; h.result = "Push"; }
+    else { payout = 0; h.result = "Lose"; }
+    h.payout = payout;
+    profit += (payout - wager);
+  }
+  messages.push(`Dealer stands on ${dealerTotal}`);
+  return { profit, messages };
+}
+
+/* -------- Start hand -------- */
+bjRouter.post("/start", (req, res) => {
+  const { bet, ppBet=0, plus3Bet=0 } = req.body as { bet: number; ppBet?: number; plus3Bet?: number };
+  if (bet<=0) return res.status(400).send("invalid bet");
+  if (ppBet<0 || plus3Bet<0) return res.status(400).send("invalid side bet");
+
+  const user = getUser(1);
+  const seed = getActiveSeed();
+  const handNonce = (db.prepare("SELECT COUNT(*) as c FROM bj_hands WHERE user_id=1 AND server_seed_hash=?").get(seed.server_seed_hash) as any).c;
+
+  const need = bet + ppBet + plus3Bet;
+  if (user.balance < need) return res.status(400).send("Insufficient balance");
+
+  const rt: RuntimeState = {
+    deck: makeDeck(),
+    drawCount: 0,
+    playerHands: [{ cards: [], bet, doubled: false, finished: false }],
+    dealer: { cards: [], hidden: true, peeked: false },
+    splitDone: false,
+    actionsCount: 0
+  };
+
+  // deal: P, D, P, D
+  rt.playerHands[0].cards.push(drawCard(rt, seed.server_seed, user.client_seed, handNonce));
+  rt.dealer.cards.push(drawCard(rt, seed.server_seed, user.client_seed, handNonce));
+  rt.playerHands[0].cards.push(drawCard(rt, seed.server_seed, user.client_seed, handNonce));
+  rt.dealer.cards.push(drawCard(rt, seed.server_seed, user.client_seed, handNonce));
+
+  db.prepare("UPDATE users SET balance = balance - ? WHERE id=1").run(need);
+  let balance = getUser(1).balance;
+  const messages: string[] = [];
+
+  // Side bets resolve immediately
+  if (ppBet>0) {
+    const payout = perfectPairsPayout(rt.playerHands[0].cards[0], rt.playerHands[0].cards[1]);
+    if (payout>0) {
+      const ret = ppBet * (payout + 1);
+      db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(ret);
+      balance += ret;
+      messages.push(`Perfect Pairs hit: ${payout}:1 (return ${ret.toFixed(2)})`);
+    } else messages.push("Perfect Pairs lost");
+  }
+  if (plus3Bet>0) {
+    const payout = plus3Payout(rt.playerHands[0].cards[0], rt.playerHands[0].cards[1], rt.dealer.cards[0]);
+    if (payout>0) {
+      const ret = plus3Bet * (payout + 1);
+      db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(ret);
+      balance += ret;
+      messages.push(`21+3 hit: ${payout}:1 (return ${ret.toFixed(2)})`);
+    } else messages.push("21+3 lost");
+  }
+
+  // Player natural BJ: only pay immediately if dealer upcard is NOT Ace or Ten (no peek scenario)
+  const playerBJ = isBlackjack(rt.playerHands[0].cards);
+  const dealerUpRank = rt.dealer.cards[0].rank;
+  let status: "in_play" | "settled" = "in_play";
+  let result_summary = "";
+  let profit = 0;
+
+  const peekNeeded = (dealerUpRank === 1) || (dealerUpRank >= 10);
+  if (playerBJ && !peekNeeded) {
+    const ret = bet * 2.5;
+    db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(ret);
+    balance += ret;
+    rt.playerHands[0].finished = true;
+    rt.playerHands[0].result = "Blackjack 3:2";
+    rt.playerHands[0].payout = ret;
+    messages.push("Player Blackjack! Paid 3:2");
+    profit += (ret - bet);
+    status = "settled";
+  } else if (playerBJ) {
+    messages.push("Player Blackjack — waiting for dealer peek.");
+  }
+
+  db.prepare(`INSERT INTO bj_hands (user_id, base_bet, pp_bet, plus3_bet, insurance_bet, state_json, status,
+    result_summary, profit, server_seed_hash, client_seed, hand_nonce)
+    VALUES (1, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(bet, ppBet, plus3Bet, JSON.stringify(rt), status, result_summary, profit, seed.server_seed_hash, user.client_seed, handNonce);
+  const handId = (db.prepare("SELECT last_insert_rowid() as id").get() as any).id;
+
+  if (status === "settled") {
+    const summary = summarizeResult(rt.playerHands, rt.dealer.cards);
+    db.prepare("UPDATE bj_hands SET result_summary=?, profit=?, state_json=? WHERE id=?")
+      .run(summary, profit, JSON.stringify(rt), handId);
+  }
+
+  res.json({
+    id: handId,
+    status,
+    baseBet: bet, ppBet, plus3Bet,
+    insuranceOffered: dealerUpRank === 1,
+    insuranceBet: 0,
+    playerHands: rt.playerHands,
+    dealer: rt.dealer,
+    serverSeedHash: seed.server_seed_hash,
+    clientSeed: user.client_seed,
+    handNonce,
+    created_at: new Date().toISOString(),
+    balance,
+    messages
+  });
+});
+
+/* -------- Insurance (2:1), only before any action, dealer upcard Ace -------- */
+bjRouter.post("/insurance", (req, res) => {
+  const { handId, amount } = req.body as { handId: number; amount: number };
+  const row = db.prepare("SELECT * FROM bj_hands WHERE id=?").get(handId) as any;
+  if (!row) return res.status(404).send("hand not found");
+  if (row.status !== "in_play") return res.status(400).send("hand already settled");
+
+  const rt = JSON.parse(row.state_json) as RuntimeState;
+  if (rt.actionsCount > 0) return res.status(400).send("insurance only before any action");
+  if (rt.dealer.cards[0].rank !== 1) return res.status(400).send("insurance only when dealer shows Ace");
+  if (amount <= 0 || amount > row.base_bet / 2) return res.status(400).send("invalid insurance amount");
+
+  // deduct insurance stake
+  db.prepare("UPDATE users SET balance = balance - ? WHERE id=1").run(amount);
+  const seed = getActiveSeed();
+  const user = getUser(1);
+  let balance = user.balance - amount;
+  let messages: string[] = ["Insurance placed."];
+  // Peek dealer
+  const dealerBJ = isBlackjack(rt.dealer.cards);
+  let status: "in_play" | "settled" = "in_play";
+  let profitDelta = 0;
+
+  if (dealerBJ) {
+    // Reveal and settle immediately
+    rt.dealer.hidden = false; rt.dealer.peeked = true;
+    const playerBJ = isBlackjack(rt.playerHands[0].cards);
+    // Insurance pays stake*3 (stake back + 2:1)
+    const insReturn = amount * 3;
+    db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(insReturn);
+    balance += insReturn;
+    messages.push("Dealer Blackjack. Insurance paid 2:1.");
+
+    // Base bet resolution
+    if (playerBJ) {
+      // push base
+      db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(row.base_bet);
+      balance += row.base_bet;
+      rt.playerHands[0].finished = true; rt.playerHands[0].result = "Push"; rt.playerHands[0].payout = row.base_bet;
+    } else {
+      rt.playerHands[0].finished = true; rt.playerHands[0].result = "Lose"; rt.playerHands[0].payout = 0;
+      profitDelta -= row.base_bet;
+    }
+    status = "settled";
+  } else {
+    messages.push("Dealer does not have Blackjack. Insurance lost.");
+    // no additional credit; stake already deducted (loss)
+  }
+
+  db.prepare("UPDATE bj_hands SET insurance_bet=?, state_json=?, status=? WHERE id=?")
+    .run(amount, JSON.stringify(rt), status, handId);
+
+  res.json({
+    id: row.id,
+    status,
+    baseBet: row.base_bet, ppBet: row.pp_bet, plus3Bet: row.plus3_bet,
+    insuranceOffered: rt.dealer.cards[0].rank===1,
+    insuranceBet: amount,
+    playerHands: rt.playerHands, dealer: rt.dealer,
+    serverSeedHash: row.server_seed_hash, clientSeed: row.client_seed,
+    handNonce: row.hand_nonce, created_at: row.created_at,
+    balance: getUser(1).balance, messages
+  });
+});
+
+/* -------- Player actions -------- */
+bjRouter.post("/action", (req, res) => {
+  const { handId, action, handIndex=0 } = req.body as { handId: number; action: "hit"|"stand"|"double"|"split"; handIndex?: number };
+  const row = db.prepare("SELECT * FROM bj_hands WHERE id=?").get(handId) as any;
+  if (!row) return res.status(404).send("hand not found");
+  if (row.status !== "in_play") {
+    const rt = JSON.parse(row.state_json) as RuntimeState;
+    return res.json({
+      id: row.id, status: row.status,
+      baseBet: row.base_bet, ppBet: row.pp_bet, plus3Bet: row.plus3_bet,
+      insuranceOffered: rt.dealer.cards[0].rank===1,
+      insuranceBet: row.insurance_bet,
+      playerHands: rt.playerHands, dealer: rt.dealer,
+      serverSeedHash: row.server_seed_hash, clientSeed: row.client_seed,
+      handNonce: row.hand_nonce, created_at: row.created_at, balance: getUser(1).balance,
+      messages: ["Hand already settled"]
+    });
+  }
+
+  const seed = getActiveSeed();
+  const rt = JSON.parse(row.state_json) as RuntimeState;
+  const user = getUser(1);
+  const messages: string[] = [];
+  const active = rt.playerHands[handIndex];
+
+  // If dealer shows Ace and not peeked yet, auto-peek on first action
+  if (!rt.dealer.peeked && (rt.dealer.cards[0].rank === 1)) {
+    rt.dealer.peeked = true;
+    if (isBlackjack(rt.dealer.cards)) {
+      // Settle immediately
+      rt.dealer.hidden = false;
+      const playerBJ = isBlackjack(rt.playerHands[0].cards);
+      if (playerBJ) {
+        db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(row.base_bet);
+        rt.playerHands[0].finished = true; rt.playerHands[0].result = "Push"; rt.playerHands[0].payout = row.base_bet;
+        messages.push("Dealer Blackjack. Player Blackjack. Push.");
+      } else {
+        rt.playerHands[0].finished = true; rt.playerHands[0].result = "Lose"; rt.playerHands[0].payout = 0;
+        messages.push("Dealer Blackjack. Player loses.");
+      }
+      // Insurance if any already handled at purchase time; nothing to do here.
+      const summary = summarizeResult(rt.playerHands, rt.dealer.cards);
+      db.prepare("UPDATE bj_hands SET state_json=?, status='settled', result_summary=? WHERE id=?")
+        .run(JSON.stringify(rt), summary, handId);
+      return res.json({
+        id: row.id, status: "settled",
+        baseBet: row.base_bet, ppBet: row.pp_bet, plus3Bet: row.plus3_bet,
+        insuranceOffered: true,
+        insuranceBet: row.insurance_bet,
+        playerHands: rt.playerHands, dealer: rt.dealer,
+        serverSeedHash: row.server_seed_hash, clientSeed: row.client_seed,
+        handNonce: row.hand_nonce, created_at: row.created_at, balance: getUser(1).balance,
+        messages
+      });
+    }
+    messages.push("Dealer peeked: no Blackjack.");
+  }
+
+  rt.actionsCount++;
+
+  function saveAndRespond(status: "in_play"|"settled") {
+    let summary = row.result_summary;
+    if (status === "settled") summary = summarizeResult(rt.playerHands, rt.dealer.cards);
+    db.prepare("UPDATE bj_hands SET state_json=?, status=?, result_summary=? WHERE id=?")
+      .run(JSON.stringify(rt), status, summary, handId);
+    return res.json({
+      id: row.id, status,
+      baseBet: row.base_bet, ppBet: row.pp_bet, plus3Bet: row.plus3_bet,
+      insuranceOffered: rt.dealer.cards[0].rank===1,
+      insuranceBet: row.insurance_bet,
+      playerHands: rt.playerHands, dealer: rt.dealer,
+      serverSeedHash: row.server_seed_hash, clientSeed: row.client_seed,
+      handNonce: row.hand_nonce, created_at: row.created_at,
+      balance: getUser(1).balance, messages
+    });
+  }
+
+  if (action === "hit") {
+    if (active.finished) { messages.push("Hand already finished"); return saveAndRespond("in_play"); }
+    active.cards.push(drawCard(rt, seed.server_seed, row.client_seed, row.hand_nonce));
+    if (bestTotal(active.cards) > 21) { active.finished = true; active.result = "Bust"; }
+    if (rt.playerHands.every(h=>h.finished)) {
+      rt.dealer.hidden = false;
+      while (bestTotal(rt.dealer.cards) < 17) rt.dealer.cards.push(drawCard(rt, seed.server_seed, row.client_seed, row.hand_nonce));
+      const { messages: msgs } = settleAgainstDealer(rt); messages.push(...msgs);
+      // credit payouts
+      for (const h of rt.playerHands) { const ret = h.payout ?? 0; if (ret>0) db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(ret); }
+      return saveAndRespond("settled");
+    }
+    return saveAndRespond("in_play");
+  }
+
+  if (action === "stand") {
+    if (active.finished) { messages.push("Hand already finished"); return saveAndRespond("in_play"); }
+    active.finished = true;
+    if (rt.playerHands.every(h=>h.finished)) {
+      rt.dealer.hidden = false;
+      while (bestTotal(rt.dealer.cards) < 17) rt.dealer.cards.push(drawCard(rt, seed.server_seed, row.client_seed, row.hand_nonce));
+      const { messages: msgs } = settleAgainstDealer(rt); messages.push(...msgs);
+      for (const h of rt.playerHands) { const ret = h.payout ?? 0; if (ret>0) db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(ret); }
+      return saveAndRespond("settled");
+    }
+    return saveAndRespond("in_play");
+  }
+
+  if (action === "double") {
+    if (active.finished || active.cards.length !== 2) { messages.push("Double only on first two cards"); return saveAndRespond("in_play"); }
+    db.prepare("UPDATE users SET balance = balance - ? WHERE id=1").run(active.bet);
+    active.bet *= 2; active.doubled = true;
+    active.cards.push(drawCard(rt, seed.server_seed, row.client_seed, row.hand_nonce));
+    active.finished = true;
+    if (rt.playerHands.every(h=>h.finished)) {
+      rt.dealer.hidden = false;
+      while (bestTotal(rt.dealer.cards) < 17) rt.dealer.cards.push(drawCard(rt, seed.server_seed, row.client_seed, row.hand_nonce));
+      const { messages: msgs } = settleAgainstDealer(rt); messages.push(...msgs);
+      for (const h of rt.playerHands) { const ret = h.payout ?? 0; if (ret>0) db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(ret); }
+      return saveAndRespond("settled");
+    }
+    return saveAndRespond("in_play");
+  }
+
+  if (action === "split") {
+    if (rt.splitDone) { messages.push("Split already used (one split allowed)"); return saveAndRespond("in_play"); }
+    if (active.cards.length !== 2 || active.cards[0].rank !== active.cards[1].rank) {
+      messages.push("Split requires a pair"); return saveAndRespond("in_play");
+    }
+    db.prepare("UPDATE users SET balance = balance - ? WHERE id=1").run(active.bet);
+    const second = { cards: [active.cards.pop()!], bet: active.bet, doubled: false, finished: false };
+    active.cards = [ active.cards[0] ];
+    const s = getActiveSeed();
+    active.cards.push(drawCard(rt, s.server_seed, row.client_seed, row.hand_nonce));
+    second.cards.push(drawCard(rt, s.server_seed, row.client_seed, row.hand_nonce));
+    rt.playerHands.push(second);
+    rt.splitDone = true;
+    return saveAndRespond("in_play");
+  }
+
+  return res.status(400).send("Unknown action");
+});
+
+bjRouter.get("/history", (req, res) => {
+  const limit = Math.max(1, Math.min(200, Number(req.query.limit ?? 50)));
+  const rows = db.prepare("SELECT id, created_at, base_bet, pp_bet, plus3_bet, insurance_bet, result_summary, profit, server_seed_hash, server_seed_revealed, client_seed, hand_nonce FROM bj_hands WHERE user_id=1 ORDER BY id DESC LIMIT ?").all(limit);
+  res.json(rows);
+});

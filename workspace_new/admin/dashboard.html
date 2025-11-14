@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>214DF Casino - Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .admin-header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            color: #4ade80;
+            font-size: 24px;
+        }
+
+        .admin-header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .dashboard-container {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #4ade80;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .change {
+            font-size: 12px;
+            color: #4ade80;
+        }
+
+        .management-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 25px;
+            color: #e2e8f0;
+            border-bottom: 2px solid #4ade80;
+            padding-bottom: 10px;
+        }
+
+        .management-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .management-btn {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .management-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .management-btn.danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .management-btn.danger:hover {
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+        }
+
+        .management-btn.warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .management-btn.warning:hover {
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+        }
+
+        .recent-activity {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-info {
+            flex: 1;
+        }
+
+        .activity-time {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <h1>🛡️ Admin Dashboard</h1>
+        <div class="user-info">
+            <span id="admin-username">Administrator</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Statistics Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Users</h3>
+                <div class="value" id="total-users">-</div>
+                <div class="change">Active players</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Bets</h3>
+                <div class="value" id="total-bets">-</div>
+                <div class="change">All time</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Volume</h3>
+                <div class="value" id="total-volume">-</div>
+                <div class="change">Credits wagered</div>
+            </div>
+            <div class="stat-card">
+                <h3>Online Now</h3>
+                <div class="value" id="online-users">-</div>
+                <div class="change">Active sessions</div>
+            </div>
+        </div>
+
+        <!-- User Management -->
+        <div class="management-section">
+            <h2 class="section-title">User Management</h2>
+            <div class="management-grid">
+                <button class="management-btn" onclick="viewUsers()">View All Users</button>
+                <button class="management-btn" onclick="viewTransactions()">View Transactions</button>
+                <button class="management-btn" onclick="viewBets()">View All Bets</button>
+                <button class="management-btn warning" onclick="manageBans()">Manage Bans</button>
+            </div>
+        </div>
+
+        <!-- Game Management -->
+        <div class="management-section">
+            <h2 class="section-title">Game Management</h2>
+            <div class="management-grid">
+                <button class="management-btn" onclick="gameSettings()">Game Settings</button>
+                <button class="management-btn" onclick="crashGameControl()">Crash Game Control</button>
+                <button class="management-btn" onclick="cryptoCoasterControl()">CryptoCoaster Control</button>
+                <button class="management-btn warning" onclick="emergencyStop()">Emergency Stop</button>
+            </div>
+        </div>
+
+        <!-- System Management -->
+        <div class="management-section">
+            <h2 class="section-title">System Management</h2>
+            <div class="management-grid">
+                <button class="management-btn" onclick="systemLogs()">View System Logs</button>
+                <button class="management-btn" onclick="databaseManager()">Database Manager</button>
+                <button class="management-btn" onclick="serverMonitor()">Server Monitor</button>
+                <button class="management-btn danger" onclick="systemRestart()">System Restart</button>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+            <h2 class="section-title">Recent Activity</h2>
+            <div id="recent-activity-list" class="loading">
+                Loading recent activity...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+            window.location.href = '/admin';
+        }
+
+        // Verify token on load  
+        fetch('/api/admin/api/verify', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }).then(response => {
+            if (!response.ok) {
+                localStorage.removeItem('adminToken');
+                window.location.href = '/admin';
+            }
+        }).catch(() => {
+            localStorage.removeItem('adminToken');
+            window.location.href = '/admin';
+        });
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                const [statsResponse, activityResponse] = await Promise.all([
+                    fetch('/api/admin/api/stats', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }),
+                    fetch('/api/admin/api/activity', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    })
+                ]);
+
+                if (statsResponse.ok) {
+                    const stats = await statsResponse.json();
+                    document.getElementById('total-users').textContent = stats.totalUsers || '0';
+                    document.getElementById('total-bets').textContent = stats.totalBets || '0';
+                    document.getElementById('total-volume').textContent = stats.totalVolume || '0';
+                    document.getElementById('online-users').textContent = stats.onlineUsers || '0';
+                }
+
+                if (activityResponse.ok) {
+                    const activities = await activityResponse.json();
+                    displayActivity(activities);
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        function displayActivity(activities) {
+            const container = document.getElementById('recent-activity-list');
+            if (!activities || activities.length === 0) {
+                container.innerHTML = '<div class="activity-item">No recent activity</div>';
+                return;
+            }
+
+            container.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-info">
+                        <div>${activity.description}</div>
+                        <div class="activity-time">${new Date(activity.timestamp).toLocaleString()}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Admin functions
+        function logout() {
+            localStorage.removeItem('adminToken');
+            window.location.href = '/admin';
+        }
+
+        function viewUsers() {
+            window.location.href = '/admin/users';
+        }
+
+        function viewTransactions() {
+            window.location.href = '/admin/transactions';
+        }
+
+        function viewBets() {
+            window.location.href = '/admin/bets';
+        }
+
+        function manageBans() {
+            window.location.href = '/admin/bans';
+        }
+
+        function gameSettings() {
+            window.location.href = '/admin/games';
+        }
+
+        async function crashGameControl() {
+            const modal = confirm('Open Crash Game Control Panel?');
+            if (modal) {
+                // For now, redirect to game stats
+                window.location.href = '/admin/games/crash';
+            }
+        }
+
+        function cryptoCoasterControl() {
+            window.location.href = '/admin/games/cryptocoaster';
+        }
+
+        async function emergencyStop() {
+            if (confirm('Are you sure you want to emergency stop all games?')) {
+                try {
+                    const response = await fetch('/api/admin/emergency-stop', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    if (response.ok) {
+                        alert('All games have been stopped!');
+                        loadDashboardData();
+                    } else {
+                        alert('Failed to stop games');
+                    }
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+        }
+
+        function systemLogs() {
+            alert('System log viewer would open here');
+        }
+
+        function databaseManager() {
+            alert('Database management interface would open here');
+        }
+
+        function serverMonitor() {
+            alert('Server monitoring dashboard would open here');
+        }
+
+        function systemRestart() {
+            if (confirm('Are you sure you want to restart the system? This will disconnect all users.')) {
+                alert('System restart would be executed here');
+            }
+        }
+
+        // Load data on page load
+        loadDashboardData();
+
+        // Refresh data every 30 seconds
+        setInterval(loadDashboardData, 30000);
+    </script>
+</body>
+</html>

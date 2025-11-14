@@ -1,0 +1,195 @@
+2) Database (Drizzle) additions
+
+Add to @shared/schema.ts:
+
+export const wallets = pgTable("wallets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  chainId: integer("chain_id").notNull(),
+  address: varchar("address", { length: 64 }).notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const nftMints = pgTable("nft_mints", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  address: varchar("address", { length: 64 }).notNull(),
+  tokenId: integer("token_id").notNull(),   // 1=PlayerPass, 2=VIP, 100~ tickets/loot
+  amount: integer("amount").notNull(),
+  salt: varchar("salt", { length: 66 }).notNull().unique(),
+  txHash: varchar("tx_hash", { length: 80 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const nftRewards = pgTable("nft_rewards", {
+  id: serial("id").primaryKey(),
+  externalPlayerId: varchar("external_player_id", { length: 128 }),
+  tokenId: integer("token_id").notNull(),
+  reason: varchar("reason", { length: 256 }),
+  scReward: numeric("sc_reward"), // optional stake credit drop on mint
+  gcReward: numeric("gc_reward"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+
+Run npm run db:push.
+
+3) Backend Web3 layer (Express)
+
+Create /server/web3/viem.ts:
+
+import { createPublicClient, createWalletClient, http, parseAbiItem, Hex, Address } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { baseSepolia } from "viem/chains";
+
+export const CHAIN = baseSepolia; // param by CHAIN_ID if needed
+
+export const publicClient = createPublicClient({ chain: CHAIN, transport: http(process.env.RPC_URL!) });
+
+const account = privateKeyToAccount(process.env.WALLET_PRIVATE_KEY as Hex);
+export const walletClient = createWalletClient({ account, chain: CHAIN, transport: http(process.env.RPC_URL!) });
+
+// ECDSA offchain signer (node private key)
+import crypto from "crypto";
+export function signMint(to: Address, tokenId: bigint, amount: bigint, salt: Hex) {
+  const msg = Buffer.concat([
+    Buffer.from("MINT"),
+    Buffer.from(to.slice(2), "hex"),
+    Buffer.from(tokenId.toString()),
+    Buffer.from(amount.toString()),
+    Buffer.from(salt.slice(2), "hex")
+  ]);
+  const hash = crypto.createHash("sha256").update(Buffer.concat([Buffer.from(process.env.NFT_CONTRACT_ADDRESS!), msg])).digest();
+  const sig = crypto.sign(null, hash, Buffer.from((process.env.WALLET_PRIVATE_KEY as string).slice(2), "hex")); // illustrative; use ethers-like ECDSA if preferred
+  return "0x" + sig.toString("hex") as Hex;
+}
+
+
+(You can alternatively build the exact toEthSignedMessageHash style using ethers or viem’s hashMessage + signMessage with the same private key. Ensure the contract’s expected digest matches.)
+
+NFT API routes
+
+Create /server/api/nft.ts and mount at /api/nft:
+
+POST /link-wallet → { userId, address, chainId } → inserts into wallets.
+
+GET /config → returns { chainId, contract: NFT_CONTRACT_ADDRESS, baseUri }.
+
+POST /mint/pass → body { userId | externalPlayerId, address?, tokenId=1, amount=1 }
+
+resolve address (linked wallet or provided)
+
+create salt = 0x<random32>; sign with signMint
+
+store row in nft_mints
+
+return { address, tokenId, amount, salt, signature } (client calls contract mintWithSig)
+
+POST /reward/after-mint → optional hook to drop SC/GC via existing credits/points routers when nft_rewards policy matches tokenId.
+
+GET /holds/:address → read balances for token IDs (via publicClient.readContract).
+
+Tie into your webhooks: on game.ended (already exists), optionally award a ticket NFT (tokenId=100+) when highestRow or blocksStacked meets thresholds.
+
+4) Client: wallet connect + mint flow
+
+Create /client/src/web3/wallet.tsx:
+
+Use wagmi + viem for wallet connection (Injected/WalletConnect optional).
+
+Provide hooks: useChainConfig(), useLinkWallet(), useMintPass(), useBalances().
+
+/client/src/components/NFTPane.tsx:
+
+Shows “Link Wallet”, “Mint Player Pass (GC bonus)”.
+
+After mint, call /api/nft/reward/after-mint to credit GC.
+
+Contract ABI: generate minimal ABI for mintWithSig, uri, balanceOf.
+
+export const playerPassAbi = [
+  { "inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"bytes32","name":"salt","type":"bytes32"},{"internalType":"bytes","name":"sig","type":"bytes"}], "name":"mintWithSig","outputs":[], "stateMutability":"nonpayable","type":"function" },
+  { "inputs":[{"internalType":"uint256","name":"id","type":"uint256"}],"name":"uri","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function" },
+  { "inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"uint256","name":"id","type":"uint256"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function" }
+] as const;
+
+
+Mount an NFT tab in your existing UI (keep modern styling). Show:
+
+Linked wallet address
+
+Pass balance
+
+Buttons: Mint Pass, View on explorer, Copy verify payload (salt + signature)
+
+5) Utility design (how NFTs affect gameplay — SC/GC only)
+
+Implement off-chain utilities (no cash language):
+
+Player Pass (id=1) → +5% GC on wins; +2% SC reload bonus (apply via your credit/points routers).
+
+VIP Pass (id=2) → Rakeback multiplier, priority support tag.
+
+Event Ticket (id>=100) → grants access to special Play-to-Win rooms; burn on entry.
+
+Achievement Badges (id 10–50) → cosmetic; auto-mint via signed server authorizations.
+
+Hook points:
+
+In /server/api/game/sessions/:sessionToken/end after score finalize, look up wallets for externalPlayerId, query balanceOf → compute bonus; call /api/game/points/award or /api/game/credits/load as appropriate.
+
+6) Security & verification
+
+Never leak WALLET_PRIVATE_KEY to the client. Sign in server only.
+
+Add replay protection via salt (stored & checked on-chain; we also store in DB).
+
+Add rate-limit on /api/nft/mint and IP throttling.
+
+Create /client/src/pages/pf-verify-nft.tsx showing how to validate the signature and on-chain used[salt].
+
+7) Integration with existing routes
+
+Mount nftRouter in registerRoutes:
+
+import nftRouter from "./api/nft";
+app.use("/api/nft", nftRouter);
+
+
+When delivering game feed WS events, include hasPass:boolean in payload (looked up once per session).
+
+8) DX & scripts
+
+Add scripts:
+
+"deploy:sepolia": "hardhat run contracts/scripts/deploy.ts --network baseSepolia",
+"nft:set-signer": "tsx contracts/scripts/setSigner.ts"
+
+
+setSigner.ts calls setTrustedSigner(<backendSigner>, true).
+
+9) Acceptance checklist
+
+ Contract deployed; NFT_CONTRACT_ADDRESS set in env.
+
+ /api/nft/config, /link-wallet, /mint/pass, /holds/:address live & typed.
+
+ Client can connect wallet, link account, mint with server signature, and see balances.
+
+ Game end flow recognizes pass and applies SC/GC bonuses via your existing credits/points endpoints.
+
+ No real-money text anywhere; all amounts in SC/GC.
+
+ Replay-safe signature mints; salts stored; endpoint rate-limited.
+
+ Works on mobile + desktop; modern UI.
+
+10) Bonus (if time)
+
+Add allowlist CSV import for presale mints (server signs only listed addresses).
+
+Add NFT marketplace metadata with dynamic attributes (tier, perk).
+
+Add Burn-to-Enter tourneys: burn ticket id=101 to join event.
+
+Build now. Create all files, wire routes, update UI, and print deploy address + test mint instructions.

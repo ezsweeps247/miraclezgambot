@@ -1,0 +1,291 @@
+import React, { useMemo, useState } from "react";
+
+/**
+ * Plinko UI (USD) — Pixel-match Tailwind classes
+ * - Matches screenshots: left rail ~300px, Manual/Auto tabs, Bet Amount with 1/2 & 2x, Risk pills, Rows slider, triangular peg field, bottom chips
+ * - Currency label shows USD
+ * - Pure UI; wire the Bet handler to your backend. Includes a paytable generator with presets to match screenshots.
+ */
+
+// util: join classes
+function cx(...xs: (string | false | null | undefined)[]) {
+  return xs.filter(Boolean).join(" ");
+}
+
+// ---------------- Preset tables (to visually match screenshots) ----------------
+// Keys: rows -> risk -> multipliers (length rows+1)
+const PRESETS: Record<number, Record<string, number[]>> = {
+  8: {
+    low: [5.6, 2.1, 1.1, 1.0, 0.5, 1.0, 1.1, 2.1, 5.6],
+    medium: [13, 3, 1.3, 0.7, 0.4, 0.7, 1.3, 3, 13],
+    high: [29, 4, 1.5, 0.3, 0.2, 0.3, 1.5, 4, 29],
+  },
+  9: {
+    low: [5.6, 2.0, 1.6, 1.0, 0.7, 0.7, 1.0, 1.6, 2.0, 5.6],
+  },
+  10: {
+    low: [8.9, 3, 1.4, 1.1, 1.0, 0.5, 1.0, 1.1, 1.4, 3, 8.9],
+  },
+  11: {
+    low: [8.4, 3, 1.9, 1.3, 1.0, 0.7, 0.7, 1.0, 1.3, 1.9, 3, 8.4],
+  },
+  12: {
+    low: [10, 3, 1.6, 1.4, 1.1, 1.0, 0.5, 1.0, 1.1, 1.4, 1.6, 3, 10],
+  },
+  13: {
+    low: [8.1, 4, 3, 1.9, 1.2, 0.9, 0.7, 0.7, 0.9, 1.2, 1.9, 3, 4, 8.1],
+  },
+  14: {
+    low: [7, 4, 1.9, 1.4, 1.3, 1.1, 1.0, 0.5, 1.0, 1.1, 1.3, 1.4, 1.9, 4, 7],
+  },
+  15: {
+    low: [15, 8, 3, 2, 1.5, 1.0, 1.0, 0.7, 0.7, 1.0, 1.0, 1.5, 2, 3, 8, 15],
+  },
+};
+
+// fallback paytable generator (provably-fair-friendly; visuals close to screenshots)
+function binom(n: number, k: number) {
+  if (k < 0 || k > n) return 0;
+  if (k === 0 || k === n) return 1;
+  k = Math.min(k, n - k);
+  let res = 1;
+  for (let i = 1; i <= k; i++) res = (res * (n - k + i)) / i;
+  return res;
+}
+
+function generatePaytable(rows: number, risk: "low" | "medium" | "high", edge = 0.01): number[] {
+  // If we have a preset for an exact visual match, use it
+  const preset = PRESETS[rows]?.[risk];
+  if (preset && preset.length === rows + 1) return preset;
+
+  const lam = risk === "low" ? 0.28 : risk === "medium" ? 0.53 : 0.85;
+  const weights: number[] = [];
+  for (let i = 0; i <= rows; i++) {
+    const d = Math.abs(i - rows / 2);
+    weights.push(Math.exp(lam * d));
+  }
+  const sumW = weights.reduce((a, b) => a + b, 0);
+  const twoPow = Math.pow(2, rows);
+  const raw: number[] = [];
+  for (let i = 0; i <= rows; i++) {
+    const p = binom(rows, i) / twoPow;
+    raw.push((weights[i] / p) * ((1 - edge) / sumW));
+  }
+  // Soft clamping for center floors per risk (to look like screenshots)
+  const center = Math.floor(rows / 2);
+  const floors = { low: 0.5, medium: 0.4, high: 0.2 } as const;
+  if (raw[center] < floors[risk]) {
+    const factor = floors[risk] / raw[center];
+    for (let i = 0; i < raw.length; i++) raw[i] *= factor;
+    // Re-normalize to RTP
+    const pSum = raw.reduce((acc, m, i) => acc + (binom(rows, i) / twoPow) * m, 0);
+    const scale = (1 - edge) / pSum;
+    for (let i = 0; i < raw.length; i++) raw[i] *= scale;
+  }
+  return raw;
+}
+
+function formatMult(x: number) {
+  // 1 decimal place for chips, but show integer without .0 when clean
+  const s = (Math.round(x * 10) / 10).toFixed(1);
+  return s.endsWith(".0") ? `${parseInt(s)}` : s;
+}
+
+export default function PlinkoPage() {
+  const [tab, setTab] = useState<"manual" | "auto">("manual");
+  const [bet, setBet] = useState("0.00000000");
+  const [risk, setRisk] = useState<"low" | "medium" | "high">("low");
+  const [rows, setRows] = useState(8); // 8..16 supported visually; screenshots use 8..15
+
+  const canBet = Number(bet) > 0;
+
+  const multipliers = useMemo(() => generatePaytable(rows, risk), [rows, risk]);
+
+  function halfBet() {
+    const v = Number(bet || 0);
+    setBet((v / 2).toFixed(8));
+  }
+  function doubleBet() {
+    const v = Number(bet || 0);
+    setBet((v * 2).toFixed(8));
+  }
+  function handleBet() {
+    // Hook to /api/plinko/bet
+    console.log("BET", { bet, rows, risk });
+  }
+
+  return (
+    <div className="min-h-screen w-full bg-[#0B0D13] text-gray-200 flex justify-center py-10">
+      <div className="w-full max-w-[1280px] rounded-2xl bg-[#0B0D13] shadow-xl ring-1 ring-black/0 overflow-hidden">
+        <div className="flex">
+          {/* LEFT RAIL */}
+          <aside className="w-[300px] bg-[#0B0D13] px-6 pt-6 pb-8 border-r border-[#1B212C]">
+            {/* Tabs */}
+            <div className="inline-flex rounded-lg bg-[#12151C] p-1 select-none">
+              <button
+                onClick={() => setTab("manual")}
+                className={cx(
+                  "px-4 py-2 rounded-md text-sm font-medium transition",
+                  tab === "manual" ? "bg-[#1F232B] text-white shadow-inner" : "text-gray-400 hover:text-gray-200"
+                )}
+              >
+                Manual
+              </button>
+              <button
+                onClick={() => setTab("auto")}
+                className={cx(
+                  "px-4 py-2 rounded-md text-sm font-medium transition",
+                  tab === "auto" ? "bg-[#1F232B] text-white shadow-inner" : "text-gray-400 hover:text-gray-200"
+                )}
+              >
+                Auto
+              </button>
+            </div>
+
+            {/* Bet Amount */}
+            <div className="mt-6">
+              <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+                <span className="inline-flex items-center gap-2">
+                  <span>Bet Amount</span>
+                  <span className="inline-flex items-center justify-center w-4 h-4 text-[10px] rounded-full bg-white/10">i</span>
+                </span>
+                <span>0.00 USD</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="flex-1 relative">
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 inline-flex items-center">
+                    {/* Coin icon */}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="opacity-80">
+                      <circle cx="12" cy="12" r="10" stroke="#8892A6" strokeWidth="1.5" />
+                      <path d="M12 6v12M8 9h8M8 15h8" stroke="#8892A6" strokeWidth="1.5" />
+                    </svg>
+                  </span>
+                  <input
+                    value={bet}
+                    onChange={(e) => setBet(e.target.value)}
+                    className="w-full h-11 pl-9 pr-3 rounded-lg bg-[#1F232B] border border-[#2A2F3A] text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7A3AF9] focus:border-transparent"
+                    placeholder="0.00000000"
+                  />
+                </div>
+                <button onClick={halfBet} className="h-11 px-3 rounded-lg bg-[#1F232B] border border-[#2A2F3A] text-sm hover:bg-[#242A34]">
+                  ½
+                </button>
+                <button onClick={doubleBet} className="h-11 px-3 rounded-lg bg-[#1F232B] border border-[#2A2F3A] text-sm hover:bg-[#242A34]">
+                  2×
+                </button>
+              </div>
+            </div>
+
+            {/* Risk */}
+            <div className="mt-6">
+              <div className="text-xs text-gray-400 mb-2">Risk</div>
+              <div className="flex gap-3">
+                <RiskPill label="Low" active={risk === "low"} onClick={() => setRisk("low")} />
+                <RiskPill label="Medium" active={risk === "medium"} onClick={() => setRisk("medium")} />
+                <RiskPill label="High" active={risk === "high"} onClick={() => setRisk("high")} />
+              </div>
+            </div>
+
+            {/* Rows slider */}
+            <div className="mt-6">
+              <div className="text-xs text-gray-400 mb-2">Rows</div>
+              <div className="text-sm mb-2">{rows}</div>
+              <input
+                type="range"
+                min={8}
+                max={16}
+                step={1}
+                value={rows}
+                onChange={(e) => setRows(parseInt(e.target.value))}
+                className="w-full h-2 bg-[#1F232B] rounded-full appearance-none cursor-pointer"
+                style={{ background: "linear-gradient(to right, #7A3AF9 0%, #7A3AF9 " + ((rows - 8) / (16 - 8)) * 100 + "%, #1F232B " + ((rows - 8) / (16 - 8)) * 100 + "%, #1F232B 100%)" }}
+              />
+            </div>
+
+            {/* Bet */}
+            <button
+              onClick={handleBet}
+              disabled={!canBet}
+              className={cx(
+                "mt-6 h-12 w-full rounded-xl text-sm font-semibold transition shadow-sm",
+                canBet ? "bg-[#7A3AF9] hover:brightness-110" : "bg-[#7A3AF9]/40 cursor-not-allowed"
+              )}
+            >
+              Bet
+            </button>
+          </aside>
+
+          {/* RIGHT: BOARD */}
+          <main className="flex-1 px-10 pt-8 pb-16">
+            {/* Peg triangle */}
+            <div className="mx-auto max-w-[980px]">
+              <PegTriangle rows={rows} />
+            </div>
+
+            {/* Bottom chips */}
+            <div className="mt-6 flex justify-center gap-2 flex-wrap">
+              {multipliers.map((m, i) => (
+                <Chip key={i} idx={i} rows={rows} label={`${formatMult(m)}x`} />
+              ))}
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RiskPill({ label, active, onClick }: { label: string; active?: boolean; onClick?: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={cx(
+        "h-10 rounded-md px-4 text-sm font-medium border border-[#2A2F3A] bg-[#1F232B]",
+        "transition hover:bg-[#242A34] text-gray-200",
+        active && "bg-white text-black"
+      )}
+    >
+      {label}
+    </button>
+  );
+}
+
+function PegTriangle({ rows }: { rows: number }) {
+  // Visual-only peg grid; top is narrow, bottom is wide.
+  // Start with 4 pegs at the top for a pleasing look; grow each row by 1.
+  const start = 4;
+  const pegRows = Math.max(rows, 8); // ensure enough rows visually
+  const list = Array.from({ length: pegRows }, (_, r) => start + r);
+  return (
+    <div className="w-full flex flex-col items-center select-none">
+      {list.map((count, r) => (
+        <div key={r} className="flex justify-center gap-8 md:gap-10 lg:gap-12 py-3">
+          {Array.from({ length: count }).map((_, i) => (
+            <span key={i} className="w-3 h-3 rounded-full bg-white inline-block" />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Chip({ idx, rows, label }: { idx: number; rows: number; label: string }) {
+  // Color bands from center → edge: amber → orange → red
+  const center = rows / 2;
+  const d = Math.abs(idx - center);
+  const t1 = rows * 0.25;
+  const t2 = rows * 0.45;
+  const color = d >= t2 ? "bg-rose-600" : d >= t1 ? "bg-orange-500" : "bg-amber-400 text-black";
+  return (
+    <div
+      className={cx(
+        "px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm border border-black/10",
+        color,
+        color.includes("amber") ? "text-black" : "text-white"
+      )}
+    >
+      {label}
+    </div>
+  );
+}

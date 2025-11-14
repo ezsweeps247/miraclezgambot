@@ -1,0 +1,187 @@
+got you. here’s a clean, copy-paste prompt you can drop into Replit to get the Mines game mechanics (and the exact layout) built the way you want:
+
+---
+
+**PROMPT FOR REPLIT (build the Mines game module)**
+
+Build a **5×5 Mines game** to embed in my Telegram casino (served from an Express app, opened as a Telegram WebApp). I need both the **exact UI layout** and the **provably-fair game mechanics**.
+
+### Tech + project setup
+
+* **Frontend:** React + Vite + TailwindCSS (dark theme).
+* **Backend:** Node.js + Express (TypeScript preferred). Use `crypto` for RNG.
+* **Precision math:** use `decimal.js` (or `big.js`) for payout calculations.
+* **State:** keep a simple in-memory store for rounds; wrap with interfaces so I can swap to Postgres later.
+* **Routes:** mount under `/games/mines`.
+
+### Exact UI (match this screenshot)
+
+Left control panel (fixed width \~300px), right a 5×5 grid:
+
+* Top segmented control: **Manual | Auto** (Auto can be stubbed/disabled for now).
+* **Bet Amount** input with coin icon on the left and **½** and **2×** quick buttons on the right.
+* Small text on the right of “Bet Amount” showing the currency (e.g., `0.00 CAD`).
+* **Mines** dropdown: default **3**, allow selecting **3–24** (include quick options for 3 and 24).
+* **Bet** button (full width) in **purple** (#7A3AF9), disabled until betAmount > 0.
+* **Board:** right side is a 5×5 grid (25 tiles), square cards \~96–104px, `gap-4`, rounded corners, dark gray tiles (#1F232B), hover: slightly lighter. When opened (safe), tile shows a subtle glow; when mine, show a red pulse and reveal all mines.
+* Overall page background near-black (#0B0D13), text gray-200.
+
+### Game rules
+
+* 25 tiles, choose **N mines (3–24)**, default 3.
+* **Start round:** player sets betAmount and N, clicks **Bet**.
+* **Picking tiles:** player clicks tiles; if safe, multiplier increases; if a mine, round loses instantly and mines are revealed.
+* **Cashout:** at any time after at least one safe pick, player can cash out; payout = `betAmount × currentMultiplier`.
+* **Max safe picks:** `25 - N`. After that, auto-cashout for the full multiplier.
+
+### Provably-fair RNG (commit–reveal)
+
+Implement a standard, verifiable scheme:
+
+1. **ServerSeed (secret)**: random 32 bytes generated server-side per round.
+2. **Commitment:** expose `serverSeedHash = SHA256(serverSeed)` to client when round starts.
+3. **ClientSeed:** use user-provided seed string (or generate one if missing).
+4. **Nonce:** incrementing integer per user bet.
+5. **Deterministic board generation:**
+
+   * Build a 25-item array `[0..24]` (tile indices, row-major).
+   * Compute `h = HMAC_SHA256(serverSeed, clientSeed + ":" + nonce)`.
+   * Use `h` to seed a deterministic Fisher–Yates shuffle (derive more bytes by HMACing with suffix `:1`, `:2`, … as needed).
+   * The **first N indices** of the shuffled array are **mine positions**. This yields an unbiased **C(25, N)** choice.
+6. **Reveal:** after round ends (cashout or loss), return the **serverSeed**, **clientSeed**, **nonce**, and **mine positions** so anyone can re-compute and verify the board.
+7. Provide a **/games/mines/verify** page + **GET /api/mines/verify?serverSeedHash=\&serverSeed=\&clientSeed=\&nonce=\&mines=** that re-derives the positions and confirms `SHA256(serverSeed) === serverSeedHash`.
+
+### Payout / multiplier math
+
+Let `T = 25`, `N = mines`, and after `k` safe picks (k ≥ 1, k ≤ T − N):
+
+* Probability that all `k` picks were safe (without hitting a mine):
+  `P_k = Π_{i=0}^{k-1} (T - N - i) / (T - i)`  (equivalently `C(T - N, k) / C(T, k)`).
+* **Fair multiplier (no edge):** `M_fair(k) = 1 / P_k = C(T, k) / C(T - N, k)`.
+* Apply house edge `E` (default **1%** but make it a constant):
+  `M(k) = M_fair(k) × (1 - E)`.
+* Don’t let the client compute payouts; server is the source of truth.
+
+Implement a helper that computes `M(k)` stably (product form above—avoid factorial overflow). Pre-compute a multiplier table for the current `N` to show the “next pick” payout in the UI.
+
+### API spec
+
+All monetary values are strings (decimal). Round multipliers to 4–6 decimals for display; keep full precision server-side.
+
+* `POST /api/mines/start`
+
+  * body: `{ betAmount: string, mines: number, clientSeed?: string }`
+  * returns:
+
+    ```
+    {
+      roundId: string,
+      serverSeedHash: string,
+      clientSeed: string,
+      nonce: number,
+      mines: number,
+      tiles: 25,
+      safeRemaining: 25 - mines,
+      multiplierTable: number[], // M(k) for k = 1..(25-mines)
+      startedAt: ISOString
+    }
+    ```
+* `POST /api/mines/pick`
+
+  * body: `{ roundId: string, tileIndex: number }`
+  * returns on safe:
+
+    ```
+    {
+      state: "safe",
+      openedTiles: number[],   // all safe tiles opened so far
+      lastPick: number,
+      picks: number,           // k
+      currentMultiplier: number,
+      safeRemaining: number
+    }
+    ```
+  * returns on mine:
+
+    ```
+    {
+      state: "boom",
+      lastPick: number,
+      minePositions: number[],
+      serverSeed: string,
+      serverSeedHash: string,
+      clientSeed: string,
+      nonce: number,
+      endedAt: ISOString
+    }
+    ```
+* `POST /api/mines/cashout`
+
+  * body: `{ roundId: string }`
+  * returns:
+
+    ```
+    {
+      state: "cashed",
+      payout: string, // betAmount × currentMultiplier
+      picks: number,
+      currentMultiplier: number,
+      minePositions: number[], // reveal after round end
+      serverSeed: string,
+      serverSeedHash: string,
+      clientSeed: string,
+      nonce: number
+    }
+    ```
+
+### Server logic (pseudocode)
+
+```ts
+// Start
+serverSeed = randomBytes(32).toString('hex')
+serverSeedHash = sha256(serverSeed)
+clientSeed = body.clientSeed ?? randomBytes(16).toString('hex')
+nonce = getAndIncrementUserNonce(userId)
+
+perm = deterministicShuffle([0..24], hmacSHA256(serverSeed, `${clientSeed}:${nonce}`))
+mines = new Set(perm.slice(0, N))
+opened = new Set()
+
+// On pick(i)
+if (mines.has(i)) -> lose
+else opened.add(i); k = opened.size
+if (k === 25 - N) -> auto cashout
+```
+
+### Frontend behavior
+
+* Disable the board until `/start` returns.
+* On safe pick, flip the tile (small scale-in + glow). Show updated **“Cash Out”** button with payout preview.
+* On boom, animate the mine tile (shake + red), then reveal all mines.
+* Include a small **“Provably Fair”** modal explaining seeds and a link to `/games/mines/verify` prefilled with the round values.
+
+### Validation & edge cases
+
+* Reject invalid `mines` (<3 or >24).
+* Max bet per round and min bet should be constants; validate on server.
+* Prevent double-picks and double-cashout.
+* Cap tile picks at `25 - mines`.
+* When `mines = 24`, the multiplier on the first (and only) safe tile should be about `25 × (1 - E)`.
+
+### Telegram hookup (stub)
+
+* Expose the game at `/games/mines` and provide a minimal `tg://` WebApp init script to read `initData`, but logic can run without Telegram for dev.
+
+### Deliverables
+
+* Complete repo with **frontend + backend**, `npm run dev` and `npm run build`.
+* A README that documents: seed scheme, verify endpoint, and the multiplier formula.
+* Basic unit tests for:
+
+  1. reproducible board from `(serverSeed, clientSeed, nonce, N)`,
+  2. multiplier values for sample cases (e.g., N=3, k=1..5; N=24, k=1),
+  3. verify endpoint correctness.
+
+---
+
+If you want me to tune the color tokens, spacing, or the exact Tailwind classes to clone the look pixel-for-pixel, say the word and I’ll drop those too.

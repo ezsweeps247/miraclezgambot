@@ -1,0 +1,281 @@
+import React, { useMemo, useState } from "react";
+
+/**
+ * Keno UI (1..40, pick 1–10) — Pixel-match Tailwind classes
+ *
+ * - Exact dark theme + layout cloned from screenshot
+ * - Left rail ~300px, right grid 5×8 with ~92–100px tiles
+ * - Buttons, pills, inputs, and helper text use precise Tailwind classes
+ * - Purely presentational; wire the Bet click to your backend
+ *
+ * Notes
+ * - Uses Tailwind arbitrary color values to avoid custom theme setup
+ * - If you prefer theme tokens, map the hexes in your tailwind.config:
+ *   bg:       #0B0D13
+ *   panel:    #12151C
+ *   tile:     #1F232B
+ *   border:   #2A2F3A
+ *   divider:  #1B212C
+ *   text:     #E5E7EB (tailwind gray-200)
+ *   primary:  #7A3AF9 (purple)
+ */
+
+// Helper: class joiner
+function cx(...xs: (string | false | null | undefined)[]) {
+  return xs.filter(Boolean).join(" ");
+}
+
+const NUMBERS = Array.from({ length: 40 }, (_, i) => i + 1);
+
+export default function KenoPage() {
+  const [tab, setTab] = useState<"manual" | "auto">("manual");
+  const [bet, setBet] = useState("0.00000000");
+  const [risk, setRisk] = useState<"classic" | "low" | "medium" | "high">(
+    "classic"
+  );
+  const [picks, setPicks] = useState<number[]>([]); // 1..40 unique
+
+  const canBet = Number(bet) > 0 && picks.length >= 1 && picks.length <= 10;
+
+  function togglePick(n: number) {
+    setPicks((prev) =>
+      prev.includes(n)
+        ? prev.filter((x) => x !== n)
+        : prev.length < 10
+        ? [...prev, n]
+        : prev
+    );
+  }
+
+  function clearPicks() {
+    setPicks([]);
+  }
+
+  function autoPick() {
+    const need = Math.max(0, 10 - picks.length);
+    const remaining = NUMBERS.filter((n) => !picks.includes(n));
+    // simple shuffle
+    for (let i = remaining.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+    }
+    setPicks([...picks, ...remaining.slice(0, need)]);
+  }
+
+  function halfBet() {
+    try {
+      const v = Number(bet || 0);
+      setBet((v / 2).toFixed(8));
+    } catch {}
+  }
+  function doubleBet() {
+    try {
+      const v = Number(bet || 0);
+      setBet((v * 2).toFixed(8));
+    } catch {}
+  }
+
+  function handleBet() {
+    // Hook this to your /api/keno/bet
+    console.log("BET", { bet, risk, picks });
+  }
+
+  return (
+    <div className="min-h-screen w-full bg-[#0B0D13] text-gray-200 flex justify-center py-10">
+      <div className="w-full max-w-[1200px] rounded-2xl bg-[#0B0D13] shadow-xl ring-1 ring-black/0 overflow-hidden">
+        <div className="flex">
+          {/* LEFT RAIL */}
+          <aside className="w-[300px] bg-[#0B0D13] px-6 pt-6 pb-8 border-r border-[#1B212C]">
+            {/* Tabs */}
+            <div className="inline-flex rounded-lg bg-[#12151C] p-1 select-none">
+              <button
+                onClick={() => setTab("manual")}
+                className={cx(
+                  "px-4 py-2 rounded-md text-sm font-medium transition",
+                  tab === "manual"
+                    ? "bg-[#1F232B] text-white shadow-inner"
+                    : "text-gray-400 hover:text-gray-200"
+                )}
+              >
+                Manual
+              </button>
+              <button
+                onClick={() => setTab("auto")}
+                className={cx(
+                  "px-4 py-2 rounded-md text-sm font-medium transition",
+                  tab === "auto"
+                    ? "bg-[#1F232B] text-white shadow-inner"
+                    : "text-gray-400 hover:text-gray-200"
+                )}
+              >
+                Auto
+              </button>
+            </div>
+
+            {/* Bet Amount */}
+            <div className="mt-6">
+              <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+                <span className="inline-flex items-center gap-2">
+                  <span>Bet Amount</span>
+                  <span className="inline-flex items-center justify-center w-4 h-4 text-[10px] rounded-full bg-white/10">i</span>
+                </span>
+                <span>0.00 CAD</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {/* input with coin icon */}
+                <div className="flex-1 relative">
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 inline-flex items-center">
+                    {/* Coin icon */}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="opacity-80">
+                      <circle cx="12" cy="12" r="10" stroke="#8892A6" strokeWidth="1.5" />
+                      <path d="M12 6v12M8 9h8M8 15h8" stroke="#8892A6" strokeWidth="1.5" />
+                    </svg>
+                  </span>
+                  <input
+                    value={bet}
+                    onChange={(e) => setBet(e.target.value)}
+                    className={
+                      "w-full h-11 pl-9 pr-3 rounded-lg bg-[#1F232B] border border-[#2A2F3A] text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7A3AF9] focus:border-transparent"
+                    }
+                    placeholder="0.00000000"
+                  />
+                </div>
+                <button
+                  onClick={halfBet}
+                  className="h-11 px-3 rounded-lg bg-[#1F232B] border border-[#2A2F3A] text-sm hover:bg-[#242A34]"
+                >
+                  ½
+                </button>
+                <button
+                  onClick={doubleBet}
+                  className="h-11 px-3 rounded-lg bg-[#1F232B] border border-[#2A2F3A] text-sm hover:bg-[#242A34]"
+                >
+                  2×
+                </button>
+              </div>
+            </div>
+
+            {/* Risk pills */}
+            <div className="mt-6">
+              <div className="text-xs text-gray-400 mb-2">Risk</div>
+              <div className="grid grid-cols-2 gap-3">
+                <RiskPill label="Classic" active={risk === "classic"} color="blue" onClick={() => setRisk("classic")} />
+                <RiskPill label="Low" active={risk === "low"} color="green" onClick={() => setRisk("low")} />
+                <RiskPill label="Medium" active={risk === "medium"} color="amber" onClick={() => setRisk("medium")} />
+                <RiskPill label="High" active={risk === "high"} color="rose" onClick={() => setRisk("high")} />
+              </div>
+            </div>
+
+            {/* Utility buttons */}
+            <div className="mt-6 grid grid-cols-2 gap-4">
+              <button
+                onClick={autoPick}
+                className="h-12 rounded-xl bg-[#1F232B] border border-[#2A2F3A] text-sm hover:bg-[#242A34]"
+              >
+                Auto pick
+              </button>
+              <button
+                onClick={clearPicks}
+                className="h-12 rounded-xl bg-[#1F232B] border border-[#2A2F3A] text-sm hover:bg-[#242A34]"
+              >
+                Clear table
+              </button>
+            </div>
+
+            {/* Bet button */}
+            <button
+              onClick={handleBet}
+              disabled={!canBet}
+              className={cx(
+                "mt-6 h-12 w-full rounded-xl text-sm font-semibold transition shadow-sm",
+                canBet
+                  ? "bg-[#7A3AF9] hover:brightness-110"
+                  : "bg-[#7A3AF9]/40 cursor-not-allowed"
+              )}
+            >
+              Bet
+            </button>
+          </aside>
+
+          {/* RIGHT: GRID */}
+          <main className="flex-1 px-10 pt-8 pb-14">
+            <div className="grid grid-cols-8 gap-4 place-items-center">
+              {NUMBERS.map((n) => {
+                const isSelected = picks.includes(n);
+                return (
+                  <button
+                    key={n}
+                    onClick={() => togglePick(n)}
+                    className={cx(
+                      "w-[92px] h-[92px] rounded-xl bg-[#1F232B] border border-[#2A2F3A] text-white text-xl font-semibold tracking-tight",
+                      "grid place-content-center select-none transition hover:bg-[#242A34]",
+                      isSelected &&
+                        "ring-2 ring-[#7A3AF9] bg-[#232838] text-white shadow-[0_0_0_1px_rgba(122,58,249,0.3)]"
+                    )}
+                  >
+                    {n}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Helper bar */}
+            <div className="mx-auto mt-8 max-w-[720px] rounded-xl bg-[#1F232B] border border-[#2A2F3A] px-6 py-4 text-center text-xs text-gray-300">
+              Select 1–10 numbers to play
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RiskPill({
+  label,
+  active,
+  color,
+  onClick,
+}: {
+  label: string;
+  active?: boolean;
+  color: "blue" | "green" | "amber" | "rose";
+  onClick?: () => void;
+}) {
+  // Color maps for subtle colored pills
+  const map: Record<string, { bg: string; ring: string; text: string }> = {
+    blue: {
+      bg: "bg-blue-600/20",
+      ring: "ring-1 ring-blue-400/40",
+      text: "text-blue-200",
+    },
+    green: {
+      bg: "bg-emerald-600/20",
+      ring: "ring-1 ring-emerald-400/40",
+      text: "text-emerald-200",
+    },
+    amber: {
+      bg: "bg-amber-600/20",
+      ring: "ring-1 ring-amber-400/40",
+      text: "text-amber-200",
+    },
+    rose: {
+      bg: "bg-rose-600/20",
+      ring: "ring-1 ring-rose-400/40",
+      text: "text-rose-200",
+    },
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      className={cx(
+        "h-10 rounded-md px-4 text-sm font-medium border border-[#2A2F3A] bg-[#1F232B]",
+        "transition hover:bg-[#242A34] text-gray-200",
+        active && cx(map[color].bg, map[color].ring, map[color].text, "shadow-inner")
+      )}
+    >
+      {label}
+    </button>
+  );
+}

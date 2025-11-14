@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provably Fair Verification - CryptoVault Casino</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'casino-dark': '#1a1a2e',
+                        'casino-card': '#16213e',
+                        'casino-accent': '#0f3460',
+                        'casino-neon': '#00d4ff',
+                        'casino-gold': '#ffd700',
+                        'casino-text': '#8892b0'
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-casino-dark text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold mb-4">🔒 Provably Fair Verification</h1>
+            <p class="text-casino-text">Verify the fairness of your casino bets using cryptographic proofs</p>
+        </header>
+
+        <div class="grid md:grid-cols-2 gap-8 mb-8">
+            <!-- Verification Tool -->
+            <div class="bg-casino-card rounded-lg p-6 border border-casino-accent">
+                <h2 class="text-xl font-bold mb-4">Verify Your Bet</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Server Seed</label>
+                        <input type="text" id="serverSeed" placeholder="Enter revealed server seed" 
+                               class="w-full bg-casino-dark border border-casino-accent rounded px-3 py-2 text-white placeholder-casino-text focus:border-casino-neon focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Client Seed</label>
+                        <input type="text" id="clientSeed" placeholder="Enter your client seed" 
+                               class="w-full bg-casino-dark border border-casino-accent rounded px-3 py-2 text-white placeholder-casino-text focus:border-casino-neon focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Nonce</label>
+                        <input type="number" id="nonce" placeholder="Enter bet nonce" 
+                               class="w-full bg-casino-dark border border-casino-accent rounded px-3 py-2 text-white placeholder-casino-text focus:border-casino-neon focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Game Type</label>
+                        <select id="gameType" 
+                                class="w-full bg-casino-dark border border-casino-accent rounded px-3 py-2 text-white focus:border-casino-neon focus:outline-none">
+                            <option value="DICE">Dice</option>
+                            <option value="SLOTS">Slots</option>
+                            <option value="CRASH">Crash</option>
+                        </select>
+                    </div>
+
+                    <button onclick="verifyBet()" 
+                            class="w-full bg-casino-neon text-casino-dark font-bold py-3 rounded hover:bg-casino-gold transition-colors">
+                        Verify Result
+                    </button>
+                </div>
+
+                <div id="verificationResult" class="mt-6 hidden">
+                    <h3 class="font-bold mb-2">Verification Result:</h3>
+                    <div id="resultContent" class="bg-casino-dark rounded p-4 border border-casino-accent text-sm"></div>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="bg-casino-card rounded-lg p-6 border border-casino-accent">
+                <h2 class="text-xl font-bold mb-4">How Provably Fair Works</h2>
+                
+                <div class="space-y-4 text-sm text-casino-text">
+                    <div class="flex items-start space-x-3">
+                        <span class="bg-casino-neon text-casino-dark rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs">1</span>
+                        <div>
+                            <div class="font-medium text-white">Server Seed Generation</div>
+                            <div>The casino generates a random server seed and provides its SHA256 hash before the game</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3">
+                        <span class="bg-casino-neon text-casino-dark rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs">2</span>
+                        <div>
+                            <div class="font-medium text-white">Client Seed Input</div>
+                            <div>You provide a client seed (or use the default one) to add entropy to the result</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3">
+                        <span class="bg-casino-neon text-casino-dark rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs">3</span>
+                        <div>
+                            <div class="font-medium text-white">Result Generation</div>
+                            <div>Game outcome is calculated using HMAC-SHA256(serverSeed, clientSeed + ":" + nonce)</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3">
+                        <span class="bg-casino-neon text-casino-dark rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs">4</span>
+                        <div>
+                            <div class="font-medium text-white">Verification</div>
+                            <div>After the game, the server seed is revealed and you can verify the result was fair</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-casino-accent/30 rounded border-l-4 border-casino-gold">
+                    <div class="text-casino-gold font-medium">🛡️ Security Guarantee</div>
+                    <div class="text-sm text-casino-text mt-1">
+                        Since the server seed hash is provided before the bet, the casino cannot manipulate results after seeing your bet.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Algorithm Details -->
+        <div class="bg-casino-card rounded-lg p-6 border border-casino-accent">
+            <h2 class="text-xl font-bold mb-4">Algorithm Details</h2>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div>
+                    <h3 class="font-bold text-casino-neon mb-2">Dice Game</h3>
+                    <div class="text-sm text-casino-text space-y-1">
+                        <div>1. Generate HMAC-SHA256</div>
+                        <div>2. Take first 8 hex characters</div>
+                        <div>3. Convert to integer</div>
+                        <div>4. Normalize to 0-99.99 range</div>
+                        <div class="text-xs text-casino-text/60 mt-2">Roll = floor(value × 10000) / 100</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-casino-gold mb-2">Slots Game</h3>
+                    <div class="text-sm text-casino-text space-y-1">
+                        <div>1. Generate HMAC for each position</div>
+                        <div>2. Use incremental nonce</div>
+                        <div>3. Map to symbol indices</div>
+                        <div>4. Build 5×3 reel grid</div>
+                        <div class="text-xs text-casino-text/60 mt-2">Symbol = floor(value × 5)</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-casino-red mb-2">Crash Game</h3>
+                    <div class="text-sm text-casino-text space-y-1">
+                        <div>1. Generate HMAC-SHA256</div>
+                        <div>2. Apply house edge formula</div>
+                        <div>3. Calculate crash point</div>
+                        <div>4. Round to 2 decimals</div>
+                        <div class="text-xs text-casino-text/60 mt-2">Crash = max(1.0, (1-edge)/value)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function verifyBet() {
+            const serverSeed = document.getElementById('serverSeed').value;
+            const clientSeed = document.getElementById('clientSeed').value;
+            const nonce = document.getElementById('nonce').value;
+            const gameType = document.getElementById('gameType').value;
+
+            if (!serverSeed || !clientSeed || !nonce) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/provably-fair/verify?serverSeed=${encodeURIComponent(serverSeed)}&clientSeed=${encodeURIComponent(clientSeed)}&nonce=${encodeURIComponent(nonce)}&game=${encodeURIComponent(gameType)}`);
+                
+                if (!response.ok) {
+                    throw new Error('Verification failed');
+                }
+
+                const result = await response.json();
+                displayResult(result, gameType);
+            } catch (error) {
+                alert('Error verifying bet: ' + error.message);
+            }
+        }
+
+        function displayResult(result, gameType) {
+            const resultDiv = document.getElementById('verificationResult');
+            const contentDiv = document.getElementById('resultContent');
+
+            let html = `
+                <div class="space-y-2">
+                    <div><strong>Raw Value:</strong> ${result.value.toFixed(10)}</div>
+            `;
+
+            switch (gameType) {
+                case 'DICE':
+                    html += `<div><strong>Dice Roll:</strong> ${result.roll?.toFixed(2) || 'N/A'}</div>`;
+                    break;
+                case 'SLOTS':
+                    if (result.reels) {
+                        html += `<div><strong>Slot Reels:</strong></div>`;
+                        html += `<div class="bg-casino-accent/50 p-2 rounded text-xs">`;
+                        for (let i = 0; i < result.reels.length; i++) {
+                            html += `<div>Reel ${i + 1}: [${result.reels[i].join(', ')}]</div>`;
+                        }
+                        html += `</div>`;
+                    }
+                    break;
+                case 'CRASH':
+                    html += `<div><strong>Crash Point:</strong> ${result.crashPoint?.toFixed(2) || 'N/A'}x</div>`;
+                    break;
+            }
+
+            html += `
+                    <div class="mt-4 p-2 bg-casino-green/20 rounded border-l-4 border-casino-green">
+                        <div class="text-casino-green font-medium">✅ Verification Successful</div>
+                        <div class="text-xs text-casino-text mt-1">The result matches the cryptographic proof</div>
+                    </div>
+                </div>
+            `;
+
+            contentDiv.innerHTML = html;
+            resultDiv.classList.remove('hidden');
+        }
+
+        // Add sample data for testing
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.location.search.includes('demo=true')) {
+                document.getElementById('serverSeed').value = 'sample_server_seed_123';
+                document.getElementById('clientSeed').value = 'sample_client_seed_456';
+                document.getElementById('nonce').value = '1';
+            }
+        });
+    </script>
+</body>
+</html>

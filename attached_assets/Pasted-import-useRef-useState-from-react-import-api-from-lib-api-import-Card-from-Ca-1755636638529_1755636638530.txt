@@ -1,0 +1,154 @@
+import { useRef, useState } from "react";
+import { api } from "../lib/api";
+import Card from "./Card";
+import { BJHandState } from "../types";
+import { fmtCr } from "../lib/format";
+
+export default function Blackjack({ onBalance }:{ onBalance: (b:number)=>void }) {
+  const [tab, setTab] = useState<"standard"|"side">("standard");
+  const [amount, setAmount] = useState(10);
+  const [ppBet, setPpBet] = useState(0);
+  const [plus3Bet, setPlus3Bet] = useState(0);
+  const [insBet, setInsBet] = useState(0);
+  const [state, setState] = useState<BJHandState | null>(null);
+  const running = useRef(false);
+
+  const half = (setter: (v:number)=>void, cur:number) => setter(Math.max(0, cur/2));
+  const dbl  = (setter: (v:number)=>void, cur:number) => setter(cur*2);
+
+  const start = async () => {
+    const r = await api.post<BJHandState>("/bj/start", { bet: amount, ppBet, plus3Bet });
+    setState(r); onBalance(r.balance);
+  };
+
+  const insurance = async () => {
+    if (!state) return;
+    const r = await api.post<BJHandState>("/bj/insurance", { handId: state.id, amount: insBet });
+    setState(r); onBalance(r.balance);
+  };
+
+  const act = async (type: "hit"|"stand"|"double"|"split") => {
+    if (!state || running.current) return;
+    running.current = true;
+    const r = await api.post<BJHandState>("/bj/action", { handId: state.id, action: type, handIndex: 0 });
+    setState(r); onBalance(r.balance);
+    running.current = false;
+  };
+
+  return (
+    <div className="card p-4 space-y-3">
+      <div className="flex gap-2">
+        <button onClick={()=>setTab("standard")} className={"tab "+(tab==="standard"?"tab-active":"")}>Standard</button>
+        <button onClick={()=>setTab("side")} className={"tab "+(tab==="side"?"tab-active":"")}>Side bet</button>
+      </div>
+
+      {tab==="standard" ? (
+        <>
+          <Field label="Bet Amount">
+            <div className="flex gap-2">
+              <input className="input" type="number" step="0.00000001" value={amount} onChange={e=>setAmount(Number(e.target.value))} />
+              <button className="kbd" onClick={()=>half(setAmount, amount)}>½</button>
+              <button className="kbd" onClick={()=>dbl(setAmount, amount)}>2x</button>
+            </div>
+            <div className="text-[11px] mt-1 opacity-60">{fmtCr(amount)}</div>
+          </Field>
+        </>
+      ) : (
+        <>
+          <Field label="Bet Amount">
+            <div className="flex gap-2">
+              <input className="input" type="number" step="0.00000001" value={amount} onChange={e=>setAmount(Number(e.target.value))} />
+              <button className="kbd" onClick={()=>half(setAmount, amount)}>½</button>
+              <button className="kbd" onClick={()=>dbl(setAmount, amount)}>2x</button>
+            </div>
+          </Field>
+          <Field label="Side Bet (Perfect Pairs)">
+            <div className="flex gap-2">
+              <input className="input" type="number" step="0.00000001" value={ppBet} onChange={e=>setPpBet(Number(e.target.value))} />
+              <button className="kbd" onClick={()=>half(setPpBet, ppBet)}>½</button>
+              <button className="kbd" onClick={()=>dbl(setPpBet, ppBet)}>2x</button>
+            </div>
+            <div className="text-[11px] mt-1 opacity-60">{fmtCr(ppBet)}</div>
+          </Field>
+          <Field label="Side Bet (21 + 3)">
+            <div className="flex gap-2">
+              <input className="input" type="number" step="0.00000001" value={plus3Bet} onChange={e=>setPlus3Bet(Number(e.target.value))} />
+              <button className="kbd" onClick={()=>half(setPlus3Bet, plus3Bet)}>½</button>
+              <button className="kbd" onClick={()=>dbl(setPlus3Bet, plus3Bet)}>2x</button>
+            </div>
+            <div className="text-[11px] mt-1 opacity-60">{fmtCr(plus3Bet)}</div>
+          </Field>
+        </>
+      )}
+
+      <div className="grid grid-cols-2 gap-2">
+        <button className="button w-full" onClick={start}>Bet</button>
+        <div className="flex gap-2">
+          <button className="kbd" onClick={()=>act("hit")}>Hit</button>
+          <button className="kbd" onClick={()=>act("stand")}>Stand</button>
+          <button className="kbd" onClick={()=>act("split")}>Split</button>
+          <button className="kbd" onClick={()=>act("double")}>Double</button>
+        </div>
+      </div>
+
+      {/* Insurance controls when offered and not yet placed */}
+      {state?.insuranceOffered && state.status==="in_play" && state.insuranceBet===0 && (
+        <div className="border-t border-[#1f2430] pt-3">
+          <Field label="Insurance (max half of base bet, pays 2:1)">
+            <div className="flex gap-2">
+              <input className="input" type="number" step="0.00000001" value={insBet} onChange={e=>setInsBet(Number(e.target.value))} />
+              <button className="kbd" onClick={insurance}>Place Insurance</button>
+            </div>
+          </Field>
+        </div>
+      )}
+
+      {/* Table area */}
+      <div className="card p-4">
+        <div className="flex items-center justify-between opacity-70 text-xs mb-2">
+          <div>BLACKJACK PAYS 3 TO 2</div>
+          <div>INSURANCE PAYS 2 TO 1</div>
+        </div>
+        {!state ? (
+          <div className="h-[200px] flex items-center justify-center opacity-60">Place a bet to start</div>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <div className="text-sm opacity-70 mb-1">Dealer</div>
+              <div className="flex gap-2">
+                {state.dealer.cards.map((c, i) => <Card key={i} card={c} faceDown={i===1 && state.dealer.hidden} />)}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm opacity-70 mb-1">Player</div>
+              <div className="flex gap-4 flex-wrap">
+                {state.playerHands.map((h, idx) => (
+                  <div key={idx} className="flex gap-2 items-center">
+                    <div className="flex gap-2">
+                      {h.cards.map((c, j) => <Card key={j} card={c} />)}
+                    </div>
+                    <div className="text-xs opacity-70">{h.doubled ? "Doubled" : ""} {h.finished ? "(Done)" : ""}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {state?.messages && state.messages.length>0 && (
+              <ul className="text-xs opacity-80 list-disc ml-6">
+                {state.messages.map((m,i)=>(<li key={i}>{m}</li>))}
+              </ul>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Field({label, children}:{label: string; children: any}){
+  return (
+    <div>
+      <div className="text-xs opacity-70 mb-1">{label}</div>
+      {children}
+    </div>
+  );
+}

@@ -1,0 +1,875 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+mkdir -p server/routes client/src/components client/src/lib
+
+# ---------- package.json ----------
+cat > package.json <<'EOF'
+{
+  "name": "hilo-credits",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "ts-node-dev --respawn --transpile-only server/index.ts",
+    "dev:client": "vite --config vite.config.ts",
+    "build": "vite build --config vite.config.ts"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.51.1",
+    "better-sqlite3": "^9.6.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.12",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.0.1",
+    "postcss": "^8.4.45",
+    "tailwindcss": "^3.4.10",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.3"
+  }
+}
+EOF
+
+# ---------- tsconfig ----------
+cat > tsconfig.json <<'EOF'
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "strict": false,
+    "types": ["node"]
+  },
+  "include": ["server/**/*.ts", "client/src/**/*.ts", "client/src/**/*.tsx"]
+}
+EOF
+
+# ---------- vite/tailwind/postcss ----------
+cat > vite.config.ts <<'EOF'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  root: "client",
+  plugins: [react()],
+  server: { host: true, port: 5173, proxy: { "/api": "http://localhost:3001" } },
+  build: { outDir: "dist", emptyOutDir: true }
+});
+EOF
+
+cat > tailwind.config.js <<'EOF'
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./client/index.html", "./client/src/**/*.{ts,tsx}"],
+  theme: { extend: {} },
+  plugins: []
+};
+EOF
+
+cat > postcss.config.js <<'EOF'
+export default { plugins: { tailwindcss: {}, autoprefixer: {} } };
+EOF
+
+# ---------- client entry ----------
+mkdir -p client
+cat > client/index.html <<'EOF'
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hi-Lo • Credits</title>
+  </head>
+  <body class="bg-[#0e1014] text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+EOF
+
+mkdir -p client/src
+cat > client/src/index.css <<'EOF'
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { --accent: #7c3aed; } /* purple */
+.card { @apply bg-[#11141a] rounded-xl border border-[#1f2430] shadow; }
+.input { @apply bg-[#0b0e13] border border-[#1f2430] rounded-lg px-3 py-2 w-full outline-none focus:border-purple-500; }
+.button { @apply rounded-lg px-4 py-2 font-semibold; background: var(--accent); }
+.button:disabled { @apply opacity-60 cursor-not-allowed; }
+.tab { @apply px-4 py-2 rounded-md text-sm font-semibold; }
+.tab-active { @apply bg-[#171b23]; }
+.kbd { @apply text-xs bg-[#0b0e13] border border-[#1f2430] px-2 py-1 rounded; }
+
+/* Playing card */
+.playingcard {
+  @apply rounded-lg border border-[#1f2430];
+  width: 90px; height: 130px;
+  background: white; color: #0e1014;
+  position: relative; display: flex; align-items: center; justify-content: center;
+  font-weight: 800; box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+.playingcard .corner { position: absolute; top: 6px; left: 6px; font-size: 14px; }
+.playingcard .suit { font-size: 28px; }
+.playingcard.red { color: #e11d48; }
+EOF
+
+cat > client/src/main.tsx <<'EOF'
+import React from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const qc = new QueryClient();
+createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <QueryClientProvider client={qc}>
+      <App />
+    </QueryClientProvider>
+  </React.StrictMode>
+);
+EOF
+
+cat > client/src/App.tsx <<'EOF'
+import Game from "./components/HiloGame";
+import HiloHistory from "./components/HiloHistory";
+import ProvablyFairPanel from "./components/ProvablyFairPanel";
+import { api } from "./lib/api";
+import { Me } from "./types";
+import { useEffect, useMemo, useState } from "react";
+
+export default function App() {
+  const [balance, setBalance] = useState<number>(0);
+  const refresh = useMemo(() => async () => {
+    const me = await api.get<Me>("/users/me"); setBalance(me.balance);
+  }, []);
+  useEffect(() => { refresh(); }, [refresh]);
+
+  return (
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-extrabold tracking-tight">SHUFFLE • Hi-Lo (Credits)</h1>
+          <div className="text-sm opacity-80">Balance: <span className="font-semibold">{balance.toFixed(2)} Credits</span></div>
+        </div>
+
+        <Game onBalance={setBalance} />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <ProvablyFairPanel />
+          <HiloHistory />
+        </div>
+      </div>
+    </div>
+  );
+}
+EOF
+
+# ---------- client types & helpers ----------
+cat > client/src/types.ts <<'EOF'
+export type SeedCurrent = { serverSeedHash: string; clientSeed: string; nonce: number };
+export type Me = { balance: number };
+
+export type Card = { rank: number; suit: number }; // 1..13, 0..3
+
+export type HiloState = {
+  id: number;
+  status: 'in_play' | 'settled';
+  baseBet: number;
+  current: Card;
+  roundNonce: number;
+  serverSeedHash: string;
+  clientSeed: string;
+  balance: number;
+  skips: number;
+  quote: { higher: number; lower: number; equal: number };
+  result?: { next: Card; outcome: 'higher'|'lower'|'equal'; win: boolean; payout: number; profit: number };
+};
+
+export type HiloHistoryRow = {
+  id: number;
+  created_at: string;
+  stake: number;
+  prediction: 'higher'|'lower'|'equal';
+  start_card: number;
+  next_card: number;
+  multiplier: number;
+  win: number;
+  profit: number;
+  server_seed_hash: string;
+  client_seed: string;
+  round_nonce: number;
+  draw_history_json: string;
+};
+EOF
+
+mkdir -p client/src/lib
+cat > client/src/lib/api.ts <<'EOF'
+export const api = {
+  async get<T=any>(path: string): Promise<T> {
+    const r = await fetch(`/api${path}`);
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async post<T=any>(path: string, body?: any): Promise<T> {
+    const r = await fetch(`/api${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  }
+};
+EOF
+
+# ---------- client components ----------
+cat > client/src/components/CardView.tsx <<'EOF'
+import { Card } from "../types";
+const suitChar = (s: number) => ['♠','♥','♦','♣'][s];
+const isRed = (s: number) => s===1 || s===2;
+const rankStr = (r: number) => ({1:'A',11:'J',12:'Q',13:'K'} as any)[r] || String(r);
+export default function CardView({ card }: { card: Card }) {
+  const red = isRed(card.suit);
+  return (
+    <div className={"playingcard "+(red?"red":"")}>
+      <div className="corner">{rankStr(card.rank)}{suitChar(card.suit)}</div>
+      <div className="suit">{suitChar(card.suit)}</div>
+    </div>
+  );
+}
+EOF
+
+cat > client/src/components/HiloGame.tsx <<'EOF'
+import { useEffect, useRef, useState } from "react";
+import { api } from "../lib/api";
+import CardView from "./CardView";
+import { HiloState } from "../types";
+
+type PredictMode = 'higher'|'lower'|'equal'|'auto_best';
+
+export default function HiloGame({ onBalance }:{ onBalance:(b:number)=>void }) {
+  const [tab, setTab] = useState<'manual'|'auto'>('manual');
+
+  // Manual
+  const [amount, setAmount] = useState(1);
+  const [state, setState] = useState<HiloState | null>(null);
+
+  // Auto
+  const [autoCount, setAutoCount] = useState(0); // 0 = infinite
+  const [autoSkips, setAutoSkips] = useState(0);
+  const [autoBase, setAutoBase] = useState(1);
+  const [autoPredict, setAutoPredict] = useState<PredictMode>('auto_best');
+  const [autoCfg, setAutoCfg] = useState({ onWin:{mode:'reset', val:0}, onLoss:{mode:'reset', val:0}, stopProfit:0, stopLoss:0 });
+  const [running, setRunning] = useState(false);
+  const stopFlag = useRef(false);
+
+  const load = async () => {
+    const s = await api.post<HiloState>("/hilo/start", {});
+    setState(s); onBalance(s.balance);
+  };
+  useEffect(()=>{ load(); }, []);
+
+  const quoteText = (x:number) => (x>0 ? x.toFixed(2)+"x" : "—");
+
+  const skip = async () => {
+    if (!state || state.status!=='in_play') return;
+    const s = await api.post<HiloState>("/hilo/skip", { id: state.id });
+    setState(s); onBalance(s.balance);
+  };
+
+  const bet = async (prediction: 'higher'|'lower'|'equal') => {
+    if (!state || state.status!=='in_play') return;
+    const s = await api.post<HiloState>("/hilo/bet", { id: state.id, amount, prediction });
+    setState(s); onBalance(s.balance);
+  };
+
+  const restart = async () => { await load(); };
+
+  const choosePrediction = (s: HiloState): 'higher'|'lower'|'equal' => {
+    if (autoPredict !== 'auto_best') return autoPredict;
+    const pairs:[('higher'|'lower'|'equal'), number][] = [
+      ['higher', s.quote.higher], ['lower', s.quote.lower], ['equal', s.quote.equal]
+    ];
+    pairs.sort((a,b)=>b[1]-a[1]);
+    return pairs[0][0];
+  };
+
+  const applyRule = (cur:number, rule:{mode:string,val:number}, base:number) => {
+    switch (rule.mode) {
+      case 'reset': return base;
+      case 'inc_pct': return cur * (1 + rule.val/100);
+      case 'inc_flat': return cur + rule.val;
+      case 'multiply': return cur * rule.val;
+      default: return cur;
+    }
+  };
+
+  const startAuto = async () => {
+    setRunning(true); stopFlag.current = false;
+    let i = 0;
+    let betAmt = autoBase;
+    const startBal = (await api.get<{balance:number}>("/users/me")).balance;
+
+    while (!stopFlag.current && (autoCount===0 || i<autoCount)) {
+      // Start round
+      let s = await api.post<HiloState>("/hilo/start", {});
+      // Skips
+      for (let k=0;k<autoSkips;k++) {
+        s = await api.post<HiloState>("/hilo/skip", { id: s.id });
+      }
+      const pred = choosePrediction(s);
+      const r = await api.post<HiloState>("/hilo/bet", { id: s.id, amount: betAmt, prediction: pred });
+      onBalance(r.balance);
+      const won = !!r.result?.win;
+
+      // session P/L check
+      const pnl = r.balance - startBal;
+      if (autoCfg.stopProfit>0 && pnl >= autoCfg.stopProfit) break;
+      if (autoCfg.stopLoss>0 && -pnl >= autoCfg.stopLoss) break;
+
+      betAmt = applyRule(betAmt, won ? autoCfg.onWin : autoCfg.onLoss, autoBase);
+
+      await new Promise(res=>setTimeout(res, 250));
+      i++;
+    }
+    setRunning(false);
+  };
+
+  return (
+    <div className="card p-4">
+      {!state ? <div>Loading…</div> : (
+        <div className="grid grid-cols-12 gap-6 items-start">
+          {/* Left rail */}
+          <div className="col-span-12 md:col-span-4 space-y-3">
+            <div className="flex gap-2">
+              <button className={"tab "+(tab==='manual'?'tab-active':'')} onClick={()=>setTab('manual')}>Manual</button>
+              <button className={"tab "+(tab==='auto'?'tab-active':'')} onClick={()=>setTab('auto')}>Auto</button>
+            </div>
+
+            {tab==='manual' ? (
+              <>
+                <div>
+                  <div className="text-xs opacity-70 mb-1">Bet Amount</div>
+                  <div className="flex gap-2">
+                    <input className="input" type="number" step="0.00000001" value={amount} onChange={e=>setAmount(Number(e.target.value))} />
+                    <button className="kbd" onClick={()=>setAmount(a=>Math.max(0.00000001, a/2))}>½</button>
+                    <button className="kbd" onClick={()=>setAmount(a=>a*2)}>2x</button>
+                  </div>
+                  <div className="text-[11px] mt-1 opacity-60">{amount.toFixed(8)} Credits</div>
+                </div>
+                <button className="input bg-[#171b23]" onClick={skip}>Change Card (skip)</button>
+                <div className="grid grid-cols-3 gap-2">
+                  <button className="button" onClick={()=>bet('higher')}>Higher<br/><span className="text-xs opacity-80">{quoteText(state.quote.higher)}</span></button>
+                  <button className="button" onClick={()=>bet('equal')}>Equal<br/><span className="text-xs opacity-80">{quoteText(state.quote.equal)}</span></button>
+                  <button className="button" onClick={()=>bet('lower')}>Lower<br/><span className="text-xs opacity-80">{quoteText(state.quote.lower)}</span></button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <div className="text-xs opacity-70 mb-1">Base Bet</div>
+                  <input className="input" type="number" step="0.00000001" value={autoBase} onChange={e=>setAutoBase(Number(e.target.value))}/>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <div className="text-xs opacity-70 mb-1">Skips / Round</div>
+                    <input className="input" type="number" min={0} value={autoSkips} onChange={e=>setAutoSkips(Number(e.target.value))}/>
+                  </div>
+                  <div>
+                    <div className="text-xs opacity-70 mb-1"># of Rounds</div>
+                    <input className="input" type="number" min={0} value={autoCount} onChange={e=>setAutoCount(Number(e.target.value))}/>
+                    <div className="text-[11px] opacity-60 mt-1">0 = infinite</div>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs opacity-70 mb-1">Predict</div>
+                  <select className="input" value={autoPredict} onChange={e=>setAutoPredict(e.target.value as PredictMode)}>
+                    <option value="auto_best">Auto (best multiplier)</option>
+                    <option value="higher">Higher</option>
+                    <option value="lower">Lower</option>
+                    <option value="equal">Equal</option>
+                  </select>
+                </div>
+                <button className="input bg-[#171b23]" onClick={()=>{
+                  const stopProfit = Number(prompt("Stop on Profit (Credits)", String(autoCfg.stopProfit))||0);
+                  const stopLoss = Number(prompt("Stop on Loss (Credits)", String(autoCfg.stopLoss))||0);
+                  const ow = prompt("On Win: reset / inc_pct / inc_flat / multiply", autoCfg.onWin.mode) || "reset";
+                  const owv = Number(prompt("On Win value", String(autoCfg.onWin.val))||0);
+                  const ol = prompt("On Loss: reset / inc_pct / inc_flat / multiply", autoCfg.onLoss.mode) || "reset";
+                  const olv = Number(prompt("On Loss value", String(autoCfg.onLoss.val))||0);
+                  setAutoCfg({ onWin:{mode:ow,val:owv}, onLoss:{mode:ol,val:olv}, stopProfit, stopLoss });
+                }}>Configure Auto</button>
+                {!running ? (
+                  <button className="button w-full mt-2" onClick={startAuto}>Start Autobet</button>
+                ) : (
+                  <button className="button w-full mt-2" onClick={()=>{stopFlag.current = true;}}>Stop</button>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Right: cards & results */}
+          <div className="col-span-12 md:col-span-8">
+            <div className="flex items-center gap-6">
+              <div>
+                <div className="text-xs opacity-70 mb-1">Current Card</div>
+                <CardView card={state.current} />
+              </div>
+              {state.result && (
+                <div>
+                  <div className="text-xs opacity-70 mb-1">Next Card</div>
+                  <CardView card={state.result.next} />
+                </div>
+              )}
+            </div>
+            <div className="mt-4 text-sm opacity-80">
+              Server Seed Hash: <span className="font-mono">{state.serverSeedHash}</span> • Nonce: {state.roundNonce}
+            </div>
+            {state.result && (
+              <div className={"mt-3 p-3 rounded-lg border " + (state.result.win ? "border-green-700 bg-green-950/30" : "border-red-700 bg-red-950/30")}>
+                <div className="font-semibold">{state.result.win ? "WIN" : "LOSS"} — {state.result.outcome.toUpperCase()} @ {state.quote[(state.result.outcome)]?.toFixed(2)}x</div>
+                <div className="text-sm">Payout: {state.result.payout.toFixed(2)} • Profit: {state.result.profit.toFixed(2)} Credits</div>
+              </div>
+            )}
+            <div className="mt-3">
+              {state.status==='settled' && <button className="button" onClick={restart}>New Round</button>}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+EOF
+
+cat > client/src/components/HiloHistory.tsx <<'EOF'
+import { useQuery } from "@tanstack/react-query";
+import { api } from "../lib/api";
+import { HiloHistoryRow } from "../types";
+
+export default function HiloHistory(){
+  const { data, refetch, isFetching } = useQuery({
+    queryKey:["hilo-history"],
+    queryFn:()=>api.get<HiloHistoryRow[]>("/hilo/history?limit=50"),
+    refetchInterval: 3000
+  });
+
+  return (
+    <div className="card p-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-bold text-lg">Recent Rounds</h3>
+        <button className="kbd" onClick={()=>refetch()} disabled={isFetching}>refresh</button>
+      </div>
+      <div className="space-y-2 mt-3 max-h-[420px] overflow-auto pr-1">
+        {data?.map(r=>(
+          <div key={r.id} className={"p-3 rounded-lg border " + (r.win ? "border-green-700 bg-green-950/30" : "border-red-700 bg-red-950/30")}>
+            <div className="flex items-center justify-between">
+              <div><b>{r.prediction?.toUpperCase?.() ?? '—'}</b> • Mult {r.multiplier.toFixed(2)}x</div>
+              <div>{r.profit.toFixed(2)} Credits</div>
+            </div>
+            <div className="text-xs opacity-80 mt-1">Seed Hash: {r.server_seed_hash} • Nonce: {r.round_nonce}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+EOF
+
+cat > client/src/components/ProvablyFairPanel.tsx <<'EOF'
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "../lib/api";
+import { SeedCurrent } from "../types";
+import { useState } from "react";
+import CardView from "./CardView";
+
+export default function ProvablyFairPanel(){
+  const qc = useQueryClient();
+  const { data } = useQuery({ queryKey:["seed-current"], queryFn:()=>api.get<SeedCurrent>("/seeds/current") });
+  const [clientSeed,setClientSeed]=useState("");
+  const [serverSeed,setServerSeed]=useState("");
+  const [nonce,setNonce]=useState<number>(0);
+  const [draws,setDraws]=useState<number>(2);
+  const [cards,setCards]=useState<any[]|null>(null);
+
+  const save=async()=>{ await api.post("/seeds/client",{clientSeed}); await qc.invalidateQueries({queryKey:["seed-current"]}); };
+  const rotate=async()=>{ await api.post("/seeds/rotate"); await qc.invalidateQueries({queryKey:["seed-current"]}); await qc.invalidateQueries({queryKey:["hilo-history"]}); };
+
+  const verify=async()=>{
+    const r = await api.post<{ cards:{rank:number;suit:number}[] }>("/hilo/verify", { serverSeed, clientSeed, roundNonce: nonce, draws });
+    setCards(r.cards);
+  };
+
+  return (
+    <div className="card p-4">
+      <h3 className="font-bold text-lg"># Provably Fair</h3>
+      <div className="text-xs opacity-70 mt-2">Server Seed Hash</div>
+      <div className="input mt-1 text-[12px]">{data?.serverSeedHash ?? "Loading..."}</div>
+      <div className="grid grid-cols-2 gap-2 mt-3">
+        <div>
+          <div className="text-xs opacity-70 mb-1">Client Seed (current)</div>
+          <div className="input text-[12px]">{data?.clientSeed ?? ""}</div>
+        </div>
+        <div>
+          <div className="text-xs opacity-70 mb-1">Nonce</div>
+          <div className="input text-[12px]">{data?.nonce ?? 0}</div>
+        </div>
+      </div>
+      <div className="mt-3 flex gap-2">
+        <input className="input" placeholder="Set new client seed" value={clientSeed} onChange={e=>setClientSeed(e.target.value)} />
+        <button className="kbd" onClick={save}>save</button>
+      </div>
+      <button className="button w-full mt-3" onClick={rotate}>Rotate Server Seed</button>
+
+      <div className="mt-5 border-t border-[#1f2430] pt-4">
+        <h4 className="font-semibold mb-2">Verify a Round</h4>
+        <div className="grid grid-cols-2 gap-2">
+          <input className="input" placeholder="Revealed Server Seed" value={serverSeed} onChange={e=>setServerSeed(e.target.value)} />
+          <input className="input" placeholder="Client Seed" value={clientSeed} onChange={e=>setClientSeed(e.target.value)} />
+          <input className="input" type="number" placeholder="Round Nonce" value={nonce} onChange={e=>setNonce(Number(e.target.value))} />
+          <input className="input" type="number" placeholder="# of draws" value={draws} onChange={e=>setDraws(Number(e.target.value))} />
+        </div>
+        <div className="flex items-center gap-2 mt-2">
+          <button className="kbd" onClick={verify}>compute</button>
+        </div>
+        {cards && (
+          <div className="flex gap-2 mt-3 flex-wrap">
+            {cards.map((c,i)=>(<CardView key={i} card={c as any} />))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+EOF
+
+# ---------- server ----------
+cat > server/db.ts <<'EOF'
+import Database from "better-sqlite3";
+
+const db = new Database("hilo.db");
+db.pragma("journal_mode = WAL");
+
+db.prepare(`
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY,
+  username TEXT,
+  balance REAL NOT NULL DEFAULT 0,
+  client_seed TEXT
+)`).run();
+
+db.prepare(`
+CREATE TABLE IF NOT EXISTS seeds (
+  id INTEGER PRIMARY KEY,
+  server_seed TEXT,
+  server_seed_hash TEXT,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)`).run();
+
+db.prepare(`
+CREATE TABLE IF NOT EXISTS hilo_rounds (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER,
+  stake REAL,
+  prediction TEXT,
+  start_card INTEGER,
+  next_card INTEGER,
+  multiplier REAL,
+  win INTEGER,
+  profit REAL,
+  server_seed_hash TEXT,
+  server_seed_revealed TEXT,
+  client_seed TEXT,
+  round_nonce INTEGER,
+  draw_history_json TEXT,
+  status TEXT,
+  runtime_json TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)`).run();
+
+const user = db.prepare("SELECT * FROM users WHERE id=1").get();
+if (!user) {
+  db.prepare("INSERT INTO users (id, username, balance, client_seed) VALUES (1, 'demo', 1000, ?)").run(
+    Math.random().toString(36).slice(2)
+  );
+}
+
+export default db;
+EOF
+
+cat > server/provablyFair.ts <<'EOF'
+import crypto from "crypto";
+
+export const sha256 = (s: string) => crypto.createHash("sha256").update(s).digest("hex");
+export const hmacSHA256 = (key: string, msg: string) =>
+  crypto.createHmac("sha256", key).update(msg).digest("hex");
+
+function rFromHex(hex: string) {
+  const slice = hex.slice(0, 26); // 13 bytes -> 52 bits
+  const n = parseInt(slice, 16);
+  return (n + 1) / 2 ** 52; // (0,1]
+}
+
+export function drawIndex(serverSeed: string, clientSeed: string, roundNonce: number, drawIndex: number, n: number) {
+  const digest = hmacSHA256(serverSeed, `${clientSeed}:${roundNonce}:${drawIndex}`);
+  const r = rFromHex(digest);
+  return Math.floor(r * n); // 0..n-1
+}
+EOF
+
+cat > server/types.ts <<'EOF'
+export type User = { id: number; username: string; balance: number; client_seed: string };
+export type Seed = { id: number; server_seed: string; server_seed_hash: string; active: number };
+EOF
+
+cat > server/index.ts <<'EOF'
+import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import crypto from "crypto";
+import db from "./db";
+import { sha256 } from "./provablyFair";
+import type { User, Seed } from "./types";
+import { hiloRouter } from "./routes/hilo";
+
+const app = express();
+app.use(express.json());
+app.use(helmet());
+app.use(cors());
+
+const getUser = (id=1): User => db.prepare("SELECT * FROM users WHERE id=?").get(id);
+const getActiveSeed = (): Seed => db.prepare("SELECT * FROM seeds WHERE active=1").get();
+
+(() => {
+  const active = getActiveSeed();
+  if (!active) {
+    const serverSeed = crypto.randomBytes(32).toString("hex");
+    const serverSeedHash = sha256(serverSeed);
+    db.prepare("INSERT INTO seeds(server_seed, server_seed_hash, active) VALUES(?,?,1)").run(serverSeed, serverSeedHash);
+  }
+})();
+
+app.get("/api/users/me", (req, res) => {
+  const me = getUser(1);
+  res.json({ balance: me.balance });
+});
+
+app.get("/api/seeds/current", (req, res) => {
+  const me = getUser(1);
+  const active = getActiveSeed();
+  const r = db.prepare("SELECT COUNT(*) as c FROM hilo_rounds WHERE user_id=1 AND server_seed_hash=?").get(active.server_seed_hash) as any;
+  res.json({ serverSeedHash: active.server_seed_hash, clientSeed: me.client_seed, nonce: r.c });
+});
+
+app.post("/api/seeds/client", (req, res) => {
+  const { clientSeed } = req.body as { clientSeed?: string };
+  if (!clientSeed) return res.status(400).send("clientSeed required");
+  db.prepare("UPDATE users SET client_seed=? WHERE id=1").run(clientSeed);
+  res.json({ ok: true });
+});
+
+app.post("/api/seeds/rotate", (req, res) => {
+  const current = getActiveSeed();
+  db.prepare("UPDATE seeds SET active=0 WHERE id=?").run(current.id);
+  const serverSeed = crypto.randomBytes(32).toString("hex");
+  const serverSeedHash = sha256(serverSeed);
+  db.prepare("INSERT INTO seeds(server_seed, server_seed_hash, active) VALUES(?,?,1)").run(serverSeed, serverSeedHash);
+  db.prepare("UPDATE hilo_rounds SET server_seed_revealed=? WHERE server_seed_hash=? AND server_seed_revealed IS NULL")
+    .run(current.server_seed, current.server_seed_hash);
+  res.json({ revealed: { serverSeed: current.server_seed, serverSeedHash: current.server_seed_hash }, newHash: serverSeedHash });
+});
+
+app.use("/api/hilo", hiloRouter);
+
+const PORT = 3001;
+app.listen(PORT, () => console.log(`API on http://localhost:${PORT}`));
+EOF
+
+cat > server/routes/hilo.ts <<'EOF'
+import { Router } from "express";
+import db from "../db";
+import { drawIndex } from "../provablyFair";
+import type { User, Seed } from "../types";
+
+export const hiloRouter = Router();
+
+const getUser = (id=1): User => db.prepare("SELECT * FROM users WHERE id=?").get(id);
+const getActiveSeed = (): Seed => db.prepare("SELECT * FROM seeds WHERE active=1").get();
+
+type Card = { rank: number; suit: number }; // 1..13, 0..3
+type Runtime = { deck: number[]; drawCount: number; currentCode: number; skips: number };
+
+function codeToCard(code: number): Card {
+  const suit = Math.floor(code / 13);
+  const rank = (code % 13) + 1;
+  return { rank, suit };
+}
+function makeDeck(): number[] { return Array.from({length:52}, (_,i)=>i); }
+
+function drawCard(rt: Runtime, serverSeed: string, clientSeed: string, nonce: number): number {
+  const idx = drawIndex(serverSeed, clientSeed, nonce, rt.drawCount++, rt.deck.length);
+  const code = rt.deck.splice(idx,1)[0];
+  return code;
+}
+
+function computeQuote(rt: Runtime, current: Card): { higher: number; lower: number; equal: number } {
+  let higher=0, lower=0, equal=0;
+  for (const code of rt.deck) {
+    const c = codeToCard(code);
+    if (c.rank > current.rank) higher++;
+    else if (c.rank < current.rank) lower++;
+    else equal++;
+  }
+  const n = rt.deck.length;
+  const edge = 0.01;
+  const mult = (p:number)=> p<=0 ? 0 : Math.max(1.01, Math.floor(((1-edge)/p)*100)/100);
+  return { higher: mult(higher/n), lower: mult(lower/n), equal: mult(equal/n) };
+}
+
+/* Start a round */
+hiloRouter.post("/start", (req, res) => {
+  const user = getUser(1);
+  const seed = getActiveSeed();
+  const nonce = (db.prepare("SELECT COUNT(*) as c FROM hilo_rounds WHERE user_id=1 AND server_seed_hash=?").get(seed.server_seed_hash) as any).c;
+
+  const rt: Runtime = { deck: makeDeck(), drawCount: 0, currentCode: -1, skips: 0 };
+  const first = drawCard(rt, seed.server_seed, user.client_seed, nonce);
+  rt.currentCode = first;
+  const quote = computeQuote(rt, codeToCard(rt.currentCode));
+
+  const insert = db.prepare(`INSERT INTO hilo_rounds (user_id, stake, prediction, start_card, next_card, multiplier, win, profit,
+    server_seed_hash, client_seed, round_nonce, draw_history_json, status, runtime_json)
+    VALUES (1, 0, NULL, ?, NULL, 0, 0, 0, ?, ?, ?, ?, 'in_play', ?)`);
+  insert.run(first, seed.server_seed_hash, user.client_seed, nonce, JSON.stringify([first]), JSON.stringify(rt));
+  const id = (db.prepare("SELECT last_insert_rowid() as id").get() as any).id;
+
+  res.json({
+    id, status:"in_play", baseBet: 0, current: codeToCard(first), roundNonce: nonce,
+    serverSeedHash: seed.server_seed_hash, clientSeed: user.client_seed, balance: user.balance, skips: 0, quote
+  });
+});
+
+/* Skip current card before betting */
+hiloRouter.post("/skip", (req, res) => {
+  const { id } = req.body as { id: number };
+  const row = db.prepare("SELECT * FROM hilo_rounds WHERE id=?").get(id) as any;
+  if (!row || row.status !== 'in_play') return res.status(400).send("round not in play");
+  const user = getUser(1);
+  const seed = getActiveSeed();
+  const rt: Runtime = JSON.parse(row.runtime_json);
+  const hist: number[] = JSON.parse(row.draw_history_json);
+
+  const next = drawCard(rt, seed.server_seed, row.client_seed, row.round_nonce);
+  rt.currentCode = next; rt.skips += 1; hist.push(next);
+  const quote = computeQuote(rt, codeToCard(rt.currentCode));
+
+  db.prepare("UPDATE hilo_rounds SET start_card=?, draw_history_json=?, runtime_json=? WHERE id=?")
+    .run(next, JSON.stringify(hist), JSON.stringify(rt), id);
+
+  res.json({
+    id, status:"in_play", baseBet: 0, current: codeToCard(next), roundNonce: row.round_nonce,
+    serverSeedHash: row.server_seed_hash, clientSeed: row.client_seed, balance: user.balance, skips: rt.skips, quote
+  });
+});
+
+/* Place bet (higher/lower/equal) */
+hiloRouter.post("/bet", (req, res) => {
+  const { id, amount, prediction } = req.body as { id: number; amount: number; prediction: 'higher'|'lower'|'equal' };
+  const row = db.prepare("SELECT * FROM hilo_rounds WHERE id=?").get(id) as any;
+  if (!row || row.status !== 'in_play') return res.status(400).send("round not in play");
+  if (amount<=0) return res.status(400).send("invalid amount");
+  const user = getUser(1);
+  if (user.balance < amount) return res.status(400).send("Insufficient balance");
+  const seed = getActiveSeed();
+
+  const rt: Runtime = JSON.parse(row.runtime_json);
+  const hist: number[] = JSON.parse(row.draw_history_json);
+  const current = codeToCard(rt.currentCode);
+
+  db.prepare("UPDATE users SET balance = balance - ? WHERE id=1").run(amount);
+
+  let higher=0, lower=0, equal=0;
+  for (const code of rt.deck) {
+    const c = codeToCard(code);
+    if (c.rank > current.rank) higher++;
+    else if (c.rank < current.rank) lower++;
+    else equal++;
+  }
+  const n = rt.deck.length;
+  const pMap:any = { higher: higher/n, lower: lower/n, equal: equal/n };
+  const edge = 0.01;
+  const multiplier = Math.max(1.01, Math.floor(((1-edge)/pMap[prediction])*100)/100);
+
+  const nextCode = drawCard(rt, seed.server_seed, row.client_seed, row.round_nonce);
+  hist.push(nextCode);
+  const next = codeToCard(nextCode);
+
+  let outcome: 'higher'|'lower'|'equal' = 'equal';
+  if (next.rank > current.rank) outcome = 'higher';
+  else if (next.rank < current.rank) outcome = 'lower';
+  else outcome = 'equal';
+
+  const win = Number(outcome === prediction);
+  const payout = win ? amount * multiplier : 0;
+  if (payout>0) db.prepare("UPDATE users SET balance = balance + ? WHERE id=1").run(payout);
+  const profit = payout - amount;
+
+  db.prepare(`UPDATE hilo_rounds SET stake=?, prediction=?, next_card=?, multiplier=?, win=?, profit=?, status='settled',
+              draw_history_json=?, runtime_json=NULL WHERE id=?`)
+    .run(amount, prediction, nextCode, multiplier, win, profit, JSON.stringify(hist), id);
+
+  const balance = getUser(1).balance;
+  res.json({
+    id, status:"settled", baseBet: amount, current, roundNonce: row.round_nonce,
+    serverSeedHash: row.server_seed_hash, clientSeed: row.client_seed, balance, skips: rt.skips,
+    quote: { higher: Math.max(1.01, Math.floor(((1-edge)/pMap['higher'])*100)/100), lower: Math.max(1.01, Math.floor(((1-edge)/pMap['lower'])*100)/100), equal: Math.max(1.01, Math.floor(((1-edge)/pMap['equal'])*100)/100) },
+    result: { next, outcome, win: !!win, payout, profit }
+  });
+});
+
+/* History */
+hiloRouter.get("/history", (req, res) => {
+  const limit = Math.max(1, Math.min(200, Number(req.query.limit ?? 50)));
+  const rows = db.prepare("SELECT id, created_at, stake, prediction, start_card, next_card, multiplier, win, profit, server_seed_hash, client_seed, round_nonce, draw_history_json FROM hilo_rounds WHERE user_id=1 AND status='settled' ORDER BY id DESC LIMIT ?").all(limit);
+  res.json(rows);
+});
+
+/* Verify tool: simulate N draws from a fresh deck for a given (serverSeed, clientSeed, roundNonce) */
+hiloRouter.post("/verify", (req, res) => {
+  const { serverSeed, clientSeed, roundNonce, draws=2 } = req.body as { serverSeed: string; clientSeed: string; roundNonce: number; draws?: number };
+  if (!serverSeed || !clientSeed || typeof roundNonce!=='number') return res.status(400).send("missing fields");
+  const rt: Runtime = { deck: makeDeck(), drawCount: 0, currentCode: -1, skips: 0 };
+  const codes: number[] = [];
+  for (let i=0;i<Math.max(1,Math.min(52,draws));i++) {
+    codes.push(drawCard(rt, serverSeed, clientSeed, roundNonce));
+  }
+  res.json({ codes, cards: codes.map(codeToCard) });
+});
+EOF
+
+echo "Installing dependencies (this may take a minute)..."
+npm install >/dev/null 2>&1 || npm install
+
+echo "Done! Next steps:"
+echo "1) npm run dev"
+echo "2) Open the web preview (5173)"
