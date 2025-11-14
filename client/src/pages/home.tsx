@@ -632,19 +632,19 @@ export default function Home() {
 
               {/* Badge */}
               <div className="absolute top-2 left-2">
-                <div className="bg-black/50 backdrop-blur text-white px-2 py-1 rounded-full text-sm font-semibold border border-white/20">
+                <div className="bg-black/50 backdrop-blur text-white px-2 py-0.5 rounded-full text-xs font-semibold border border-white/20">
                   ✨ {banner.badge}
                 </div>
               </div>
 
               {/* Content */}
               <div className="relative h-full flex flex-col items-center justify-center text-white px-4 py-8 pt-[12px] pb-[12px] ml-[0px] mr-[0px] pl-[8px] pr-[8px] font-bold text-center mt-[0px] mb-[0px]">
-                <div className="flex items-center gap-2 mb-3">
-                  <h1 className="font-bold tracking-tight text-center whitespace-pre-line text-3xl">
+                <div className="flex items-center gap-2 mb-2">
+                  <h1 className="font-bold tracking-tight text-center whitespace-pre-line text-lg">
                     Try out our Free to play skill based Game!
                   </h1>
                 </div>
-                <p className="opacity-90 mb-4 text-center max-w-md text-xl">
+                <p className="opacity-90 mb-3 text-center max-w-md text-sm">
                   {banner.subtitle}
                 </p>
                 <div className="flex gap-6 flex-wrap justify-center">
@@ -692,10 +692,10 @@ export default function Home() {
                       <Button
                         key={btnIndex}
                         onClick={button.action}
-                        className={`${getBannerButtonStyles(banner.id, button.variant || 'primary')} h-14 text-lg font-bold transform hover:scale-105 active:scale-95`}
+                        className={`${getBannerButtonStyles(banner.id, button.variant || 'primary')} h-10 text-sm font-bold transform hover:scale-105 active:scale-95`}
                         data-testid={`button-${button.text.toLowerCase().replace(/\s+/g, '-')}`}
                       >
-                        <Icon className="w-5 h-5 mr-1.5" />
+                        <Icon className="w-4 h-4 mr-1.5" />
                         {button.text}
                       </Button>
                     );
