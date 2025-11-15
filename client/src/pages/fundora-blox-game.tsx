@@ -251,7 +251,11 @@ export default function FundoraBloxGame() {
       display: 'flex', 
       alignItems: 'center', 
       justifyContent: 'center',
-      background: '#2a2a2e'
+      backgroundImage: 'url(/game-images/fundora-blox.png)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      backgroundColor: '#2a2a2e'
     }}>
       <div style={{
         position: 'absolute',

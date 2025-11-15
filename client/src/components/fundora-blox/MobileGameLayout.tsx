@@ -183,7 +183,11 @@ export function MobileGameLayout() {
       display: 'flex',
       flexDirection: 'column',
       position: 'relative',
-      background: 'linear-gradient(135deg, #4a5568 0%, #2d3748 100%)',
+      backgroundImage: 'url(/game-images/fundora-blox.png)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      backgroundColor: '#2d3748',
     }}>
       {/* Top Bar with Prize Indicator */}
       <div style={{
