@@ -216,7 +216,7 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-casino-dark text-white">
       {/* Miraclez-style Header */}
-      <header className="bg-black border-b border-[#1a1a1a] px-1 md:px-3 pt-3 h-16 md:h-18 sticky top-0 z-50 mobile-header">
+      <header className="bg-black border-b border-[#1a1a1a] px-1 md:px-3 pt-8 md:pt-4 h-20 md:h-20 sticky top-0 z-50 mobile-header">
         <div className="h-full flex items-center justify-between max-w-screen-xl mx-auto gap-0.5 md:gap-2">
           {/* LEFT: MIRACLEZ Title */}
           <button 
