@@ -147,7 +147,7 @@ const games = [
   {
     id: 'fundora-blox',
     name: 'FUNDORA BLOX',
-    path: '/fundora-blox',
+    path: '/fundora-blox-game',
     gradient: 'from-orange-600 to-red-400',
     borderColor: 'border-red-400 shadow-red-400/50',
     badgeColor: 'bg-red-500',
