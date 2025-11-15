@@ -63,7 +63,7 @@ const games: Game[] = [
     id: 'coinflip',
     name: 'COIN FLIP',
     path: '/coinflip',
-    image: '/game-images/coinflip.png',
+    image: '/game-images/coin-flip-carousel.png',
     description: 'Flip a coin and predict heads or tails',
     rtp: '98%',
     volatility: 'low',
