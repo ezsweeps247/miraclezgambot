@@ -1,7 +1,10 @@
 # Miraclez Gaming - Telegram Casino WebApp
 
 ## Overview
-Miraclez Gaming is a production-ready hybrid casino platform offering a provably fair gaming experience through both Telegram WebApp and standalone web access. It features core casino games (Dice, Slots, Crash, CryptoCoaster, Plinko, Keno, Tower Defense, Mines) and puzzle games (Enigma), with real-time multiplayer capabilities and cryptographic proof of fairness. The platform includes wallet management, transaction history, deposit bonus systems, a comprehensive admin panel, and a 4-tier progressive jackpot system. The business vision is to provide an accessible, transparent, and engaging online casino experience to Telegram's user base and traditional web users.
+Miraclez Gaming is a production-ready hybrid casino platform offering a provably fair gaming experience through both Telegram WebApp and standalone web access. It features core casino games (Dice, Slots, Crash, CryptoCoaster, Plinko, Keno, Tower Defense, Mines) and puzzle games (Enigma, Fundora Blox, Coin Flip), with real-time multiplayer capabilities and cryptographic proof of fairness. The platform includes wallet management, transaction history, deposit bonus systems, a comprehensive admin panel, and a 4-tier progressive jackpot system. The business vision is to provide an accessible, transparent, and engaging online casino experience to Telegram's user base and traditional web users.
+
+## Recent Changes (November 15, 2025)
+- **FUNDORA BLOX ROUTING RESTORATION**: Restored correct Fundora Blox routing to use the dark mobile-optimized version (FundoraBloxGame component at `/fundora-blox-game`) with MobileGameLayout, back button, and full mobile responsiveness. Updated home page and carousel links to point to `/fundora-blox-game` instead of `/fundora-blox`. The FundoraBloxGame component includes dark background theme, golden "BACK TO HOME" button, scale/context state for mobile optimization, and uses useGame store. All entry points (home page "All Games", carousel, direct navigation) now load the correct dark mobile-optimized version. Files updated: App.tsx, home.tsx, game-carousel.tsx. Result: Consistent dark mobile-optimized experience from all entry points matching user requirements.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
