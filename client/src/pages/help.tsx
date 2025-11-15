@@ -194,24 +194,24 @@ Telegram ID: ${userProfile.telegramId}`;
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <HelpCircle className=" text-purple-500"style={{width: '3.5px', height: '3.5px'}} />
-            <h1 className="text-[10px] md:text-[10px] font-bold text-white">
+            <HelpCircle className="w-6 h-6 text-purple-500" />
+            <h1 className="text-2xl md:text-3xl font-bold text-white">
               Help Center
             </h1>
           </div>
-          <p className="text-gray-400 text-[10px] mb-6">
+          <p className="text-gray-400 text-sm mb-6">
             Find answers to frequently asked questions about Miraclez Gaming
           </p>
 
           {/* Search */}
           <div className="relative max-w-md mx-auto mb-6">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 "style={{width: '3px', height: '3px'}} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <Input
               type="text"
               placeholder="Search for answers..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-[#1a1a1a] border-gray-700 text-white"
+              className="pl-10 bg-[#1a1a1a] border-gray-700 text-white text-sm"
               data-testid="input-search-faq"
             />
           </div>
@@ -241,9 +241,9 @@ Telegram ID: ${userProfile.telegramId}`;
             <Card className="bg-[#1a1a1a] border-gray-800">
               <CardContent className="p-8 text-center">
                 <div className="text-gray-400">
-                  <Search className=" mx-auto mb-4 opacity-50"style={{width: '3.5px', height: '3.5px'}} />
-                  <p className="text-[10px] font-medium mb-2">No results found</p>
-                  <p>Try adjusting your search terms or selecting a different category.</p>
+                  <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-base font-medium mb-2">No results found</p>
+                  <p className="text-sm">Try adjusting your search terms or selecting a different category.</p>
                 </div>
               </CardContent>
             </Card>
@@ -253,18 +253,18 @@ Telegram ID: ${userProfile.telegramId}`;
                 <Card className="bg-[#1a1a1a] border-gray-800 hover:border-gray-600 transition-colors">
                   <CollapsibleTrigger asChild>
                     <CardHeader className="cursor-pointer hover:bg-gray-800/50 transition-colors">
-                      <CardTitle className="flex items-center justify-between text-white text-[10px]">
+                      <CardTitle className="flex items-center justify-between text-white text-base">
                         <span className="text-left" data-testid={`text-question-${index}`}>
                           {faq.question}
                         </span>
-                        <ChevronDown className=" text-gray-400 transition-transform duration-200 group-data-[state=open]:rotate-180"style={{width: '3px', height: '3px'}} />
+                        <ChevronDown className="w-5 h-5 text-gray-400 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </CardTitle>
                     </CardHeader>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <CardContent className="pt-0 pb-6">
                       <div className="border-t border-gray-700 pt-4">
-                        <p className="text-gray-300 leading-relaxed" data-testid={`text-answer-${index}`}>
+                        <p className="text-sm text-gray-300 leading-relaxed" data-testid={`text-answer-${index}`}>
                           {faq.answer}
                         </p>
                       </div>
@@ -279,26 +279,26 @@ Telegram ID: ${userProfile.telegramId}`;
         {/* Contact Support Section */}
         <Card className="bg-[#1a1a1a] border-gray-800 mt-12">
           <CardContent className="p-8 text-center">
-            <MessageCircle className=" mx-auto mb-4 text-purple-500"style={{width: '3.5px', height: '3.5px'}} />
-            <h3 className="text-[10px] font-bold text-white mb-4">Still need help?</h3>
-            <p className="text-gray-400 mb-6">
+            <MessageCircle className="w-6 h-6 mx-auto mb-4 text-purple-500" />
+            <h3 className="text-xl font-bold text-white mb-4">Still need help?</h3>
+            <p className="text-sm text-gray-400 mb-6">
               Can't find the answer you're looking for? Our support team is here to help you 24/7.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-sm"
                 data-testid="button-live-chat"
               >
-                <MessageCircle className=" mr-2"style={{width: '3px', height: '3px'}} />
+                <MessageCircle className="w-5 h-5 mr-2" />
                 Start Live Chat
               </Button>
               <Button 
                 variant="outline" 
-                className="border-gray-600 text-gray-400 hover:text-white"
+                className="border-gray-600 text-gray-400 hover:text-white text-sm"
                 onClick={toggleUserInfo}
                 data-testid="button-email-support"
               >
-                <User className=" mr-2"style={{width: '3px', height: '3px'}} />
+                <User className="w-5 h-5 mr-2" />
                 {showUserInfo ? 'Hide User Info' : 'Email Support'}
               </Button>
             </div>
@@ -307,19 +307,19 @@ Telegram ID: ${userProfile.telegramId}`;
             {showUserInfo && userProfile && (
               <div className="mt-6 p-4 bg-[#0a0a0a] rounded-lg border border-gray-700">
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-white font-semibold">Your Account Information</h4>
+                  <h4 className="text-sm text-white font-semibold">Your Account Information</h4>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={copyUserInfo}
-                    className="border-gray-600 text-gray-400 hover:text-white"
+                    className="border-gray-600 text-gray-400 hover:text-white text-xs"
                     data-testid="button-copy-user-info"
                   >
-                    <Copy className=" mr-1"style={{width: '2.5px', height: '2.5px'}} />
+                    <Copy className="w-4 h-4 mr-1" />
                     Copy
                   </Button>
                 </div>
-                <div className="space-y-2 text-[8px]">
+                <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
                     <span className="text-gray-400">User ID:</span>
                     <span className="text-gray-300 font-mono">{userProfile.id}</span>
@@ -337,13 +337,13 @@ Telegram ID: ${userProfile.telegramId}`;
                     <span className="text-gray-300 font-mono">{userProfile.telegramId}</span>
                   </div>
                 </div>
-                <p className="text-[8px] text-gray-500 mt-3">
+                <p className="text-xs text-gray-500 mt-3">
                   Include this information when contacting support for faster assistance.
                 </p>
               </div>
             )}
             
-            <div className="mt-6 text-[8px] text-gray-500">
+            <div className="mt-6 text-xs text-gray-500">
               <p>Email: <a href="mailto:support@miraclezgaming.com" className="text-purple-400 hover:text-purple-300">support@miraclezgaming.com</a></p>
             </div>
           </CardContent>
@@ -355,10 +355,10 @@ Telegram ID: ${userProfile.telegramId}`;
             <Button 
               variant="outline" 
               size="sm"
-              className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-colors rounded-lg"
+              className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-colors rounded-lg text-sm"
               data-testid="button-back-home-bottom"
             >
-              <ArrowLeft className=" mr-2"style={{width: '3px', height: '3px'}} />
+              <ArrowLeft className="w-5 h-5 mr-2" />
               Back to Home
             </Button>
           </Link>
