@@ -17,7 +17,7 @@ export function CommandBar({ toggleMenu, toggleSearch, toggleChat, toggleVIP, to
     <nav className="fixed bottom-0 left-0 right-0 z-[200] bg-slate-900 border-t border-slate-800/50 safe-area-inset-bottom">
       <div className="flex flex-col">
         {/* Main Command Bar */}
-        <div className="flex items-stretch h-20 mt-[-6px] mb-[-6px]">
+        <div className="flex items-stretch h-20">
         <button
           onClick={toggleMenu}
           className="flex-1 flex flex-col items-center justify-center py-2 transition-colors text-white/80 hover:text-purple-600 min-h-[64px] border-t-2 border-purple-500"
