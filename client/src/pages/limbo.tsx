@@ -451,20 +451,20 @@ export default function LimboPage() {
               <CardContent className="p-4 md:p-8">
                 {/* Game Header */}
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-[10px] font-bold">Limbo</h2>
+                  <h2 className="text-xl md:text-2xl font-bold">Limbo</h2>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setAudioEnabled(!audioEnabled)}
                       className="p-2 rounded-lg bg-[#0f1212] border border-gray-700 text-white hover:bg-[#1a1d1e] transition-colors"
                       title={audioEnabled ? "Mute sounds" : "Enable sounds"}
                     >
-                      {audioEnabled ? <Volume2 style={{width: '3px', height: '3px'}} className="" /> : <VolumeX style={{width: '3px', height: '3px'}} className="" />}
+                      {audioEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
                     </button>
                     <div className="flex items-center gap-2">
                       <FavoriteButton gameName="Limbo" />
                       <button
                         onClick={() => setLocation("/")}
-                        className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-[8px]"
+                        className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-3 py-1.5 rounded-lg text-sm"
                         data-testid="button-back-casino"
                       >
                         Back to Casino
@@ -477,18 +477,18 @@ export default function LimboPage() {
                   <div className="relative h-32 md:h-48 flex items-center justify-center bg-[#0f1212] rounded-lg">
                     {lastResult ? (
                       <div className={`transition-all duration-500 ${isAnimating ? 'scale-110' : 'scale-100'}`}>
-                        <div className={`text-[10px] md:text-[10px] font-bold ${lastResult.win ? 'text-green-500' : 'text-red-500'}`}>
+                        <div className={`text-4xl md:text-6xl font-bold ${lastResult.win ? 'text-green-500' : 'text-red-500'}`}>
                           {parseFloat(lastResult.hitMultiplier).toFixed(2)}x
                         </div>
-                        <div className="text-[10px] md:text-[10px] mt-2">
+                        <div className="text-xl md:text-2xl mt-2">
                           {lastResult.win ? 'WIN!' : 'BUST'}
                         </div>
-                        <div className="text-[8px] md:text-[10px] text-gray-400 mt-1">
+                        <div className="text-sm md:text-base text-gray-400 mt-1">
                           Target: {targetMultiplier}x
                         </div>
                       </div>
                     ) : (
-                      <div className="text-[10px] md:text-[10px] font-semibold text-white">
+                      <div className="text-4xl md:text-6xl font-semibold text-white">
                         1.00x
                       </div>
                     )}
@@ -501,9 +501,9 @@ export default function LimboPage() {
                     style={{ width: `${Math.min(winChance, 100)}%` }}
                   />
                   <div className="absolute inset-0 flex items-center justify-between px-2">
-                    <span className="text-[8px] text-gray-400">0%</span>
-                    <span className="text-[8px] font-bold text-white">{winChance.toFixed(2)}% Win Chance</span>
-                    <span className="text-[8px] text-gray-400">100%</span>
+                    <span className="text-xs text-gray-400">0%</span>
+                    <span className="text-sm font-bold text-white">{winChance.toFixed(2)}% Win Chance</span>
+                    <span className="text-xs text-gray-400">100%</span>
                   </div>
                 </div>
               </div>
@@ -546,27 +546,27 @@ export default function LimboPage() {
                 <TabsContent value="manual" className="space-y-4 mt-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col">
-                      <Label className="text-[8px] font-medium mb-2 h-2.5">Bet Amount (Credits)</Label>
+                      <Label className="text-sm font-medium mb-2">Bet Amount (Credits)</Label>
                       <Input
                         type="number"
                         value={betAmount}
                         onChange={(e) => setBetAmount(e.target.value)}
                         min="0.01"
                         step="0.01"
-                        className="bg-[#0f1212] border-gray-700 text-white h-8 mb-2"
+                        className="bg-[#0f1212] border-gray-700 text-white h-10 mb-2 text-sm"
                       />
-                      <div className="flex gap-2 h-8">
+                      <div className="flex gap-2 h-9">
                         <Button
                           size="sm"
                           onClick={() => setBetAmount((parseFloat(betAmount) / 2).toFixed(2))}
-                          className="flex-1 bg-gradient-to-r from-[#2d1b69] to-[#1e1b4b] hover:from-[#3d2b79] hover:to-[#2e2b5b] text-[#D4AF37] border border-[#D4AF37]/20 font-semibold h-full"
+                          className="flex-1 bg-gradient-to-r from-[#2d1b69] to-[#1e1b4b] hover:from-[#3d2b79] hover:to-[#2e2b5b] text-[#D4AF37] border border-[#D4AF37]/20 font-semibold h-full text-sm"
                         >
                           ½
                         </Button>
                         <Button
                           size="sm"
                           onClick={() => setBetAmount((parseFloat(betAmount) * 2).toFixed(2))}
-                          className="flex-1 bg-gradient-to-r from-[#2d1b69] to-[#1e1b4b] hover:from-[#3d2b79] hover:to-[#2e2b5b] text-[#D4AF37] border border-[#D4AF37]/20 font-semibold h-full"
+                          className="flex-1 bg-gradient-to-r from-[#2d1b69] to-[#1e1b4b] hover:from-[#3d2b79] hover:to-[#2e2b5b] text-[#D4AF37] border border-[#D4AF37]/20 font-semibold h-full text-sm"
                         >
                           2×
                         </Button>
@@ -574,7 +574,7 @@ export default function LimboPage() {
                     </div>
                     
                     <div className="flex flex-col">
-                      <Label className="text-[8px] font-medium mb-2 h-2.5">Target Multiplier</Label>
+                      <Label className="text-sm font-medium mb-2">Target Multiplier</Label>
                       <Input
                         type="number"
                         value={targetMultiplier}
@@ -585,20 +585,20 @@ export default function LimboPage() {
                         min="1.01"
                         max="1000000"
                         step="0.01"
-                        className="bg-[#0f1212] border-gray-700 text-white h-8 mb-2"
+                        className="bg-[#0f1212] border-gray-700 text-white h-10 mb-2 text-sm"
                       />
-                      <div className="flex gap-2 h-8">
+                      <div className="flex gap-2 h-9">
                         <Button
                           size="sm"
                           onClick={() => setTargetMultiplier('2.00')}
-                          className="flex-1 bg-gradient-to-r from-[#2d1b69] to-[#1e1b4b] hover:from-[#3d2b79] hover:to-[#2e2b5b] text-[#D4AF37] border border-[#D4AF37]/20 font-semibold h-full"
+                          className="flex-1 bg-gradient-to-r from-[#2d1b69] to-[#1e1b4b] hover:from-[#3d2b79] hover:to-[#2e2b5b] text-[#D4AF37] border border-[#D4AF37]/20 font-semibold h-full text-sm"
                         >
                           2×
                         </Button>
                         <Button
                           size="sm"
                           onClick={() => setTargetMultiplier('10.00')}
-                          className="flex-1 bg-gradient-to-r from-[#2d1b69] to-[#1e1b4b] hover:from-[#3d2b79] hover:to-[#2e2b5b] text-[#D4AF37] border border-[#D4AF37]/20 font-semibold h-full"
+                          className="flex-1 bg-gradient-to-r from-[#2d1b69] to-[#1e1b4b] hover:from-[#3d2b79] hover:to-[#2e2b5b] text-[#D4AF37] border border-[#D4AF37]/20 font-semibold h-full text-sm"
                         >
                           10×
                         </Button>
@@ -607,24 +607,24 @@ export default function LimboPage() {
                   </div>
                   
                   <div>
-                    <Label>Client Seed (Optional)</Label>
+                    <Label className="text-sm">Client Seed (Optional)</Label>
                     <Input
                       type="text"
                       value={clientSeed}
                       onChange={(e) => setClientSeed(e.target.value)}
                       placeholder="Enter custom seed for provable fairness"
-                      className="bg-[#0f1212] border-gray-700 text-white"
+                      className="bg-[#0f1212] border-gray-700 text-white h-10 text-sm"
                     />
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 p-4 bg-[#0f1212] rounded-lg">
                     <div>
-                      <div className="text-[8px] text-gray-400">Multiplier</div>
-                      <div className="text-[10px] font-bold text-white">{targetMultiplier}</div>
+                      <div className="text-xs text-gray-400">Multiplier</div>
+                      <div className="text-base font-bold text-white">{targetMultiplier}</div>
                     </div>
                     <div>
-                      <div className="text-[8px] text-gray-400">Chance</div>
-                      <div className="text-[10px] font-bold text-white">{winChance.toFixed(7)}</div>
+                      <div className="text-xs text-gray-400">Chance</div>
+                      <div className="text-base font-bold text-white">{winChance.toFixed(7)}</div>
                     </div>
                   </div>
                   
@@ -640,37 +640,37 @@ export default function LimboPage() {
                 
                 <TabsContent value="auto" className="space-y-4 mt-4">
                   <div>
-                    <Label>Bet Amount</Label>
+                    <Label className="text-sm">Bet Amount</Label>
                     <Input
                       type="number"
                       value={betAmount}
                       onChange={(e) => setBetAmount(e.target.value)}
                       placeholder="Enter bet amount"
-                      className="bg-[#0f1212] border-gray-700 text-white"
+                      className="bg-[#0f1212] border-gray-700 text-white h-10 text-sm"
                     />
                     {isAutoplaying && (
-                      <div className="text-[8px] text-gray-400 mt-1">
+                      <div className="text-xs text-gray-400 mt-1">
                         Current: {currentAutoBetAmount.toFixed(2)} Credits
                       </div>
                     )}
                   </div>
                   
                   <div>
-                    <Label>Number of Bets (0 = infinite)</Label>
+                    <Label className="text-sm">Number of Bets (0 = infinite)</Label>
                     <Input
                       type="number"
                       value={autoBetCount}
                       onChange={(e) => setAutoBetCount(e.target.value)}
                       placeholder="Number of bets"
-                      className="bg-[#0f1212] border-gray-700 text-white"
+                      className="bg-[#0f1212] border-gray-700 text-white h-10 text-sm"
                     />
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>On Win</Label>
+                      <Label className="text-sm">On Win</Label>
                       <Select value={onWinAction} onValueChange={setOnWinAction}>
-                        <SelectTrigger className="bg-[#0f1212] border-gray-700 text-white">
+                        <SelectTrigger className="bg-[#0f1212] border-gray-700 text-white h-10 text-sm">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -686,14 +686,14 @@ export default function LimboPage() {
                           value={onWinValue}
                           onChange={(e) => setOnWinValue(e.target.value)}
                           placeholder="Value"
-                          className="mt-2 bg-casino-dark border-casino-accent"
+                          className="mt-2 bg-[#0f1212] border-gray-700 text-white h-10 text-sm"
                         />
                       )}
                     </div>
                     <div>
-                      <Label>On Loss</Label>
+                      <Label className="text-sm">On Loss</Label>
                       <Select value={onLossAction} onValueChange={setOnLossAction}>
-                        <SelectTrigger className="bg-[#0f1212] border-gray-700 text-white">
+                        <SelectTrigger className="bg-[#0f1212] border-gray-700 text-white h-10 text-sm">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -709,7 +709,7 @@ export default function LimboPage() {
                           value={onLossValue}
                           onChange={(e) => setOnLossValue(e.target.value)}
                           placeholder="Value"
-                          className="mt-2 bg-casino-dark border-casino-accent"
+                          className="mt-2 bg-[#0f1212] border-gray-700 text-white h-10 text-sm"
                         />
                       )}
                     </div>
@@ -717,23 +717,23 @@ export default function LimboPage() {
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Stop on Profit (Credits)</Label>
+                      <Label className="text-sm">Stop on Profit (Credits)</Label>
                       <Input
                         type="number"
                         value={autoWinStop}
                         onChange={(e) => setAutoWinStop(e.target.value)}
                         placeholder="Optional"
-                        className="bg-[#0f1212] border-gray-700 text-white"
+                        className="bg-[#0f1212] border-gray-700 text-white h-10 text-sm"
                       />
                     </div>
                     <div>
-                      <Label>Stop on Loss (Credits)</Label>
+                      <Label className="text-sm">Stop on Loss (Credits)</Label>
                       <Input
                         type="number"
                         value={autoLossStop}
                         onChange={(e) => setAutoLossStop(e.target.value)}
                         placeholder="Optional"
-                        className="bg-[#0f1212] border-gray-700 text-white"
+                        className="bg-[#0f1212] border-gray-700 text-white h-10 text-sm"
                       />
                     </div>
                   </div>
@@ -741,16 +741,16 @@ export default function LimboPage() {
                   {isAutoplaying && (
                     <div className="grid grid-cols-3 gap-4 p-4 bg-[#0f1212] rounded-lg">
                       <div>
-                        <div className="text-[8px] text-gray-400">Wins</div>
-                        <div className="text-[10px] font-bold text-green-500">{autoStats.wins}</div>
+                        <div className="text-xs text-gray-400">Wins</div>
+                        <div className="text-base font-bold text-green-500">{autoStats.wins}</div>
                       </div>
                       <div>
-                        <div className="text-[8px] text-gray-400">Losses</div>
-                        <div className="text-[10px] font-bold text-red-500">{autoStats.losses}</div>
+                        <div className="text-xs text-gray-400">Losses</div>
+                        <div className="text-base font-bold text-red-500">{autoStats.losses}</div>
                       </div>
                       <div>
-                        <div className="text-[8px] text-gray-400">Profit</div>
-                        <div className={`text-[10px] font-bold ${autoStats.profit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        <div className="text-xs text-gray-400">Profit</div>
+                        <div className={`text-base font-bold ${autoStats.profit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                           {autoStats.profit.toFixed(2)} Credits
                         </div>
                       </div>
@@ -776,19 +776,19 @@ export default function LimboPage() {
           {/* Provably Fair */}
           <Card className="bg-[#1a1d1e] border-gray-800">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Hash style={{width: '3px', height: '3px'}} className="" />
+              <CardTitle className="flex items-center gap-2 text-white text-lg">
+                <Hash className="w-5 h-5" />
                 Provably Fair
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <div>
-                <div className="text-[8px] text-gray-400">Server Seed Hash</div>
-                <div className="text-[8px] font-mono break-all text-white">{seedInfo?.serverSeedHash || 'Loading...'}</div>
+                <div className="text-xs text-gray-400">Server Seed Hash</div>
+                <div className="text-sm font-mono break-all text-white">{seedInfo?.serverSeedHash || 'Loading...'}</div>
               </div>
               <div>
-                <div className="text-[8px] text-gray-400">Nonce</div>
-                <div className="font-bold">{seedInfo?.nonce || 0}</div>
+                <div className="text-xs text-gray-400">Nonce</div>
+                <div className="text-base font-bold">{seedInfo?.nonce || 0}</div>
               </div>
             </CardContent>
           </Card>
@@ -796,8 +796,8 @@ export default function LimboPage() {
           {/* Recent Bets */}
           <Card className="bg-[#1a1d1e] border-gray-800">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <TrendingUp style={{width: '3px', height: '3px'}} className="" />
+              <CardTitle className="flex items-center gap-2 text-white text-lg">
+                <TrendingUp className="w-5 h-5" />
                 Recent Bets
               </CardTitle>
             </CardHeader>
@@ -806,24 +806,24 @@ export default function LimboPage() {
                 {recentBets?.map((bet: any) => (
                   <div
                     key={bet.id}
-                    className={`p-2 rounded bg-[#0f1212] border ${
+                    className={`p-3 rounded bg-[#0f1212] border ${
                       bet.win ? 'border-green-500/50' : 'border-red-500/50'
                     }`}
                   >
                     <div className="flex justify-between items-center">
                       <div>
-                        <div className="text-[8px] font-bold">
+                        <div className="text-sm font-bold">
                           {formatMultiplier(parseFloat(bet.hitMultiplier))}x
                         </div>
-                        <div className="text-[8px] text-gray-400">
+                        <div className="text-xs text-gray-400">
                           Target: {formatMultiplier(parseFloat(bet.targetMultiplier))}x
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className={`text-[8px] font-bold ${bet.win ? 'text-green-500' : 'text-red-500'}`}>
+                        <div className={`text-sm font-bold ${bet.win ? 'text-green-500' : 'text-red-500'}`}>
                           {bet.win ? '+' : ''}{parseFloat(bet.profit).toFixed(2)} Credits
                         </div>
-                        <div className="text-[8px] text-gray-400">
+                        <div className="text-xs text-gray-400">
                           Bet: {parseFloat(bet.amount).toFixed(2)}
                         </div>
                       </div>

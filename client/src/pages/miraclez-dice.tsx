@@ -527,14 +527,14 @@ export default function MiraclezDice() {
         <div className="lg:hidden bg-gray-900/95 border-b border-gray-800 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <h1 className="text-[10px] font-black">Miraclez</h1>
-              <span className="bg-yellow-500 text-black px-2 py-0.5 rounded text-[8px] font-black">DICE</span>
+              <h1 className="text-base font-black">Miraclez</h1>
+              <span className="bg-yellow-500 text-black px-2 py-0.5 rounded text-xs font-black">DICE</span>
             </div>
             <div className="flex gap-2">
               <Button
                 size="icon"
                 variant="ghost"
-                style={{width: '3px', height: '3px'}} className=" rounded-full border border-gray-700 bg-gray-900/50"
+                className="w-8 h-8 rounded-full border border-gray-700 bg-gray-900/50"
                 onClick={() => setShowProvablyFairModal(true)}
               >
                 ?
@@ -542,7 +542,7 @@ export default function MiraclezDice() {
               <Button
                 size="icon"
                 variant="ghost"
-                style={{width: '3px', height: '3px'}} className=" rounded-full border border-gray-700 bg-gray-900/50"
+                className="w-8 h-8 rounded-full border border-gray-700 bg-gray-900/50"
                 onClick={() => setAudioEnabled(!audioEnabled)}
               >
                 {audioEnabled ? "🔊" : "🔇"}
@@ -550,7 +550,7 @@ export default function MiraclezDice() {
               <Button
                 size="icon"
                 variant="ghost"
-                style={{width: '3px', height: '3px'}} className=" rounded-full border border-gray-700 bg-gray-900/50"
+                className="w-8 h-8 rounded-full border border-gray-700 bg-gray-900/50"
                 onClick={() => setShowLastTen(!showLastTen)}
               >
                 ↺
@@ -559,7 +559,7 @@ export default function MiraclezDice() {
                 <FavoriteButton gameName="Miraclez Dice" />
                 <button
                   onClick={() => setLocation("/")}
-                  className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-[8px]"
+                  className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-xs"
                   data-testid="button-back-casino"
                 >
                   Back to Casino
@@ -576,15 +576,15 @@ export default function MiraclezDice() {
             background: "linear-gradient(180deg, #0d1015 0%, #0b0e12 100%)"
           }}
         >
-          <div className="text-[8px] font-bold tracking-[0.28em] text-gray-400 mb-2">WELCOME TO</div>
+          <div className="text-xs font-bold tracking-[0.28em] text-gray-400 mb-2">WELCOME TO</div>
           <div className="flex items-center gap-4 mb-6">
-            <h1 className="text-[10px] font-black">Miraclez</h1>
-            <span className="bg-yellow-500 text-black px-2 py-1 rounded text-[8px] font-black tracking-wider">DICE</span>
-            <span className="ml-auto text-[8px] text-gray-500 border border-gray-700 px-2 py-1 rounded">MIRACLEZ</span>
+            <h1 className="text-lg font-black">Miraclez</h1>
+            <span className="bg-yellow-500 text-black px-2 py-1 rounded text-sm font-black tracking-wider">DICE</span>
+            <span className="ml-auto text-xs text-gray-500 border border-gray-700 px-2 py-1 rounded">MIRACLEZ</span>
           </div>
           
           <div className="border-t border-gray-800 pt-4">
-            <div className="grid grid-cols-5 gap-3 text-[8px] text-gray-500 font-semibold mb-2 px-2">
+            <div className="grid grid-cols-5 gap-3 text-xs text-gray-500 font-semibold mb-2 px-2">
               <div>Bet</div>
               <div>Multiplier</div>
               <div>Game</div>
@@ -593,7 +593,7 @@ export default function MiraclezDice() {
             </div>
             <div className="space-y-1 max-h-[calc(100vh-200px)] overflow-y-auto custom-scrollbar pr-2">
               {(showLastTen ? betHistory.slice(0, 10) : betHistory).map((entry) => (
-                <div key={entry.id} className="grid grid-cols-5 gap-3 text-[8px] font-semibold border-b border-gray-900 pb-1 px-2">
+                <div key={entry.id} className="grid grid-cols-5 gap-3 text-sm font-semibold border-b border-gray-900 pb-1 px-2">
                   <div>{entry.bet}</div>
                   <div>{entry.multiplier.toFixed(2)}x</div>
                   <div className="text-cyan-400 font-bold">{entry.game}</div>
@@ -614,7 +614,7 @@ export default function MiraclezDice() {
             <Button
               size="icon"
               variant="ghost"
-              className="w-9 h-7 rounded-full border border-gray-700 bg-gray-900/50 backdrop-blur"
+              className="w-10 h-10 rounded-full border border-gray-700 bg-gray-900/50 backdrop-blur"
               onClick={() => setShowProvablyFairModal(true)}
               title="Provably fair & verify"
             >
@@ -623,7 +623,7 @@ export default function MiraclezDice() {
             <Button
               size="icon"
               variant="ghost"
-              className="w-9 h-7 rounded-full border border-gray-700 bg-gray-900/50 backdrop-blur"
+              className="w-10 h-10 rounded-full border border-gray-700 bg-gray-900/50 backdrop-blur"
               onClick={() => setAudioEnabled(!audioEnabled)}
               title="Sound on/off"
             >
@@ -632,7 +632,7 @@ export default function MiraclezDice() {
             <Button
               size="icon"
               variant="ghost"
-              className="w-9 h-7 rounded-full border border-gray-700 bg-gray-900/50 backdrop-blur"
+              className="w-10 h-10 rounded-full border border-gray-700 bg-gray-900/50 backdrop-blur"
               onClick={() => setShowLastTen(!showLastTen)}
               title="Last 10 results"
             >
@@ -646,7 +646,7 @@ export default function MiraclezDice() {
             <div className="flex items-center gap-4 w-full max-w-sm">
               <div className="flex gap-2">
                 <Button
-                  className={`px-2 py-1 font-bold rounded-lg text-[8px] ${
+                  className={`px-3 py-2 font-bold rounded-lg text-sm ${
                     side === "OVER" ? "bg-gray-600" : "bg-gray-700 opacity-65"
                   }`}
                   onClick={() => setSide("OVER")}
@@ -654,7 +654,7 @@ export default function MiraclezDice() {
                   OVER
                 </Button>
                 <Button
-                  className={`px-2 py-1 font-bold rounded-lg text-[8px] ${
+                  className={`px-3 py-2 font-bold rounded-lg text-sm ${
                     side === "UNDER" ? "bg-gray-100 text-black" : "bg-gray-200 text-black opacity-65"
                   }`}
                   onClick={() => setSide("UNDER")}
@@ -664,16 +664,16 @@ export default function MiraclezDice() {
               </div>
               
               <div className="flex items-center gap-2 flex-1 justify-center">
-                <Button style={{width: '3.5px', height: '3.5px'}} className="rounded-lg bg-gray-700 hover:bg-gray-600 text-[10px]"
+                <Button className="w-10 h-10 rounded-lg bg-gray-700 hover:bg-gray-600 text-base"
                   onClick={() => setTarget(Math.max(3, target - 1))}
                   disabled={rolling}
                 >
                   −
                 </Button>
-                <div className="w-16 h-16 rounded-2xl bg-gray-900/80 border border-gray-700 flex items-center justify-center">
-                  <div className="text-[10px] font-black text-yellow-400">{target}</div>
+                <div className="w-20 h-20 rounded-2xl bg-gray-900/80 border border-gray-700 flex items-center justify-center">
+                  <div className="text-2xl font-black text-yellow-400">{target}</div>
                 </div>
-                <Button style={{width: '3.5px', height: '3.5px'}} className="rounded-lg bg-gray-700 hover:bg-gray-600 text-[10px]"
+                <Button className="w-10 h-10 rounded-lg bg-gray-700 hover:bg-gray-600 text-base"
                   onClick={() => setTarget(Math.min(11, target + 1))}
                   disabled={rolling}
                 >
@@ -683,8 +683,8 @@ export default function MiraclezDice() {
             </div>
             
             <div className="text-center">
-              <div className="text-[8px] text-gray-400">Multiplier</div>
-              <div className="text-[10px] font-black text-white">{calculateMultiplier().toFixed(2)}x</div>
+              <div className="text-sm text-gray-400">Multiplier</div>
+              <div className="text-xl font-black text-white">{calculateMultiplier().toFixed(2)}x</div>
             </div>
           </div>
 
@@ -711,19 +711,19 @@ export default function MiraclezDice() {
             </div>
 
             {/* Target Box */}
-            <div className="absolute right-44 top-10 w-28 h-28 rounded-3xl bg-gray-900/80 border border-gray-700 flex items-center justify-center shadow-inner">
-              <div className="text-[10px] font-black text-yellow-400">{target}</div>
+            <div className="absolute right-44 top-10 w-32 h-32 rounded-3xl bg-gray-900/80 border border-gray-700 flex items-center justify-center shadow-inner">
+              <div className="text-3xl font-black text-yellow-400">{target}</div>
             </div>
 
             {/* Arrow Controls */}
             <div className="absolute right-[106px] top-14 flex flex-col gap-3">
-              <Button style={{width: '4px', height: '3.5px'}} className="rounded-xl bg-gray-700 hover:bg-gray-600 text-[10px]"
+              <Button className="w-12 h-12 rounded-xl bg-gray-700 hover:bg-gray-600 text-lg"
                 onClick={() => setTarget(Math.min(11, target + 1))}
                 disabled={rolling}
               >
                 ▲
               </Button>
-              <Button style={{width: '4px', height: '3.5px'}} className="rounded-xl bg-gray-700 hover:bg-gray-600 text-[10px]"
+              <Button className="w-12 h-12 rounded-xl bg-gray-700 hover:bg-gray-600 text-lg"
                 onClick={() => setTarget(Math.max(3, target - 1))}
                 disabled={rolling}
               >
@@ -733,8 +733,8 @@ export default function MiraclezDice() {
 
             {/* Multiplier Display */}
             <div className="absolute right-44 top-40 text-center">
-              <div className="text-[8px] text-gray-400">Multiplier</div>
-              <div className="text-[10px] font-black text-white">{calculateMultiplier().toFixed(2)}x</div>
+              <div className="text-sm text-gray-400">Multiplier</div>
+              <div className="text-xl font-black text-white">{calculateMultiplier().toFixed(2)}x</div>
             </div>
           </div>
 
@@ -951,10 +951,10 @@ export default function MiraclezDice() {
             <div className="flex flex-col gap-3">
               {/* Bet Amount Row */}
               <div className="flex items-center gap-2">
-                <label className="text-[8px] text-gray-400 whitespace-nowrap">Bet:</label>
+                <label className="text-sm text-gray-400 whitespace-nowrap">Bet:</label>
                 <div className="flex items-center gap-1 flex-1">
                   <Button
-                    style={{width: '3px', height: '3px'}} className=" rounded bg-gray-700 hover:bg-gray-600 text-[8px] font-bold"
+                    className="w-12 h-10 rounded bg-gray-700 hover:bg-gray-600 text-sm font-bold"
                     onClick={() => setBetAmount(Math.max(0.1, betAmount / 2))}
                     disabled={rolling || autoplayRunning}
                   >
@@ -964,11 +964,11 @@ export default function MiraclezDice() {
                     type="number"
                     value={betAmount}
                     onChange={(e) => setBetAmount(Math.max(0.50, Math.min(100, parseFloat(e.target.value) || 0.50)))}
-                    className="flex-1 h-8 bg-gray-800 border-gray-700 text-center text-[8px]"
+                    className="flex-1 h-10 bg-gray-800 border-gray-700 text-center text-base font-bold"
                     disabled={rolling || autoplayRunning}
                   />
                   <Button
-                    style={{width: '3px', height: '3px'}} className=" rounded bg-gray-700 hover:bg-gray-600 text-[8px] font-bold"
+                    className="w-12 h-10 rounded bg-gray-700 hover:bg-gray-600 text-sm font-bold"
                     onClick={() => setBetAmount(Math.min(100, betAmount * 2))}
                     disabled={rolling || autoplayRunning}
                   >
@@ -982,14 +982,14 @@ export default function MiraclezDice() {
                 {canRisk && (
                   <>
                     <Button
-                      className="flex-1 h-8 bg-red-600 hover:bg-red-700 font-bold text-[8px]"
+                      className="flex-1 h-10 bg-red-600 hover:bg-red-700 font-bold text-sm"
                       onClick={() => setShowRiskModal(true)}
                       disabled={rolling}
                     >
                       RISK
                     </Button>
                     <Button
-                      className="flex-1 h-8 bg-green-600 hover:bg-green-700 font-bold text-[8px]"
+                      className="flex-1 h-10 bg-green-600 hover:bg-green-700 font-bold text-sm"
                       onClick={handleTakeWinnings}
                       disabled={rolling}
                     >
@@ -1000,14 +1000,14 @@ export default function MiraclezDice() {
                 {!canRisk && (
                   <>
                     <Button
-                      className="flex-1 h-8 bg-green-600 hover:bg-green-700 font-bold text-[8px]"
+                      className="flex-1 h-10 bg-green-600 hover:bg-green-700 font-bold text-sm"
                       onClick={handleRoll}
                       disabled={rolling || !balance || !commitment || betAmount > (gameMode === 'real' ? (balance.sweepsCashTotal || 0) : (balance.available || 0))}
                     >
                       {rolling ? "ROLLING..." : "ROLL"}
                     </Button>
                     <Button
-                      className="h-8 px-2 bg-gray-700 hover:bg-gray-600 font-bold text-[8px]"
+                      className="h-10 px-3 bg-gray-700 hover:bg-gray-600 font-bold text-sm"
                       onClick={() => setShowAutoplayModal(true)}
                       disabled={rolling}
                     >
@@ -1018,7 +1018,7 @@ export default function MiraclezDice() {
               </div>
 
               {/* Balance Display */}
-              <div className="flex justify-between text-[8px]">
+              <div className="flex justify-between text-sm">
                 <span className="text-gray-400">Balance:</span>
                 <span className="font-bold">
                   {gameMode === 'real' 
@@ -1032,7 +1032,7 @@ export default function MiraclezDice() {
           {/* Desktop Centered Controls */}
           <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6">
             {/* Main Roll Button */}
-            <Button style={{width: '4px', height: '4px'}} className="rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white font-black text-[10px] shadoxl hover:from-green-600 hover:to-green-700 disabled:opacity-50 disabled:from-gray-600 disabled:to-gray-700 transition-all"
+            <Button className="w-32 h-32 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white font-black text-xl shadow-xl hover:from-green-600 hover:to-green-700 disabled:opacity-50 disabled:from-gray-600 disabled:to-gray-700 transition-all"
               onClick={handleRoll}
               disabled={rolling || autoplayRunning || !balance || !commitment || betAmount > (gameMode === 'real' ? (balance.sweepsCashTotal || 0) : (balance.available || 0))}
               data-testid="button-roll"
@@ -1044,13 +1044,13 @@ export default function MiraclezDice() {
             <div className="flex items-center gap-4">
               {canRisk ? (
                 <>
-                  <Button style={{width: '4px', height: '4px'}} className="rounded-full bg-red-600 hover:bg-red-700 border-2 border-red-500 font-bold tracking-widest shadow-lg"
+                  <Button className="w-24 h-24 rounded-full bg-red-600 hover:bg-red-700 border-2 border-red-500 font-bold tracking-widest shadow-lg text-base"
                     onClick={() => setShowRiskModal(true)}
                     disabled={rolling}
                   >
                     RISK
                   </Button>
-                  <Button style={{width: '4px', height: '4px'}} className="rounded-full bg-green-600 hover:bg-green-700 border-2 border-green-500 font-bold tracking-widest shadow-lg animate-pulse"
+                  <Button className="w-24 h-24 rounded-full bg-green-600 hover:bg-green-700 border-2 border-green-500 font-bold tracking-widest shadow-lg animate-pulse text-base"
                     onClick={handleTakeWinnings}
                     disabled={rolling}
                   >
@@ -1059,7 +1059,7 @@ export default function MiraclezDice() {
                 </>
               ) : (
                 <Button
-                  className={`w-20 h-20 rounded-full bg-gray-800 border-2 ${
+                  className={`w-24 h-24 rounded-full bg-gray-800 border-2 text-base ${
                     autoplayRunning ? "border-green-500" : "border-gray-600"
                   } hover:bg-gray-700 font-bold tracking-widest shadow-lg`}
                   onClick={() => autoplayRunning ? setAutoplayRunning(false) : setShowAutoplayModal(true)}
@@ -1079,15 +1079,15 @@ export default function MiraclezDice() {
             }}
           >
             <div className="text-gray-400 font-bold">
-              <div className="text-[8px] text-gray-500 font-mono">Max bet 100 SC</div>
-              Balance <span className="text-yellow-500 font-mono ml-2">{balance?.available?.toFixed(2) || "0.00"}</span> SC
+              <div className="text-sm text-gray-500 font-mono">Max bet 100 SC</div>
+              Balance <span className="text-yellow-500 font-mono ml-2 text-base">{balance?.available?.toFixed(2) || "0.00"}</span> SC
             </div>
 
             <div className="ml-auto flex items-center gap-2 text-gray-300 font-bold">
               <Button
                 size="sm"
                 variant="ghost"
-                className="border border-gray-700 hover:bg-gray-800"
+                className="border border-gray-700 hover:bg-gray-800 text-sm"
                 onClick={() => setBetAmount(1)}
               >
                 Min
@@ -1095,23 +1095,23 @@ export default function MiraclezDice() {
               <Button
                 size="icon"
                 variant="ghost"
-                className="w-9 h-7 border border-gray-700 hover:bg-gray-800"
+                className="w-10 h-10 border border-gray-700 hover:bg-gray-800 text-base"
                 onClick={() => setBetAmount(Math.max(1, betAmount - 1))}
               >
                 −
               </Button>
-              <div className="bg-gray-900 border border-gray-700 rounded-lg px-2 py-1 flex items-center gap-2">
+              <div className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 flex items-center gap-2">
                 <Input
                   type="number"
                   value={betAmount}
                   onChange={(e) => setBetAmount(Math.max(0.50, Math.min(100, parseFloat(e.target.value) || 0.50)))}
-                  className="w-28 text-center font-mono font-black text-[10px] bg-transparent border-0 text-white"
+                  className="w-32 text-center font-mono font-black text-lg bg-transparent border-0 text-white"
                 />
               </div>
               <Button
                 size="icon"
                 variant="ghost"
-                className="w-9 h-7 border border-gray-700 hover:bg-gray-800"
+                className="w-10 h-10 border border-gray-700 hover:bg-gray-800 text-base"
                 onClick={() => setBetAmount(Math.min(100, betAmount + 1))}
               >
                 +
@@ -1119,7 +1119,7 @@ export default function MiraclezDice() {
               <Button
                 size="sm"
                 variant="ghost"
-                className="border border-gray-700 hover:bg-gray-800"
+                className="border border-gray-700 hover:bg-gray-800 text-sm"
                 onClick={() => setBetAmount(Math.min(100, Math.floor(balance?.available || 100)))}
               >
                 Max
@@ -1138,11 +1138,11 @@ export default function MiraclezDice() {
           }}
         >
           <DialogHeader>
-            <DialogTitle className="text-[10px] md:text-[10px] font-black text-white">RISK</DialogTitle>
+            <DialogTitle className="text-xl md:text-2xl font-black text-white">RISK</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
             <div>
-              <p className="text-[8px] text-gray-400 mb-4">
+              <p className="text-sm text-gray-400 mb-4">
                 Take your chance to boost your latest win<br />
                 Choose <b>three numbers</b> and click the Roll button
               </p>
@@ -1195,15 +1195,15 @@ export default function MiraclezDice() {
             
             <div className="flex flex-col justify-between mt-4 md:mt-0">
               <div>
-                <div className="text-[8px] text-gray-400">TAKE</div>
-                <div className="text-[10px] md:text-[10px] font-black text-white">{lastWin.toFixed(2)} CREDITS</div>
+                <div className="text-sm text-gray-400">TAKE</div>
+                <div className="text-xl md:text-2xl font-black text-white">{lastWin.toFixed(2)} CREDITS</div>
                 
-                <div className="text-[8px] text-gray-400 mt-2 md:mt-4">YOU CAN WIN</div>
-                <div className="text-[10px] md:text-[10px] font-black text-yellow-400">{(lastWin * 1.92).toFixed(2)} CREDITS</div>
+                <div className="text-sm text-gray-400 mt-2 md:mt-4">YOU CAN WIN</div>
+                <div className="text-xl md:text-2xl font-black text-yellow-400">{(lastWin * 1.92).toFixed(2)} CREDITS</div>
                 
                 {riskDieResult && (
                   <div className="mt-6 p-4 bg-black/50 rounded-xl">
-                    <div className="text-[8px] text-gray-400 mb-2">Result:</div>
+                    <div className="text-sm text-gray-400 mb-2">Result:</div>
                     <motion.div
                       initial={{ scale: 0, rotate: 0 }}
                       animate={{ scale: 1, rotate: 360 }}
@@ -1243,7 +1243,7 @@ export default function MiraclezDice() {
       <Dialog open={showAutoplayModal} onOpenChange={setShowAutoplayModal}>
         <DialogContent className="bg-gray-900/95 border-gray-800 backdrop-blur">
           <DialogHeader>
-            <DialogTitle className="font-black tracking-wider text-[10px]">AUTO-PLAY</DialogTitle>
+            <DialogTitle className="font-black tracking-wider text-xl">AUTO-PLAY</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
@@ -1345,11 +1345,11 @@ export default function MiraclezDice() {
       <Dialog open={showProvablyFairModal} onOpenChange={setShowProvablyFairModal}>
         <DialogContent className="max-w-3xl bg-gray-900/95 border-gray-800 backdrop-blur">
           <DialogHeader>
-            <DialogTitle className="text-[10px] font-bold">Provably Fair • Miraclez Dice</DialogTitle>
+            <DialogTitle className="text-xl font-bold">Provably Fair • Miraclez Dice</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
-            <p className="text-[8px] text-gray-400">
+            <p className="text-sm text-gray-400">
               We commit to a <b>server seed hash</b>. Each roll uses HMAC_SHA256(serverSeed, clientSeed + ":" + nonce + ":" + i) 
               to derive randomness. Change your <b>client seed</b> any time. Nonce increments every action. RTP is 96% (house edge 4%).
             </p>
@@ -1357,34 +1357,34 @@ export default function MiraclezDice() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <div>
-                  <Label className="text-[8px] text-gray-400">Server Seed Hash (commit):</Label>
+                  <Label className="text-sm text-gray-400">Server Seed Hash (commit):</Label>
                   <Input 
                     value={commitment?.serverSeedHash || ""} 
                     readOnly 
-                    className="font-mono text-[8px] bg-gray-800 border-gray-700" 
+                    className="font-mono text-sm bg-gray-800 border-gray-700" 
                   />
                 </div>
                 <div>
-                  <Label className="text-[8px] text-gray-400">Client Seed:</Label>
+                  <Label className="text-sm text-gray-400">Client Seed:</Label>
                   <Input 
                     value={commitment?.clientSeed || ""} 
                     readOnly 
-                    className="font-mono text-[8px] bg-gray-800 border-gray-700" 
+                    className="font-mono text-sm bg-gray-800 border-gray-700" 
                   />
                 </div>
                 <div>
-                  <Label className="text-[8px] text-gray-400">Nonce:</Label>
+                  <Label className="text-sm text-gray-400">Nonce:</Label>
                   <Input 
                     value={commitment?.nonce || 0} 
                     readOnly 
-                    className="font-mono text-[8px] bg-gray-800 border-gray-700" 
+                    className="font-mono text-sm bg-gray-800 border-gray-700" 
                   />
                 </div>
               </div>
               
               <div className="space-y-2">
-                <h3 className="font-semibold">Verify a Roll</h3>
-                <p className="text-[8px] text-gray-400">
+                <h3 className="font-semibold text-base">Verify a Roll</h3>
+                <p className="text-sm text-gray-400">
                   Use the server seed, client seed, and nonce to verify any roll offline.
                 </p>
                 <Button 
@@ -1418,9 +1418,9 @@ export default function MiraclezDice() {
       {/* Autoplay Stats (floating) */}
       {autoplayRunning && (
         <Card 
-          className="fixed bottom-20 md:bottom-36 right-2 md:right-32 bg-gray-900/90 border-gray-700 p-2 md:p-3 text-[8px] font-mono backdrop-blur z-50"
+          className="fixed bottom-20 md:bottom-36 right-2 md:right-32 bg-gray-900/90 border-gray-700 p-3 md:p-4 text-sm font-mono backdrop-blur z-50"
         >
-          <div className="font-bold mb-1 text-yellow-400">Autoplay stats:</div>
+          <div className="font-bold mb-2 text-yellow-400 text-base">Autoplay stats:</div>
           <div>Bets: {autoplayStats.bets}</div>
           <div className={autoplayStats.profit >= 0 ? "text-green-400" : "text-red-400"}>
             Profit: {autoplayStats.profit.toFixed(2)} C

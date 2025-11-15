@@ -301,7 +301,7 @@ export function GameUI({ isMobile = false }: GameUIProps) {
             }}>
               <div style={{ textAlign: 'center', position: 'relative' }}>
                 <div style={{ 
-                  fontSize: isMobile ? '10px' : '11px', 
+                  fontSize: '12px', 
                   color: 'rgba(255, 255, 255, 0.5)', 
                   marginBottom: '8px',
                   fontWeight: '600',
@@ -340,7 +340,7 @@ export function GameUI({ isMobile = false }: GameUIProps) {
               
               <div style={{ textAlign: 'center', position: 'relative' }}>
                 <div style={{ 
-                  fontSize: isMobile ? '10px' : '11px', 
+                  fontSize: '12px', 
                   color: 'rgba(255, 255, 255, 0.5)', 
                   marginBottom: '8px',
                   fontWeight: '600',
@@ -393,7 +393,7 @@ export function GameUI({ isMobile = false }: GameUIProps) {
                 width: '100%',
               }}>
                 <div style={{
-                  fontSize: isMobile ? '11px' : '12px',
+                  fontSize: '12px',
                   color: 'rgba(255, 255, 255, 0.6)',
                   marginBottom: '8px',
                   fontWeight: '600',
@@ -488,7 +488,7 @@ export function GameUI({ isMobile = false }: GameUIProps) {
               marginBottom: '10px'
             }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '9px', color: '#bbb', marginBottom: '2px' }}>SCORE</div>
+                <div style={{ fontSize: '12px', color: '#bbb', marginBottom: '2px' }}>SCORE</div>
                 <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#ff5555' }}>{score}</div>
               </div>
               <div style={{
@@ -497,7 +497,7 @@ export function GameUI({ isMobile = false }: GameUIProps) {
                 backgroundColor: '#555'
               }} />
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '9px', color: '#bbb', marginBottom: '2px' }}>BLOCKS</div>
+                <div style={{ fontSize: '12px', color: '#bbb', marginBottom: '2px' }}>BLOCKS</div>
                 <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#ff5555' }}>{blocksStacked}</div>
               </div>
             </div>

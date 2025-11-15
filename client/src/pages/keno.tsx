@@ -455,20 +455,20 @@ export default function KenoPage() {
       <div className="w-full max-w-[1400px] mx-auto px-2 md:px-2">
         {/* Game Header */}
         <div className="flex justify-between items-center mb-4 px-2">
-          <h2 className="text-[10px] md:text-[10px] font-bold">Keno</h2>
+          <h2 className="text-xl md:text-2xl font-bold">Keno</h2>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setAudioEnabled(!audioEnabled)}
               className="p-2 rounded-lg bg-[#1a1d1e] border border-gray-700 text-white hover:bg-[#2a2d2e] transition-colors"
               title={audioEnabled ? "Mute sounds" : "Enable sounds"}
             >
-              {audioEnabled ? <Volume2 style={{width: '3px', height: '3px'}} className="" /> : <VolumeX style={{width: '3px', height: '3px'}} className="" />}
+              {audioEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
             </button>
             <div className="flex items-center gap-2">
               <FavoriteButton gameName="Keno" />
               <button
                 onClick={() => setLocation("/")}
-                className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-[8px]"
+                className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-3 py-1.5 rounded-lg text-sm"
                 data-testid="button-back-casino"
               >
                 Back to Casino
@@ -490,7 +490,7 @@ export default function KenoPage() {
                     onClick={() => togglePick(n)}
                     disabled={isPlaying || autoRunning}
                     className={cx(
-                      "w-9 h-7 md:w-12 md:h-8 lg:w-16 lg:h-16 rounded-lg border text-white text-[8px] md:text-[8px] lg:text-[10px] font-semibold",
+                      "w-10 h-8 md:w-14 md:h-10 lg:w-16 lg:h-16 rounded-lg border text-white text-sm md:text-base lg:text-lg font-semibold",
                       "grid place-content-center select-none transition-all",
                       state === "hit" && "bg-green-500 border-green-400 ring-2 ring-green-400 shadow-lg",
                       state === "drawn" && "bg-orange-500 border-orange-400",
@@ -506,7 +506,7 @@ export default function KenoPage() {
             </div>
 
             {/* Helper bar */}
-            <div className="rounded-lg bg-[#0f1212] border border-gray-700 px-2 py-1 text-center text-[8px] text-gray-300">
+            <div className="rounded-lg bg-[#0f1212] border border-gray-700 px-3 py-2 text-center text-sm text-gray-300">
               {isPlaying 
                 ? `Drawing numbers... ${drawnNumbers.length}/10`
                 : `Select 1–10 numbers to play (${picks.length} selected)`
@@ -518,12 +518,12 @@ export default function KenoPage() {
           <aside className="w-full lg:w-[340px] flex flex-col gap-3 pb-20 lg:pb-4">
             {/* Stack 1: Mode Tabs */}
             <div className="rounded-xl bg-gradient-to-br from-purple-600/20 to-purple-700/30 p-3 border border-purple-500/30">
-              <div className="text-[8px] font-semibold text-purple-300 mb-2">PLAY MODE</div>
+              <div className="text-xs font-semibold text-purple-300 mb-2">PLAY MODE</div>
               <div className="flex gap-2">
                 <button
                   onClick={() => setTab("manual")}
                   className={cx(
-                    "flex-1 py-1 px-2 rounded-lg text-[8px] font-semibold transition",
+                    "flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition",
                     tab === "manual"
                       ? "bg-purple-600 text-white shadow-lg"
                       : "bg-[#1a1d1e] text-gray-400 hover:bg-[#2a2d2e] border border-gray-700"
@@ -534,7 +534,7 @@ export default function KenoPage() {
                 <button
                   onClick={() => setTab("auto")}
                   className={cx(
-                    "flex-1 py-1 px-2 rounded-lg text-[8px] font-semibold transition",
+                    "flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition",
                     tab === "auto"
                       ? "bg-purple-600 text-white shadow-lg"
                       : "bg-[#1a1d1e] text-gray-400 hover:bg-[#2a2d2e] border border-gray-700"
@@ -547,10 +547,10 @@ export default function KenoPage() {
 
             {/* Stack 2: Bet Amount */}
             <div className="rounded-xl bg-gradient-to-br from-purple-600/20 to-purple-700/30 p-3 border border-purple-500/30">
-                <div className="flex items-center justify-between text-[8px] text-gray-400 mb-2">
+                <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
                   <span className="inline-flex items-center gap-2">
                     <span>Bet Amount</span>
-                    <span style={{width: '3px', height: '3px'}} className="inline-flex items-center justify-center  text-[10px] rounded-full bg-white/10">i</span>
+                    <span className="inline-flex items-center justify-center w-4 h-4 text-xs rounded-full bg-white/10">i</span>
                   </span>
                   <span>{(Number(bet) * 1).toFixed(2)} Credits</span>
                 </div>
@@ -560,7 +560,7 @@ export default function KenoPage() {
                   <div className="flex-1 relative">
                     <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 inline-flex items-center">
                       {/* Coin icon */}
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="opacity-80">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="opacity-80">
                         <circle cx="12" cy="12" r="10" stroke="#8892A6" strokeWidth="1.5" />
                         <path d="M12 6v12M8 9h8M8 15h8" stroke="#8892A6" strokeWidth="1.5" />
                       </svg>
@@ -570,7 +570,7 @@ export default function KenoPage() {
                       onChange={(e) => setBet(e.target.value)}
                       disabled={isPlaying}
                       className={
-                        "w-full h-8 pl-9 pr-3 rounded-lg bg-[#0f1212] border border-gray-700 text-white text-[8px] placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent disabled:opacity-50"
+                        "w-full h-10 pl-11 pr-3 rounded-lg bg-[#0f1212] border border-gray-700 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent disabled:opacity-50"
                       }
                       placeholder="0.00"
                     />
@@ -578,14 +578,14 @@ export default function KenoPage() {
                   <button
                     onClick={halfBet}
                     disabled={isPlaying}
-                    className="h-8 px-2 rounded-lg bg-[#0f1212] border border-gray-700 text-white text-[8px] hover:bg-[#1a1d1e] disabled:opacity-50"
+                    className="h-10 px-3 rounded-lg bg-[#0f1212] border border-gray-700 text-white text-sm hover:bg-[#1a1d1e] disabled:opacity-50"
                   >
                     ½
                   </button>
                   <button
                     onClick={doubleBet}
                     disabled={isPlaying}
-                    className="h-8 px-2 rounded-lg bg-[#0f1212] border border-gray-700 text-white text-[8px] hover:bg-[#1a1d1e] disabled:opacity-50"
+                    className="h-10 px-3 rounded-lg bg-[#0f1212] border border-gray-700 text-white text-sm hover:bg-[#1a1d1e] disabled:opacity-50"
                   >
                     2×
                   </button>
@@ -594,7 +594,7 @@ export default function KenoPage() {
 
             {/* Stack 3: Risk */}
             <div className="rounded-xl bg-gradient-to-br from-purple-600/20 to-purple-700/30 p-3 border border-purple-500/30">
-              <div className="text-[8px] font-semibold text-purple-300 mb-2">RISK LEVEL</div>
+              <div className="text-xs font-semibold text-purple-300 mb-2">RISK LEVEL</div>
               <div className="grid grid-cols-2 gap-2">
                 <RiskPill 
                   label="Classic" 
@@ -630,19 +630,19 @@ export default function KenoPage() {
             {/* Stack 4: Manual Controls */}
             {tab === "manual" && (
               <div className="rounded-xl bg-gradient-to-br from-purple-600/20 to-purple-700/30 p-3 border border-purple-500/30">
-                <div className="text-[8px] font-semibold text-purple-300 mb-2">QUICK ACTIONS</div>
+                <div className="text-xs font-semibold text-purple-300 mb-2">QUICK ACTIONS</div>
                 <div className="grid grid-cols-2 gap-2 mb-3">
                   <button
                     onClick={autoPick}
                     disabled={isPlaying || autoRunning}
-                    className="h-7 rounded-lg bg-[#1a1d1e] border border-gray-700 text-white text-[8px] hover:bg-[#2a2d2e] disabled:opacity-50 transition"
+                    className="h-10 rounded-lg bg-[#1a1d1e] border border-gray-700 text-white text-sm hover:bg-[#2a2d2e] disabled:opacity-50 transition"
                   >
                     Auto pick
                   </button>
                   <button
                     onClick={clearPicks}
                     disabled={isPlaying || autoRunning}
-                    className="h-7 rounded-lg bg-[#1a1d1e] border border-gray-700 text-white text-[8px] hover:bg-[#2a2d2e] disabled:opacity-50 transition"
+                    className="h-10 rounded-lg bg-[#1a1d1e] border border-gray-700 text-white text-sm hover:bg-[#2a2d2e] disabled:opacity-50 transition"
                   >
                     Clear
                   </button>
@@ -653,7 +653,7 @@ export default function KenoPage() {
                   onClick={() => handleBet()}
                   disabled={!canBet}
                   className={cx(
-                    "h-8 w-full rounded-xl text-[8px] font-bold transition shadow-lg",
+                    "h-12 w-full rounded-xl text-sm font-bold transition shadow-lg",
                     canBet
                         ? "bg-[#7c3aed] hover:bg-[#6d28d9]"
                         : "bg-[#7c3aed]/40 cursor-not-allowed"
@@ -669,13 +669,13 @@ export default function KenoPage() {
                 <>
                   {/* Auto rounds input */}
                   <div className="mt-6">
-                    <div className="text-[8px] text-gray-400 mb-2">Number of Rounds</div>
+                    <div className="text-xs text-gray-400 mb-2">Number of Rounds</div>
                     <input
                       type="number"
                       value={autoRounds}
                       onChange={(e) => setAutoRounds(e.target.value)}
                       disabled={autoRunning}
-                      className="w-full h-8 px-2 rounded-lg bg-[#0f1212] border border-gray-700 text-white text-[8px] focus:outline-none focus:ring-2 focus:ring-[#7c3aed] disabled:opacity-50"
+                      className="w-full h-10 px-3 rounded-lg bg-[#0f1212] border border-gray-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed] disabled:opacity-50"
                       placeholder="10"
                       min="1"
                       max="100"
@@ -684,23 +684,23 @@ export default function KenoPage() {
 
                   {/* Stop conditions */}
                   <div className="mt-4 space-y-2">
-                    <label className="flex items-center gap-2 text-[8px] text-white cursor-pointer">
+                    <label className="flex items-center gap-2 text-sm text-white cursor-pointer">
                       <input
                         type="checkbox"
                         checked={autoStopOnWin}
                         onChange={(e) => setAutoStopOnWin(e.target.checked)}
                         disabled={autoRunning}
-                        style={{width: '3px', height: '3px'}} className=" rounded bg-[#0f1212] border-gray-700"
+                        className="w-4 h-4 rounded bg-[#0f1212] border-gray-700"
                       />
                       <span>Stop on any win</span>
                     </label>
-                    <label className="flex items-center gap-2 text-[8px] text-white cursor-pointer">
+                    <label className="flex items-center gap-2 text-sm text-white cursor-pointer">
                       <input
                         type="checkbox"
                         checked={autoStopOnLoss}
                         onChange={(e) => setAutoStopOnLoss(e.target.checked)}
                         disabled={autoRunning}
-                        style={{width: '3px', height: '3px'}} className=" rounded bg-[#0f1212] border-gray-700"
+                        className="w-4 h-4 rounded bg-[#0f1212] border-gray-700"
                       />
                       <span>Stop on loss</span>
                     </label>
@@ -711,7 +711,7 @@ export default function KenoPage() {
                     onClick={autoRunning ? stopAutoPlay : startAutoPlay}
                     disabled={picks.length === 0 && !autoRunning}
                     className={cx(
-                      "mt-6 h-8 w-full rounded-xl text-[8px] font-semibold transition shadow-sm",
+                      "mt-6 h-12 w-full rounded-xl text-sm font-semibold transition shadow-sm",
                       autoRunning
                         ? "bg-red-600 hover:bg-red-700"
                         : picks.length > 0
@@ -727,14 +727,14 @@ export default function KenoPage() {
                     <button
                       onClick={autoPick}
                       disabled={isPlaying || autoRunning}
-                      className="h-8 rounded-xl bg-[#0f1212] border border-gray-700 text-white text-[8px] hover:bg-[#1a1d1e] disabled:opacity-50"
+                      className="h-10 rounded-xl bg-[#0f1212] border border-gray-700 text-white text-sm hover:bg-[#1a1d1e] disabled:opacity-50"
                     >
                       Auto pick
                     </button>
                     <button
                       onClick={clearPicks}
                       disabled={isPlaying || autoRunning}
-                      className="h-8 rounded-xl bg-[#0f1212] border border-gray-700 text-white text-[8px] hover:bg-[#1a1d1e] disabled:opacity-50"
+                      className="h-10 rounded-xl bg-[#0f1212] border border-gray-700 text-white text-sm hover:bg-[#1a1d1e] disabled:opacity-50"
                     >
                       Clear table
                     </button>
@@ -745,8 +745,8 @@ export default function KenoPage() {
               {/* Last result */}
               {lastResult && (
                 <div className="mt-6 p-4 rounded-xl bg-[#0f1212] border border-gray-700">
-                  <div className="text-[8px] text-gray-400 mb-2">Last Result</div>
-                  <div className="space-y-1 text-[8px]">
+                  <div className="text-xs text-gray-400 mb-2">Last Result</div>
+                  <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-400">Hits:</span>
                       <span className="text-white">{lastResult.hits}/{picks.length}</span>
@@ -771,8 +771,8 @@ export default function KenoPage() {
               {/* Payout Table */}
               {picks.length > 0 && (
                 <div className="mt-6 p-4 rounded-xl bg-[#0f1212] border border-gray-700">
-                  <div className="text-[8px] text-gray-400 mb-2">Payout Table ({risk})</div>
-                  <div className="text-[8px] space-y-1">
+                  <div className="text-xs text-gray-400 mb-2">Payout Table ({risk})</div>
+                  <div className="text-sm space-y-1">
                     {Object.entries(KENO_PAYOUTS[risk][picks.length] || {}).map(([hits, multiplier]) => {
                       if (multiplier === 0) return null;
                       return (
@@ -839,7 +839,7 @@ function RiskPill({
       onClick={onClick}
       disabled={disabled}
       className={cx(
-        "h-8 rounded-md px-2 text-[8px] font-semibold border transition disabled:opacity-50",
+        "h-10 rounded-md px-3 text-sm font-semibold border transition disabled:opacity-50",
         active 
           ? "bg-[#1a1a1a] text-white border-purple-600" 
           : "bg-gradient-to-r from-[#2d1b69] to-[#1e1b4b] hover:from-[#3d2b79] hover:to-[#2e2b5b] text-[#D4AF37] border-[#D4AF37]/20"

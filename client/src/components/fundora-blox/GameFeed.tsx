@@ -112,7 +112,7 @@ export function GameFeed({ scale = 1 }: GameFeedProps) {
       position: 'relative'
     }}>
       <div style={{
-        fontSize: `${10 * scale}px`,
+        fontSize: `${Math.max(14, 10 * scale)}px`,
         fontWeight: '900',
         color: '#fff',
         marginBottom: `${6 * scale}px`,
@@ -145,7 +145,7 @@ export function GameFeed({ scale = 1 }: GameFeedProps) {
         {history.length === 0 ? (
           <div style={{
             color: '#666',
-            fontSize: `${9 * scale}px`,
+            fontSize: `${Math.max(14, 9 * scale)}px`,
             textAlign: 'center',
             padding: `${15 * scale}px ${4 * scale}px`,
             fontFamily: "'Roboto', sans-serif"
@@ -164,7 +164,7 @@ export function GameFeed({ scale = 1 }: GameFeedProps) {
               }}
             >
               <div style={{
-                fontSize: `${14 * scale}px`,
+                fontSize: `${Math.max(14, 14 * scale)}px`,
                 fontWeight: 'bold',
                 color: '#ffffff',
                 fontFamily: "'Digital-7 Mono', 'Digital-7', monospace",
@@ -186,7 +186,7 @@ export function GameFeed({ scale = 1 }: GameFeedProps) {
                 textAlign: 'left'
               }}>
                 <div style={{
-                  fontSize: `${13 * scale}px`,
+                  fontSize: `${Math.max(14, 13 * scale)}px`,
                   color: '#ffffff',
                   fontFamily: "'Digital-7 Mono', 'Digital-7', monospace",
                   textShadow: '0 0 3px #ffffff'
@@ -194,7 +194,7 @@ export function GameFeed({ scale = 1 }: GameFeedProps) {
                   {item.score}
                 </div>
                 <div style={{
-                  fontSize: `${11 * scale}px`,
+                  fontSize: `${Math.max(14, 11 * scale)}px`,
                   color: item.prizeType === 'cash' ? '#00ff00' : '#ffaa00',
                   fontFamily: "'Roboto', sans-serif",
                   fontWeight: 'bold'
@@ -203,7 +203,7 @@ export function GameFeed({ scale = 1 }: GameFeedProps) {
                 </div>
               </div>
               <div style={{
-                fontSize: `${9 * scale}px`,
+                fontSize: `${Math.max(14, 9 * scale)}px`,
                 color: '#888',
                 fontFamily: "'Roboto', sans-serif",
                 marginTop: `${1.5 * scale}px`,

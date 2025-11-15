@@ -519,20 +519,20 @@ export default function Crash() {
       {/* Game Header */}
       <div className="text-center mb-6">
         <div className="flex justify-between items-center mb-2">
-          <h2 className="text-[10px] font-bold flex-1">Crash Game</h2>
+          <h2 className="text-xl font-bold flex-1">Crash Game</h2>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setAudioEnabled(!audioEnabled)}
               className="p-2 rounded-lg bg-casino-card border border-casino-accent text-white hover:bg-casino-accent transition-colors"
               title={audioEnabled ? "Mute sounds" : "Enable sounds"}
             >
-              {audioEnabled ? <Volume2 style={{width: '3px', height: '3px'}} className="" /> : <VolumeX style={{width: '3px', height: '3px'}} className="" />}
+              {audioEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
             </button>
             <div className="flex items-center gap-2">
               <FavoriteButton gameName="Crash" />
               <button
                 onClick={() => setLocation("/")}
-                className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-[8px]"
+                className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-xs"
                 data-testid="button-back-casino"
               >
                 Back to Casino
@@ -540,9 +540,9 @@ export default function Crash() {
             </div>
           </div>
         </div>
-        <p className="text-casino-text">Cash out before the crash!</p>
+        <p className="text-casino-text text-sm">Cash out before the crash!</p>
         {!isConnected && (
-          <p className="text-casino-red text-[8px] mt-2">Connecting to game server...</p>
+          <p className="text-casino-red text-xs mt-2">Connecting to game server...</p>
         )}
       </div>
 
@@ -575,13 +575,13 @@ export default function Crash() {
           {/* Multiplier Display */}
           <div className="text-center mb-6">
             <div className="relative">
-              <div className={`text-[10px] font-bold mb-2 ${
+              <div className={`text-4xl font-bold mb-2 ${
                 gameState.status === 'RUNNING' ? 'animate-bounce-multiplier text-casino-green' : 
                 gameState.status === 'ENDED' ? 'text-casino-red' : 'text-casino-gold'
               }`}>
                 {gameState.multiplier.toFixed(2)}x
               </div>
-              <div className="text-casino-text">Current Multiplier</div>
+              <div className="text-casino-text text-sm">Current Multiplier</div>
               
               {/* Status Indicator */}
               <div className="mt-4">
@@ -589,11 +589,11 @@ export default function Crash() {
                   gameState.status === 'PENDING' ? 'bg-casino-gold/20' :
                   gameState.status === 'RUNNING' ? 'bg-casino-green/20' : 'bg-casino-red/20'
                 }`}>
-                  <div className={`w-2 h-2 rounded-full ${
+                  <div className={`w-4 h-4 rounded-full ${
                     gameState.status === 'RUNNING' ? 'animate-pulse bg-casino-green' :
                     gameState.status === 'PENDING' ? 'bg-casino-gold' : 'bg-casino-red'
                   }`}></div>
-                  <span className={`font-medium ${getStatusColor()}`}>
+                  <span className={`font-medium text-sm ${getStatusColor()}`}>
                     {getStatusText()}
                   </span>
                 </div>
@@ -604,21 +604,21 @@ export default function Crash() {
           {/* Game Graph Area with Animated Bunny */}
           <div className="bg-casino-dark rounded-lg h-40 mb-6 border border-casino-accent relative overflow-hidden">
             {/* Animated Bunny - Full Width Movement */}
-            <div className="absolute bottom-2 left-0 text-[10px] w-full">
+            <div className="absolute bottom-2 left-0 text-3xl w-full">
               {gameState.status === 'WAITING' && (
-                <div className="text-[10px] text-white opacity-70 ml-4">🐰</div>
+                <div className="text-3xl text-white opacity-70 ml-4">🐰</div>
               )}
               {gameState.status === 'PENDING' && (
-                <div className="text-casino-gold animate-bounce ml-4">🐰</div>
+                <div className="text-3xl text-casino-gold animate-bounce ml-4">🐰</div>
               )}
               {gameState.status === 'RUNNING' && (
-                <div className="bunny-hop text-casino-green">🐰</div>
+                <div className="bunny-hop text-3xl text-casino-green">🐰</div>
               )}
               {gameState.status === 'ENDED' && (
                 <div className="relative ml-4">
-                  <div className="bunny-crash text-casino-red">😱</div>
-                  <div className="absolute -top-2 -right-2 text-[10px] scissors-animation">✂️</div>
-                  <div className="absolute top-0 left-0 text-[8px] bunny-ears-chop">👂👂</div>
+                  <div className="bunny-crash text-3xl text-casino-red">😱</div>
+                  <div className="absolute -top-2 -right-2 text-xl scissors-animation">✂️</div>
+                  <div className="absolute top-0 left-0 text-base bunny-ears-chop">👂👂</div>
                 </div>
               )}
             </div>
@@ -626,14 +626,14 @@ export default function Crash() {
             {/* Game status and chart area */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
-                <div className="text-casino-text text-[8px] mb-2">📈 Live multiplier chart</div>
+                <div className="text-casino-text text-xs mb-2">📈 Live multiplier chart</div>
                 {gameState.status === 'RUNNING' && (
-                  <div className="text-casino-green text-[8px] animate-pulse">
+                  <div className="text-casino-green text-xs animate-pulse">
                     Bunny is racing across the screen! 🚀
                   </div>
                 )}
                 {gameState.status === 'ENDED' && (
-                  <div className="text-casino-red text-[8px]">
+                  <div className="text-casino-red text-xs">
                     Bunny ears got chopped! 💥
                   </div>
                 )}
@@ -645,7 +645,7 @@ export default function Crash() {
           <div className="space-y-4">
             {/* Bet Amount Input */}
             <div>
-              <Label className="text-[8px] font-medium">Bet Amount</Label>
+              <Label className="text-sm font-medium">Bet Amount</Label>
               <div className="relative mt-2">
                 <Input
                   type="number"
@@ -661,7 +661,7 @@ export default function Crash() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-casino-neon text-[8px]"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-casino-neon text-xs"
                   onClick={() => setBetAmount((balance?.available || 0) / 2)}
                   disabled={hasBet}
                 >
@@ -673,10 +673,10 @@ export default function Crash() {
             {/* Auto Cashout */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label className="text-[8px] font-medium">Auto Cashout</Label>
+                <Label className="text-sm font-medium">Auto Cashout</Label>
                 <div className="flex items-center gap-2">
                   <span className={cn(
-                    "text-[8px]",
+                    "text-xs",
                     autoCashoutEnabled ? "text-green-400" : "text-gray-500"
                   )}>
                     {autoCashoutEnabled ? "Enabled" : "Disabled"}
@@ -702,7 +702,7 @@ export default function Crash() {
                 disabled={hasBet || !autoCashoutEnabled}
               />
               {autoCashoutEnabled && autoCashout && (
-                <p className="text-[8px] text-yellow-400">
+                <p className="text-xs text-yellow-400">
                   Your bet will automatically cash out at {autoCashout.toFixed(2)}x multiplier
                 </p>
               )}
@@ -718,7 +718,7 @@ export default function Crash() {
                     disabled={placeBetMutation.isPending || (gameState.status !== 'WAITING' && gameState.status !== 'PENDING')}
                     variant="golden"
                     size="lg"
-                    className="w-full"
+                    className="w-full text-sm"
                   >
                     {placeBetMutation.isPending ? 'Placing...' : 'Place Bet'}
                   </Button>
@@ -726,10 +726,10 @@ export default function Crash() {
                   {/* Disabled Cash Out Button - Shows what will be available */}
                   <Button
                     disabled
-                    className="w-full bg-gray-600/50 text-gray-400 font-bold py-1 border-2 border-gray-500/30 opacity-60"
+                    className="w-full bg-gray-600/50 text-gray-400 font-bold py-1 border-2 border-gray-500/30 opacity-60 text-sm"
                   >
                     <div className="flex items-center justify-center gap-2">
-                      <span className="text-[10px]">💰</span>
+                      <span className="text-base">💰</span>
                       CASH OUT (Place bet first)
                     </div>
                   </Button>
@@ -744,30 +744,30 @@ export default function Crash() {
                     disabled={cashoutMutation.isPending}
                     variant="destructive"
                     size="lg"
-                    className="w-full py-8 text-[10px] animate-pulse"
+                    className="w-full py-8 text-base animate-pulse"
                   >
                     {cashoutMutation.isPending ? (
                       <div className="flex items-center justify-center gap-3">
-                        <div style={{width: '3px', height: '3px'}} className="animate-spin  border-3 border-white border-t-transparent rounded-full" />
-                        <span className="text-[10px]">CASHING OUT...</span>
+                        <div className="w-5 h-5 animate-spin border-3 border-white border-t-transparent rounded-full" />
+                        <span className="text-base">CASHING OUT...</span>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center justify-center gap-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px]">💰</span>
-                          <span className="text-[10px] font-black">CASH OUT</span>
-                          <span className="text-[10px]">💰</span>
+                          <span className="text-xl">💰</span>
+                          <span className="text-base font-black">CASH OUT</span>
+                          <span className="text-xl">💰</span>
                         </div>
-                        <div className="text-[10px] font-bold bg-white/20 px-2 py-1 rounded-full">
+                        <div className="text-sm font-bold bg-white/20 px-2 py-1 rounded-full">
                           {gameState.multiplier.toFixed(2)}x Multiplier
                         </div>
                       </div>
                     )}
                   </Button>
-                  <div style={{width: '3px', height: '3px'}} className="absolute -top-2 -right-2  bg-red-400 rounded-full animate-ping"></div>
-                  <div style={{width: '3px', height: '3px'}} className="absolute -top-2 -right-2  bg-red-500 rounded-full animate-pulse"></div>
-                  <div style={{width: '3px', height: '3px'}} className="absolute -bottom-2 -left-2  bg-yellow-400 rounded-full animate-ping"></div>
-                  <div style={{width: '3px', height: '3px'}} className="absolute -bottom-2 -left-2  bg-yellow-500 rounded-full"></div>
+                  <div className="w-4 h-4 absolute -top-2 -right-2 bg-red-400 rounded-full animate-ping"></div>
+                  <div className="w-4 h-4 absolute -top-2 -right-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <div className="w-4 h-4 absolute -bottom-2 -left-2 bg-yellow-400 rounded-full animate-ping"></div>
+                  <div className="w-4 h-4 absolute -bottom-2 -left-2 bg-yellow-500 rounded-full"></div>
                 </div>
               )}
 
@@ -778,12 +778,12 @@ export default function Crash() {
                   disabled={cashoutMutation.isPending}
                   variant="golden"
                   size="lg"
-                  className="w-full py-6 text-[10px]"
+                  className="w-full py-6 text-base"
                 >
                   <div className="flex items-center justify-center gap-2">
-                    <span className="text-[10px]">💸</span>
+                    <span className="text-xl">💸</span>
                     CASH OUT NOW
-                    <span className="text-[8px] opacity-90">at {gameState.multiplier.toFixed(2)}x</span>
+                    <span className="text-xs opacity-90">at {gameState.multiplier.toFixed(2)}x</span>
                   </div>
                 </Button>
               )}
@@ -792,16 +792,16 @@ export default function Crash() {
               {hasBet && !canCashout && (
                 <Button
                   disabled
-                  className="w-full bg-casino-gold/20 text-casino-gold font-bold py-1 border border-casino-gold/30"
+                  className="w-full bg-casino-gold/20 text-casino-gold font-bold py-1 border border-casino-gold/30 text-sm"
                 >
                   {gameState.status === 'PENDING' ? (
                     <div className="flex items-center justify-center gap-2">
-                      <span className="animate-pulse">⏳</span>
+                      <span className="animate-pulse text-base">⏳</span>
                       Waiting for Round to Start...
                     </div>
                   ) : gameState.status === 'ENDED' ? (
                     <div className="flex items-center justify-center gap-2">
-                      <span>💥</span>
+                      <span className="text-base">💥</span>
                       Round Ended
                     </div>
                   ) : (
@@ -818,12 +818,12 @@ export default function Crash() {
       {gameState.players && gameState.players.length > 0 && (
         <Card className="bg-casino-card border-casino-accent mb-6">
           <CardContent className="p-4">
-            <h4 className="font-medium mb-3">Live Players</h4>
+            <h4 className="font-medium text-base mb-3">Live Players</h4>
             <div className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar pr-2">
               {gameState.players.slice(0, 10).map((player, index) => (
-                <div key={`${player.userId}-${index}`} className="flex justify-between items-center text-[8px]">
+                <div key={`${player.userId}-${index}`} className="flex justify-between items-center text-xs">
                   <div className="flex items-center space-x-2">
-                    <div style={{width: '3px', height: '3px'}} className=" bg-casino-neon rounded-full flex items-center justify-center text-[8px] text-casino-dark font-bold">
+                    <div className="w-6 h-6 bg-casino-neon rounded-full flex items-center justify-center text-xs text-casino-dark font-bold">
                       {player.username.charAt(0).toUpperCase()}
                     </div>
                     <span>{player.username}</span>
@@ -831,16 +831,16 @@ export default function Crash() {
                   <div className="text-right">
                     {player.cashedOut ? (
                       <>
-                        <div className="text-casino-green font-bold">{player.cashedOut.toFixed(2)}x</div>
-                        <div className="text-casino-text text-[8px]">+{player.profit ? formatCredits(player.profit) : '$0.00'}</div>
+                        <div className="text-casino-green font-bold text-sm">{player.cashedOut.toFixed(2)}x</div>
+                        <div className="text-casino-text text-xs">+{player.profit ? formatCredits(player.profit) : '$0.00'}</div>
                       </>
                     ) : gameState.status === 'ENDED' ? (
                       <>
-                        <div className="text-casino-red font-bold">CRASHED</div>
-                        <div className="text-casino-text text-[8px]">-{player.amount.toFixed(2)}</div>
+                        <div className="text-casino-red font-bold text-sm">CRASHED</div>
+                        <div className="text-casino-text text-xs">-{player.amount.toFixed(2)}</div>
                       </>
                     ) : (
-                      <div className="text-casino-gold text-[8px]">Flying...</div>
+                      <div className="text-casino-gold text-xs">Flying...</div>
                     )}
                   </div>
                 </div>
@@ -854,12 +854,12 @@ export default function Crash() {
       {crashHistory && crashHistory.length > 0 && (
         <Card className="bg-casino-card border-casino-accent">
           <CardContent className="p-4">
-            <h4 className="font-medium mb-3">Recent Crashes</h4>
+            <h4 className="font-medium text-base mb-3">Recent Crashes</h4>
             <div className="flex flex-wrap gap-2">
               {crashHistory.slice(0, 10).map((round) => (
                 <div
                   key={round.id}
-                  className={`px-2 py-1 rounded-full text-[8px] font-medium bg-casino-dark border border-casino-accent ${
+                  className={`px-2 py-1 rounded-full text-xs font-medium bg-casino-dark border border-casino-accent ${
                     round.crashPoint < 2 ? 'text-casino-red' :
                     round.crashPoint < 10 ? 'text-casino-green' : 'text-casino-gold'
                   }`}

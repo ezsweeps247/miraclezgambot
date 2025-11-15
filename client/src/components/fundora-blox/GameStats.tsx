@@ -32,7 +32,7 @@ function DisplayBox({ label, value, unit, scale = 1 }: { label: string; value: s
       flexDirection: 'column'
     }}>
       <div style={{
-        fontSize: `${9 * scale}px`,
+        fontSize: `${Math.max(14, 12 * scale)}px`,
         fontWeight: '900',
         color: '#fff',
         marginBottom: `${2.5 * scale}px`,
@@ -46,7 +46,7 @@ function DisplayBox({ label, value, unit, scale = 1 }: { label: string; value: s
         gap: `${4 * scale}px`
       }}>
         <div style={{
-          fontSize: `${20 * scale}px`,
+          fontSize: `${Math.max(14, 20 * scale)}px`,
           fontWeight: 'bold',
           color: '#ff0000',
           backgroundColor: '#000',
@@ -61,7 +61,7 @@ function DisplayBox({ label, value, unit, scale = 1 }: { label: string; value: s
         </div>
         {unit && (
           <div style={{
-            fontSize: `${11 * scale}px`,
+            fontSize: `${Math.max(14, 12 * scale)}px`,
             fontWeight: 'bold',
             color: '#fff',
             fontFamily: "'Roboto', sans-serif",
@@ -114,7 +114,7 @@ export function GameStats({ scale = 1, fontSize = 12 }: GameStatsProps) {
         })}
         style={{
           padding: `${5 * scale}px ${7 * scale}px`,
-          fontSize: `${fontSize * 0.75}px`,
+          fontSize: `${Math.max(14, fontSize)}px`,
           fontWeight: 'bold',
           fontFamily: "'Roboto', sans-serif",
           color: '#ffffff',

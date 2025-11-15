@@ -835,14 +835,14 @@ export default function EnigmaGame() {
         <Card className="bg-casino-card border-casino-accent">
           <CardHeader>
             <div className="flex justify-between items-center mb-2">
-              <CardTitle className="text-[10px] text-center text-casino-neon flex-1">
+              <CardTitle className="text-xl text-center text-casino-neon flex-1">
                 ENIGMA PUZZLE
               </CardTitle>
               <div className="flex items-center gap-2">
                 <FavoriteButton gameName="Enigma" />
                 <button
                   onClick={() => setLocation("/")}
-                  className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-[8px]"
+                  className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-2 py-1 rounded-lg text-xs"
                   data-testid="button-back-casino"
                 >
                   Back to Casino
@@ -852,8 +852,8 @@ export default function EnigmaGame() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="text-center text-casino-text">
-              <p className="mb-4">Guide the marble to find matching Oxyd stone pairs!</p>
-              <p className="text-[8px]">Control the marble with your mouse or finger</p>
+              <p className="mb-4 text-sm">Guide the marble to find matching Oxyd stone pairs!</p>
+              <p className="text-xs">Control the marble with your mouse or finger</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -873,18 +873,18 @@ export default function EnigmaGame() {
                   >
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-bold text-[10px]">{level.name}</h3>
+                        <h3 className="font-bold text-sm">{level.name}</h3>
                         {score && (
-                          <Trophy style={{width: '3px', height: '3px'}} className="text-casino-gold" />
+                          <Trophy className="w-5 h-5 text-casino-gold" />
                         )}
                       </div>
-                      <p className="text-[8px] text-casino-text mb-3">{level.description}</p>
-                      <div className="flex justify-between text-[8px] text-casino-text">
+                      <p className="text-xs text-casino-text mb-3">{level.description}</p>
+                      <div className="flex justify-between text-xs text-casino-text">
                         <span>Par: {level.parMoves} moves</span>
                         <span>Time: {level.parTime}s</span>
                       </div>
                       {score && (
-                        <div className="mt-2 pt-2 border-t border-casino-accent/30 text-[8px]">
+                        <div className="mt-2 pt-2 border-t border-casino-accent/30 text-xs">
                           <div className="flex justify-between">
                             <span>Best: {score.moves} moves</span>
                             <span>{formatTime(score.time)}</span>
@@ -904,8 +904,8 @@ export default function EnigmaGame() {
                 className="border-casino-accent hover:bg-casino-accent/20 w-full sm:w-auto sm:max-w-[160px]"
                 data-testid="button-toggle-sound"
               >
-                {soundEnabled ? <Volume2 className="mr-2" style={{width: "3px", height: "3px"}} /> : <VolumeX className="mr-2" style={{width: '3px', height: '3px'}} />}
-                <span className="text-[8px]">Sound {soundEnabled ? 'On' : 'Off'}</span>
+                {soundEnabled ? <Volume2 className="mr-2 w-4 h-4" /> : <VolumeX className="mr-2 w-4 h-4" />}
+                <span className="text-sm">Sound {soundEnabled ? 'On' : 'Off'}</span>
               </Button>
               <Button
                 variant="outline"
@@ -922,7 +922,7 @@ export default function EnigmaGame() {
                 className="border-red-500 hover:bg-red-500/20 text-red-500 w-full sm:w-auto sm:max-w-[160px]"
                 data-testid="button-reset-progress"
               >
-                <span className="text-[8px]">Reset Progress</span>
+                <span className="text-sm">Reset Progress</span>
               </Button>
             </div>
           </CardContent>
@@ -936,15 +936,15 @@ export default function EnigmaGame() {
       <Card className="bg-casino-card border-casino-accent">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-[10px] text-casino-neon">
+            <CardTitle className="text-lg text-casino-neon">
               Level {currentLevel.id}: {currentLevel.name}
             </CardTitle>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-casino-text">
-                <Clock style={{width: '3.5px', height: '3.5px'}} className="" />
+              <div className="flex items-center gap-2 text-casino-text text-sm">
+                <Clock className="w-4 h-4" />
                 <span className="font-mono">{formatTime(timer)}</span>
               </div>
-              <div className="text-casino-text">
+              <div className="text-casino-text text-sm">
                 Moves: <span className="font-bold text-casino-neon">{moves}</span>
               </div>
             </div>
@@ -967,22 +967,22 @@ export default function EnigmaGame() {
             {gameState === 'paused' && (
               <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
                 <div className="text-center space-y-4">
-                  <h2 className="text-[10px] font-bold text-casino-neon">PAUSED</h2>
+                  <h2 className="text-xl font-bold text-casino-neon">PAUSED</h2>
                   <div className="flex gap-2 md:gap-4">
                     <Button
                       onClick={() => setGameState('playing')}
-                      className="bg-casino-neon hover:bg-casino-neon/80 text-black text-[8px] md:text-[8px] px-3 md:px-4"
+                      className="bg-casino-neon hover:bg-casino-neon/80 text-black text-sm px-4 md:px-6"
                       data-testid="button-resume-game"
                     >
-                      <Play className="mr-1 md:mr-2 "style={{width: '2.5px', height: '2.5px'}} /> Resume
+                      <Play className="mr-2 w-4 h-4" /> Resume
                     </Button>
                     <Button
                       onClick={() => setGameState('menu')}
                       variant="outline"
-                      className="border-casino-accent hover:bg-casino-accent/20 text-[8px] md:text-[8px] px-3 md:px-4"
+                      className="border-casino-accent hover:bg-casino-accent/20 text-sm px-4 md:px-6"
                       data-testid="button-back-menu"
                     >
-                      <Home className="mr-1 md:mr-2 "style={{width: '2.5px', height: '2.5px'}} /> Menu
+                      <Home className="mr-2 w-4 h-4" /> Menu
                     </Button>
                   </div>
                 </div>
@@ -993,9 +993,9 @@ export default function EnigmaGame() {
             {gameState === 'victory' && (
               <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
                 <div className="text-center space-y-4 p-8">
-                  <Trophy style={{width: '4px', height: '4px'}} className="text-casino-gold mx-auto" />
-                  <h2 className="text-[10px] font-bold text-casino-neon">LEVEL COMPLETE!</h2>
-                  <div className="space-y-2 text-casino-text">
+                  <Trophy className="w-12 h-12 text-casino-gold mx-auto" />
+                  <h2 className="text-2xl font-bold text-casino-neon">LEVEL COMPLETE!</h2>
+                  <div className="space-y-2 text-casino-text text-sm">
                     <p>Moves: <span className="font-bold text-casino-neon">{moves}</span> (Par: {currentLevel.parMoves})</p>
                     <p>Time: <span className="font-bold text-casino-neon">{formatTime(timer)}</span> (Par: {formatTime(currentLevel.parTime)})</p>
                   </div>
@@ -1003,27 +1003,27 @@ export default function EnigmaGame() {
                     <Button
                       onClick={restartLevel}
                       variant="outline"
-                      className="border-casino-accent hover:bg-casino-accent/20 text-[8px] md:text-[8px] px-3 md:px-4"
+                      className="border-casino-accent hover:bg-casino-accent/20 text-sm px-4 md:px-6"
                       data-testid="button-restart-level"
                     >
-                      <RotateCcw className="mr-1 md:mr-2 "style={{width: '2.5px', height: '2.5px'}} /> Retry
+                      <RotateCcw className="mr-2 w-4 h-4" /> Retry
                     </Button>
                     {levelIndex < LEVELS.length - 1 && (
                       <Button
                         onClick={nextLevel}
-                        className="bg-casino-neon hover:bg-casino-neon/80 text-black text-[8px] md:text-[8px] px-3 md:px-4"
+                        className="bg-casino-neon hover:bg-casino-neon/80 text-black text-sm px-4 md:px-6"
                         data-testid="button-next-level"
                       >
-                        <span>Next</span> <ChevronRight className="ml-1 md:ml-2 "style={{width: '2.5px', height: '2.5px'}} />
+                        <span>Next</span> <ChevronRight className="ml-2 w-4 h-4" />
                       </Button>
                     )}
                     <Button
                       onClick={() => setGameState('menu')}
                       variant="outline"
-                      className="border-casino-accent hover:bg-casino-accent/20 text-[8px] md:text-[8px] px-3 md:px-4"
+                      className="border-casino-accent hover:bg-casino-accent/20 text-sm px-4 md:px-6"
                       data-testid="button-victory-menu"
                     >
-                      <Home className="mr-1 md:mr-2 "style={{width: '2.5px', height: '2.5px'}} /> Menu
+                      <Home className="mr-2 w-4 h-4" /> Menu
                     </Button>
                   </div>
                 </div>
@@ -1036,45 +1036,45 @@ export default function EnigmaGame() {
             <Button
               onClick={togglePause}
               variant="outline"
-              className="border-casino-accent hover:bg-casino-accent/20 text-[8px] md:text-[8px] px-2 md:px-3 py-1.5 md:py-2 min-w-[80px] sm:min-w-[100px]"
+              className="border-casino-accent hover:bg-casino-accent/20 text-sm px-3 md:px-4 py-2 min-w-[80px] sm:min-w-[100px]"
               disabled={gameState === 'victory'}
               data-testid="button-pause-game"
             >
-              {gameState === 'playing' ? <Pause className="mr-1" style={{width: "2.5px", height: "2.5px"}} /> : <Play className="mr-1" style={{width: '2.5px', height: '2.5px'}} />}
+              {gameState === 'playing' ? <Pause className="mr-2 w-4 h-4" /> : <Play className="mr-2 w-4 h-4" />}
               <span className="hidden sm:inline">{gameState === 'playing' ? 'Pause' : 'Resume'}</span>
               <span className="sm:hidden">{gameState === 'playing' ? 'Pause' : 'Play'}</span>
             </Button>
             <Button
               onClick={restartLevel}
               variant="outline"
-              className="border-casino-accent hover:bg-casino-accent/20 text-[8px] md:text-[8px] px-2 md:px-3 py-1.5 md:py-2 min-w-[80px] sm:min-w-[100px]"
+              className="border-casino-accent hover:bg-casino-accent/20 text-sm px-3 md:px-4 py-2 min-w-[80px] sm:min-w-[100px]"
               data-testid="button-restart-current"
             >
-              <RotateCcw className="mr-1 "style={{width: '2.5px', height: '2.5px'}} />
+              <RotateCcw className="mr-2 w-4 h-4" />
               <span>Restart</span>
             </Button>
             <Button
               onClick={() => setGameState('menu')}
               variant="outline"
-              className="border-casino-accent hover:bg-casino-accent/20 text-[8px] md:text-[8px] px-2 md:px-3 py-1.5 md:py-2 min-w-[80px] sm:min-w-[100px]"
+              className="border-casino-accent hover:bg-casino-accent/20 text-sm px-3 md:px-4 py-2 min-w-[80px] sm:min-w-[100px]"
               data-testid="button-game-menu"
             >
-              <Home className="mr-1 "style={{width: '2.5px', height: '2.5px'}} />
+              <Home className="mr-2 w-4 h-4" />
               <span>Menu</span>
             </Button>
             <Button
               onClick={() => setSoundEnabled(!soundEnabled)}
               variant="outline"
-              className="border-casino-accent hover:bg-casino-accent/20 text-[8px] md:text-[8px] px-2 md:px-3 py-1.5 md:py-2 min-w-[40px]"
+              className="border-casino-accent hover:bg-casino-accent/20 text-sm px-3 md:px-4 py-2 min-w-[40px]"
               data-testid="button-toggle-sound-game"
             >
-              {soundEnabled ? <Volume2 style={{width: "2.5px", height: "2.5px"}} /> : <VolumeX style={{width: '2.5px', height: '2.5px'}} />}
+              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </Button>
           </div>
           
           {/* Instructions */}
-          <div className="bg-black/50 rounded-lg p-4 text-[8px] text-casino-text">
-            <h3 className="font-bold mb-2 text-casino-neon">How to Play:</h3>
+          <div className="bg-black/50 rounded-lg p-4 text-sm text-casino-text">
+            <h3 className="font-bold mb-2 text-casino-neon text-base">How to Play:</h3>
             <ul className="space-y-1">
               <li>• Move the golden marble with your mouse or finger</li>
               <li>• Touch gray Oxyd stones to reveal their colors</li>

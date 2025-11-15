@@ -314,9 +314,9 @@ export default function TowerDefense() {
   
   const getDifficultyIcon = (diff: string) => {
     switch (diff) {
-      case "easy": return <Shield style={{width: '3.5px', height: '3.5px'}} className="" />;
-      case "medium": return <Target style={{width: '3.5px', height: '3.5px'}} className="" />;
-      case "hard": return <Swords style={{width: '3.5px', height: '3.5px'}} className="" />;
+      case "easy": return <Shield className="w-4 h-4" />;
+      case "medium": return <Target className="w-4 h-4" />;
+      case "hard": return <Swords className="w-4 h-4" />;
       default: return null;
     }
   };
@@ -329,8 +329,8 @@ export default function TowerDefense() {
         <div className="mb-4 md:mb-6">
           <div className="flex justify-between items-center mb-2">
             <div className="flex-1 text-center">
-              <h2 className="text-[10px] md:text-[10px] font-bold flex items-center justify-center gap-2">
-                <Target style={{width: '3px', height: '3px'}} className="text-[#D4AF37]" />
+              <h2 className="text-lg md:text-xl font-bold flex items-center justify-center gap-2">
+                <Target className="w-5 h-5 text-[#D4AF37]" />
                 Tower Defense
               </h2>
             </div>
@@ -338,14 +338,14 @@ export default function TowerDefense() {
               <FavoriteButton gameName="Tower Defense" />
               <button
                 onClick={() => setLocation("/")}
-                className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-[8px]"
+                className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-sm"
                 data-testid="button-back-casino"
               >
                 Back to Casino
               </button>
             </div>
           </div>
-          <p className="text-[8px] md:text-[10px] text-gray-400 text-center">
+          <p className="text-xs md:text-sm text-gray-400 text-center">
             Build towers to defend against waves of enemies!
           </p>
         </div>
@@ -369,7 +369,7 @@ export default function TowerDefense() {
             <div className="space-y-4">
               {/* Bet Amount */}
               <div>
-                <Label className="text-[8px] mb-2 block text-gray-300">Bet Amount</Label>
+                <Label className="text-sm mb-2 block text-gray-300">Bet Amount</Label>
                 <div className="space-y-2">
                   <Input
                     type="number"
@@ -405,7 +405,7 @@ export default function TowerDefense() {
               
               {/* Difficulty Selection */}
               <div>
-                <Label className="text-[8px] mb-2 block text-gray-300">Difficulty</Label>
+                <Label className="text-sm mb-2 block text-gray-300">Difficulty</Label>
                 <RadioGroup
                   value={difficulty}
                   onValueChange={(value) => setDifficulty(value as any)}
@@ -424,7 +424,7 @@ export default function TowerDefense() {
                           <span className="capitalize font-medium">{diff}</span>
                         </Label>
                       </div>
-                      <span className="text-[8px] font-bold text-[#D4AF37]">
+                      <span className="text-sm font-bold text-[#D4AF37]">
                         {diff === "easy" ? "1.5x" : diff === "medium" ? "2.5x" : "5x"}
                       </span>
                     </div>
@@ -447,7 +447,7 @@ export default function TowerDefense() {
                   </>
                 ) : (
                   <>
-                    <Play style={{width: '3.5px', height: '3.5px'}} className="mr-2" />
+                    <Play className="w-4 h-4 mr-2" />
                     Start Game (${betAmount.toFixed(2)})
                   </>
                 )}
@@ -455,8 +455,8 @@ export default function TowerDefense() {
               
               {/* Balance Display */}
               <div className="flex justify-between items-center pt-3 border-t border-gray-700">
-                <span className="text-[8px] text-gray-400">Balance:</span>
-                <span className="font-bold text-[10px] text-white">
+                <span className="text-xs text-gray-400">Balance:</span>
+                <span className="font-bold text-sm text-white">
                   ${balance?.available.toFixed(2) || '0.00'}
                 </span>
               </div>
@@ -464,8 +464,8 @@ export default function TowerDefense() {
               {/* Last Win Display */}
               {lastWin > 0 && (
                 <div className="flex justify-between items-center p-3 bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-lg">
-                  <span className="text-[8px] text-[#D4AF37]">Last Win:</span>
-                  <span className="font-bold text-[10px] text-[#D4AF37]">
+                  <span className="text-xs text-[#D4AF37]">Last Win:</span>
+                  <span className="font-bold text-sm text-[#D4AF37]">
                     +${lastWin.toFixed(2)}
                   </span>
                 </div>
@@ -477,11 +477,11 @@ export default function TowerDefense() {
         {/* Game Instructions - Show when game is active */}
         {gameStarted && (
           <Card className="bg-[#1a1d1e] border-gray-800 p-4">
-            <h3 className="text-[10px] font-bold mb-2 flex items-center gap-2 text-white">
-              <Info style={{width: '3px', height: '3px'}} className="text-[#D4AF37]" />
+            <h3 className="text-base font-bold mb-2 flex items-center gap-2 text-white">
+              <Info className="w-4 h-4 text-[#D4AF37]" />
               Game Controls
             </h3>
-            <ul className="space-y-1 text-[8px] text-gray-400">
+            <ul className="space-y-1 text-xs text-gray-400">
               <li className="flex items-start">
                 <span className="text-[#D4AF37] mr-2">•</span>
                 <span>Select tower type from side panel</span>
@@ -515,11 +515,11 @@ export default function TowerDefense() {
       <div className="w-full md:w-80">
         {/* Game Info */}
         <Card className="bg-[#1a1d1e] border-gray-800 p-4 mb-4">
-          <h3 className="text-[10px] font-bold mb-3 flex items-center gap-2 text-white">
-            <Trophy style={{width: '3px', height: '3px'}} className="text-[#D4AF37]" />
+          <h3 className="text-base font-bold mb-3 flex items-center gap-2 text-white">
+            <Trophy className="w-4 h-4 text-[#D4AF37]" />
             How to Play
           </h3>
-          <ul className="space-y-2 text-[8px] text-gray-400">
+          <ul className="space-y-2 text-xs text-gray-400">
             <li className="flex items-start">
               <span className="text-casino-gold mr-2">•</span>
               <span>Place your bet and select difficulty</span>
@@ -550,7 +550,7 @@ export default function TowerDefense() {
         {/* Tower Selection */}
         {gameStarted && (
           <Card className="bg-[#1a1d1e] border-gray-800 p-4 mb-4">
-            <h3 className="text-[10px] font-bold mb-3 text-white">Select Tower</h3>
+            <h3 className="text-base font-bold mb-3 text-white">Select Tower</h3>
             <div className="space-y-2">
               {[
                 { key: 'BASIC', name: 'Basic', cost: 50, icon: '🗼', desc: 'Fast fire', color: '#fbbf24' },
@@ -575,17 +575,17 @@ export default function TowerDefense() {
                   data-testid={`button-tower-${tower.key.toLowerCase()}`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-[10px]">{tower.icon}</span>
+                    <span className="text-base">{tower.icon}</span>
                     <div className="text-left">
-                      <div className="text-[10px] font-medium text-white">{tower.name}</div>
-                      <div className="text-[8px] text-gray-400">{tower.desc}</div>
+                      <div className="text-sm font-medium text-white">{tower.name}</div>
+                      <div className="text-xs text-gray-400">{tower.desc}</div>
                     </div>
                   </div>
                   <div className="text-[#D4AF37] font-bold">${tower.cost}</div>
                 </Button>
               ))}
             </div>
-            <div className="mt-3 p-2 bg-[#0a0d14]/50 border border-gray-800 rounded text-[8px] text-gray-400">
+            <div className="mt-3 p-2 bg-[#0a0d14]/50 border border-gray-800 rounded text-xs text-gray-400">
               💡 Select a tower type above, then click on the map to place it
             </div>
           </Card>
@@ -594,8 +594,8 @@ export default function TowerDefense() {
         {/* Tower Types Info */}
         {!gameStarted && (
           <Card className="bg-[#1a1d1e] border-gray-800 p-4 mb-4">
-            <h3 className="text-[10px] font-bold mb-3 text-white">Tower Types</h3>
-            <div className="space-y-2 text-[8px]">
+            <h3 className="text-base font-bold mb-3 text-white">Tower Types</h3>
+            <div className="space-y-2 text-xs">
               <div className="flex justify-between items-center p-2 rounded bg-[#0a0d14]/50 border border-gray-800">
                 <span className="text-gray-300 font-medium">Basic</span>
                 <span className="text-[#D4AF37]">$50 <span className="text-gray-400">• Fast fire</span></span>
@@ -618,8 +618,8 @@ export default function TowerDefense() {
         
         {/* Enemy Types */}
         <Card className="bg-[#1a1d1e] border-gray-800 p-4 mb-4">
-          <h3 className="text-[10px] font-bold mb-3 text-white">Enemy Types</h3>
-          <div className="space-y-2 text-[8px]">
+          <h3 className="text-base font-bold mb-3 text-white">Enemy Types</h3>
+          <div className="space-y-2 text-xs">
             <div className="flex justify-between items-center p-2 rounded bg-[#0a0d14]/50 border border-gray-800">
               <span className="text-gray-300 font-medium">Basic</span>
               <span className="text-gray-400">100 HP • <span className="text-[#D4AF37]">$10</span></span>
@@ -641,25 +641,25 @@ export default function TowerDefense() {
         
         {/* Multiplier Table */}
         <Card className="bg-[#1a1d1e] border-gray-800 p-4">
-          <h3 className="text-[10px] font-bold mb-3 text-white">Difficulty Multipliers</h3>
+          <h3 className="text-base font-bold mb-3 text-white">Difficulty Multipliers</h3>
           <div className="space-y-2">
             <div className="flex justify-between items-center p-3 bg-emerald-900/10 border border-emerald-700/20 rounded">
               <span className="flex items-center gap-2">
-                <Shield style={{width: '3.5px', height: '3.5px'}} className="text-emerald-400" />
+                <Shield className="w-4 h-4 text-emerald-400" />
                 <span className="text-gray-300">Easy</span>
               </span>
               <span className="font-bold text-[#D4AF37]">1.5x</span>
             </div>
             <div className="flex justify-between items-center p-3 bg-[#D4AF37]/10 border border-[#D4AF37]/20 rounded">
               <span className="flex items-center gap-2">
-                <Target style={{width: '3.5px', height: '3.5px'}} className="text-[#D4AF37]" />
+                <Target className="w-4 h-4 text-[#D4AF37]" />
                 <span className="text-gray-300">Medium</span>
               </span>
               <span className="font-bold text-[#D4AF37]">2.5x</span>
             </div>
             <div className="flex justify-between items-center p-3 bg-red-900/10 border border-red-700/20 rounded">
               <span className="flex items-center gap-2">
-                <Swords style={{width: '3.5px', height: '3.5px'}} className="text-red-400" />
+                <Swords className="w-4 h-4 text-red-400" />
                 <span className="text-gray-300">Hard</span>
               </span>
               <span className="font-bold text-[#D4AF37]">5.0x</span>
@@ -672,7 +672,7 @@ export default function TowerDefense() {
       <Dialog open={showDoubleUp} onOpenChange={setShowDoubleUp}>
         <DialogContent className="bg-[#1a1d1e] border-gray-800 max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-[10px] font-bold text-center">
+            <DialogTitle className="text-lg font-bold text-center">
               Double-Up Challenge!
             </DialogTitle>
           </DialogHeader>
@@ -680,12 +680,12 @@ export default function TowerDefense() {
           <div className="space-y-4">
             <div className="text-center">
               <p className="text-gray-400 mb-2">Current Winnings:</p>
-              <p className="text-[10px] font-bold text-[#D4AF37]">
+              <p className="text-base font-bold text-[#D4AF37]">
                 ${doubleUpAmount.toFixed(2)}
               </p>
             </div>
             
-            <div className="text-center text-[8px] text-gray-400">
+            <div className="text-center text-xs text-gray-400">
               Pick a card higher than the dealer's to double your winnings!
             </div>
             
@@ -707,11 +707,11 @@ export default function TowerDefense() {
                   data-testid={`button-card-${cardNum}`}
                 >
                   {revealedCards && selectedCard === cardNum ? (
-                    <div className="text-[10px] font-bold">
+                    <div className="text-base font-bold">
                       {revealedCards.player}
                     </div>
                   ) : (
-                    <div className="text-[#D4AF37] text-[10px]">?</div>
+                    <div className="text-[#D4AF37] text-base">?</div>
                   )}
                 </motion.button>
               ))}
@@ -720,9 +720,9 @@ export default function TowerDefense() {
             {/* Dealer's Card */}
             {revealedCards && (
               <div className="text-center">
-                <p className="text-[8px] text-gray-400 mb-2">Dealer's Card:</p>
+                <p className="text-xs text-gray-400 mb-2">Dealer's Card:</p>
                 <div className="inline-block h-24 w-16 rounded-lg border-2 border-red-500 bg-gradient-to-br from-red-900 to-red-800 flex items-center justify-center">
-                  <div className="text-[10px] font-bold text-white">
+                  <div className="text-base font-bold text-white">
                     {revealedCards.dealer}
                   </div>
                 </div>

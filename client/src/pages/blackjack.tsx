@@ -48,8 +48,8 @@ function PlayingCard({ card, faceDown = false }: { card?: BJCard; faceDown?: boo
   const red = isRed(card.suit);
   return (
     <div className={`w-14 md:w-20 h-20 md:h-28 rounded-lg border border-gray-700 bg-white relative flex items-center justify-center font-bold shadow-lg ${red ? 'text-red-500' : 'text-gray-900'}`}>
-      <div className="absolute top-1 left-1 md:left-2 text-[8px] md:text-[8px]">{rankStr(card.rank)}{suitChar(card.suit)}</div>
-      <div className="text-[10px] md:text-[10px]">{suitChar(card.suit)}</div>
+      <div className="absolute top-1 left-1 md:left-2 text-xs md:text-sm">{rankStr(card.rank)}{suitChar(card.suit)}</div>
+      <div className="text-sm md:text-base">{suitChar(card.suit)}</div>
     </div>
   );
 }
@@ -276,13 +276,13 @@ export default function Blackjack() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f1212] text-[8px] text-gray-200 p-3 md:p-4">
+    <div className="min-h-screen bg-[#0f1212] text-gray-200 p-3 md:p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-4 md:mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-[10px] md:text-[10px] font-bold">Blackjack</h1>
-            <p className="text-gray-400 text-[8px] md:text-[8px] mt-1">Classic 21 with side bets</p>
+            <h1 className="text-lg md:text-xl font-bold">Blackjack</h1>
+            <p className="text-gray-400 text-sm mt-1">Classic 21 with side bets</p>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -292,13 +292,13 @@ export default function Blackjack() {
               className="hover:bg-gray-800"
               title={audioEnabled ? "Mute sounds" : "Enable sounds"}
             >
-              {audioEnabled ? <Volume2 style={{width: '2.5px', height: '2.5px'}} className="" /> : <VolumeX style={{width: '2.5px', height: '2.5px'}} className="" />}
+              {audioEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
             </Button>
             <div className="flex items-center gap-2">
               <FavoriteButton gameName="Blackjack" />
               <button
                 onClick={() => setLocation("/")}
-                className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-[8px]"
+                className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-3 py-1.5 rounded-lg text-sm"
                 data-testid="button-back-casino"
               >
                 Back to Casino
@@ -309,21 +309,21 @@ export default function Blackjack() {
 
         {/* Game Table */}
         <UICard className="bg-[#1a1d1e] border-gray-800 p-4 sm:p-6 mb-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-[8px] text-gray-400 mb-4 space-y-1 sm:space-y-0">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs text-gray-400 mb-4 space-y-1 sm:space-y-0">
               <div>BLACKJACK PAYS 3 TO 2</div>
               <div>DEALER STANDS ON 17</div>
               <div>INSURANCE PAYS 2 TO 1</div>
             </div>
 
             {!state ? (
-              <div className="text-[8px] h-96 flex items-center justify-center text-gray-500">
+              <div className="text-sm h-96 flex items-center justify-center text-gray-500">
                 Place your bets and click DEAL to start playing
               </div>
             ) : (
               <div className="space-y-6">
                 {/* Dealer */}
                 <div>
-                  <div className="text-[8px] text-gray-400 mb-2">Dealer</div>
+                  <div className="text-sm text-gray-400 mb-2">Dealer</div>
                   <div className="flex gap-2">
                     {state.dealer.cards.map((c, i) => (
                       <PlayingCard key={i} card={c} faceDown={i === 1 && state.dealer.hidden} />
@@ -333,7 +333,7 @@ export default function Blackjack() {
 
                 {/* Player Hands */}
                 <div>
-                  <div className="text-[8px] text-gray-400 mb-2">Player</div>
+                  <div className="text-sm text-gray-400 mb-2">Player</div>
                   <div className="space-y-4">
                     {state.playerHands.map((hand, idx) => (
                       <div key={idx} className="flex gap-2 items-center">
@@ -342,9 +342,9 @@ export default function Blackjack() {
                             <PlayingCard key={j} card={c} />
                           ))}
                         </div>
-                        {hand.doubled && <span className="text-[8px] text-yellow-500 ml-2">Doubled</span>}
+                        {hand.doubled && <span className="text-sm text-yellow-500 ml-2">Doubled</span>}
                         {hand.finished && hand.result && (
-                          <span className={`text-[8px] ml-4 font-semibold ${
+                          <span className={`text-sm ml-4 font-semibold ${
                             hand.result.includes('Win') || hand.result.includes('Blackjack') ? 'text-green-500' :
                             hand.result === 'Push' ? 'text-yellow-500' : 'text-red-500'
                           }`}>
@@ -359,7 +359,7 @@ export default function Blackjack() {
                 {/* Messages */}
                 {state.messages && state.messages.length > 0 && (
                   <div className="mt-4 p-3 bg-[#0f1212] rounded-lg">
-                    <ul className="text-[8px] text-gray-400 space-y-1">
+                    <ul className="text-sm text-gray-400 space-y-1">
                       {state.messages.map((m, i) => (
                         <li key={i}>• {m}</li>
                       ))}
@@ -434,14 +434,14 @@ export default function Blackjack() {
 
               <TabsContent value="standard" className="space-y-4">
                 <div>
-                  <label className="text-[8px] text-gray-400 mb-1 block">Bet Amount</label>
+                  <label className="text-sm text-gray-400 mb-1 block">Bet Amount</label>
                   <div className="flex gap-2">
                     <Input
                       type="number"
                       step="0.01"
                       value={amount}
                       onChange={(e) => setAmount(Number(e.target.value))}
-                      className="bg-[#0f1212] border-gray-700 text-[8px] text-white"
+                      className="bg-[#0f1212] border-gray-700 text-sm text-white"
                     />
                     <Button
                       size="sm"
@@ -460,20 +460,20 @@ export default function Blackjack() {
                       2×
                     </Button>
                   </div>
-                  <div className="text-[11px] mt-1 text-gray-500">{formatCredits(amount * 100)}</div>
+                  <div className="text-sm mt-1 text-gray-500">{formatCredits(amount * 100)}</div>
                 </div>
               </TabsContent>
 
               <TabsContent value="side" className="space-y-4">
                 <div>
-                  <label className="text-[8px] text-gray-400 mb-1 block">Bet Amount</label>
+                  <label className="text-sm text-gray-400 mb-1 block">Bet Amount</label>
                   <div className="flex gap-2">
                     <Input
                       type="number"
                       step="0.01"
                       value={amount}
                       onChange={(e) => setAmount(Number(e.target.value))}
-                      className="bg-[#0f1212] border-gray-700 text-[8px] text-white"
+                      className="bg-[#0f1212] border-gray-700 text-sm text-white"
                     />
                     <Button
                       size="sm"
@@ -495,14 +495,14 @@ export default function Blackjack() {
                 </div>
 
                 <div>
-                  <label className="text-[8px] text-gray-400 mb-1 block">Perfect Pairs</label>
+                  <label className="text-sm text-gray-400 mb-1 block">Perfect Pairs</label>
                   <div className="flex gap-2">
                     <Input
                       type="number"
                       step="0.01"
                       value={ppBet}
                       onChange={(e) => setPpBet(Number(e.target.value))}
-                      className="bg-[#0f1212] border-gray-700 text-[8px] text-white"
+                      className="bg-[#0f1212] border-gray-700 text-sm text-white"
                     />
                     <Button
                       size="sm"
@@ -521,18 +521,18 @@ export default function Blackjack() {
                       2×
                     </Button>
                   </div>
-                  <div className="text-[11px] mt-1 text-gray-500">{formatCredits(ppBet)}</div>
+                  <div className="text-sm mt-1 text-gray-500">{formatCredits(ppBet)}</div>
                 </div>
 
                 <div>
-                  <label className="text-[8px] text-gray-400 mb-1 block">21 + 3</label>
+                  <label className="text-sm text-gray-400 mb-1 block">21 + 3</label>
                   <div className="flex gap-2">
                     <Input
                       type="number"
                       step="0.01"
                       value={plus3Bet}
                       onChange={(e) => setPlus3Bet(Number(e.target.value))}
-                      className="bg-[#0f1212] border-gray-700 text-[8px] text-white"
+                      className="bg-[#0f1212] border-gray-700 text-sm text-white"
                     />
                     <Button
                       size="sm"
@@ -551,7 +551,7 @@ export default function Blackjack() {
                       2×
                     </Button>
                   </div>
-                  <div className="text-[11px] mt-1 text-gray-500">{formatCredits(plus3Bet)}</div>
+                  <div className="text-sm mt-1 text-gray-500">{formatCredits(plus3Bet)}</div>
                 </div>
               </TabsContent>
             </Tabs>
@@ -595,14 +595,14 @@ export default function Blackjack() {
             {/* Insurance */}
             {state?.insuranceOffered && state.status === "in_play" && state.insuranceBet === 0 && (
               <div className="mt-4 pt-4 border-t border-gray-700">
-                <label className="text-[8px] text-gray-400 mb-1 block">Insurance (max half of base bet)</label>
+                <label className="text-sm text-gray-400 mb-1 block">Insurance (max half of base bet)</label>
                 <div className="flex gap-2">
                   <Input
                     type="number"
                     step="0.01"
                     value={insBet}
                     onChange={(e) => setInsBet(Number(e.target.value))}
-                    className="bg-[#0f1212] border-gray-700 text-[8px] text-white"
+                    className="bg-[#0f1212] border-gray-700 text-sm text-white"
                   />
                   <Button
                     size="sm"
@@ -620,7 +620,7 @@ export default function Blackjack() {
 
             {/* Balance */}
             <div className="mt-4 pt-4 border-t border-gray-700">
-              <div className="flex justify-between text-[8px]">
+              <div className="flex justify-between text-sm">
                 <span className="text-gray-400">Balance</span>
                 <span className="font-bold text-white">{formatCredits((balance as any)?.available || 0)}</span>
               </div>
@@ -629,7 +629,7 @@ export default function Blackjack() {
 
         {/* History */}
         <UICard className="bg-[#1a1d1e] border-gray-800 p-4 mt-6">
-          <h3 className="font-bold text-[10px] mb-4">Recent Hands</h3>
+          <h3 className="font-bold text-base mb-4">Recent Hands</h3>
           <BlackjackHistory />
         </UICard>
       </div>
@@ -650,7 +650,7 @@ function BlackjackHistory() {
     refetchInterval: 5000
   });
 
-  if (!data) return <div className="text-gray-500">Loading history...</div>;
+  if (!data) return <div className="text-gray-500 text-sm">Loading history...</div>;
 
   return (
     <div className="space-y-2 max-h-96 overflow-auto custom-scrollbar pr-2">
@@ -662,15 +662,15 @@ function BlackjackHistory() {
           }`}
         >
           <div className="flex items-center justify-between">
-            <div className="font-semibold text-[8px]">{hand.result_summary || 'In progress'}</div>
-            <div className={`text-[8px] font-bold ${hand.profit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+            <div className="font-semibold text-sm">{hand.result_summary || 'In progress'}</div>
+            <div className={`text-sm font-bold ${hand.profit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
               {hand.profit >= 0 && '+'}{formatCredits(hand.profit)}
             </div>
           </div>
-          <div className="text-[8px] text-gray-500 mt-1">
+          <div className="text-xs text-gray-500 mt-1">
             Base: {formatCredits(hand.base_bet)} | PP: {formatCredits(hand.pp_bet)} | 21+3: {formatCredits(hand.plus3_bet)}
           </div>
-          <div className="text-[8px] text-gray-600 mt-1">
+          <div className="text-xs text-gray-600 mt-1">
             {new Date(hand.created_at).toLocaleString()}
           </div>
         </div>

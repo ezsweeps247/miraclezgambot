@@ -47,10 +47,10 @@ function PlayingCard({ card }: { card: CardType }) {
   const red = isRed(card.suit);
   return (
     <div className={`relative w-14 md:w-20 h-20 md:h-28 rounded-lg border-2 ${red ? 'border-red-500' : 'border-gray-700'} bg-white dark:bg-gray-900 flex items-center justify-center shadow-lg`}>
-      <div className={`absolute top-1 md:top-2 left-1 md:left-2 text-[8px] md:text-[8px] font-bold ${red ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'}`}>
+      <div className={`absolute top-1 md:top-2 left-1 md:left-2 text-xs md:text-sm font-bold ${red ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'}`}>
         {rankStr(card.rank)}{suitChar(card.suit)}
       </div>
-      <div className={`text-[10px] md:text-[10px] ${red ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'}`}>
+      <div className={`text-lg md:text-xl ${red ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'}`}>
         {suitChar(card.suit)}
       </div>
     </div>
@@ -436,8 +436,8 @@ export default function HiloGame() {
         <CardHeader>
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              <CardTitle className="text-[10px] md:text-[10px] font-bold">Hi-Lo</CardTitle>
-              <CardDescription>Predict if the next card will be higher, lower, or equal</CardDescription>
+              <CardTitle className="text-lg md:text-xl font-bold">Hi-Lo</CardTitle>
+              <CardDescription className="text-sm">Predict if the next card will be higher, lower, or equal</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -445,13 +445,13 @@ export default function HiloGame() {
                 className="p-2 rounded-lg bg-[#1a1d1e] border border-gray-700 text-white hover:bg-[#2a2d2e] transition-colors"
                 title={audioEnabled ? "Mute sounds" : "Enable sounds"}
               >
-                {audioEnabled ? <Volume2 style={{width: '3px', height: '3px'}} className="" /> : <VolumeX style={{width: '3px', height: '3px'}} className="" />}
+                {audioEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
               </button>
               <div className="flex items-center gap-2">
                 <FavoriteButton gameName="Hilo" />
                 <button
                   onClick={() => setLocation("/")}
-                  className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-[8px]"
+                  className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-sm"
                   data-testid="button-back-casino"
                 >
                   Back to Casino
@@ -502,18 +502,18 @@ export default function HiloGame() {
                           2x
                         </Button>
                       </div>
-                      <p className="text-[8px] text-muted-foreground mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         {amount.toFixed(2)} Credits
                       </p>
                     </div>
 
                     <Button
                       variant="outline"
-                      className="w-full"
+                      className="w-full text-sm"
                       onClick={skip}
                       disabled={loading || state.status !== 'in_play'}
                     >
-                      <SkipForward className="mr-2 "style={{width: '3px', height: '3px'}} />
+                      <SkipForward className="mr-2 w-4 h-4" />
                       Change Card (Skip)
                     </Button>
 
@@ -522,36 +522,36 @@ export default function HiloGame() {
                         variant="default"
                         onClick={() => bet('higher')}
                         disabled={loading || state.status !== 'in_play'}
-                        className="h-auto py-3"
+                        className="h-auto py-3 text-sm"
                       >
                         <div className="text-center">
-                          <TrendingUp className=" mx-auto mb-1"style={{width: '3px', height: '3px'}} />
+                          <TrendingUp className="w-5 h-5 mx-auto mb-1" />
                           <div>Higher</div>
-                          <div className="text-[8px] opacity-80">{quoteText(state.quote.higher)}</div>
+                          <div className="text-xs opacity-80">{quoteText(state.quote.higher)}</div>
                         </div>
                       </Button>
                       <Button
                         variant="default"
                         onClick={() => bet('equal')}
                         disabled={loading || state.status !== 'in_play'}
-                        className="h-auto py-3"
+                        className="h-auto py-3 text-sm"
                       >
                         <div className="text-center">
-                          <Equal className=" mx-auto mb-1"style={{width: '3px', height: '3px'}} />
+                          <Equal className="w-5 h-5 mx-auto mb-1" />
                           <div>Equal</div>
-                          <div className="text-[8px] opacity-80">{quoteText(state.quote.equal)}</div>
+                          <div className="text-xs opacity-80">{quoteText(state.quote.equal)}</div>
                         </div>
                       </Button>
                       <Button
                         variant="default"
                         onClick={() => bet('lower')}
                         disabled={loading || state.status !== 'in_play'}
-                        className="h-auto py-3"
+                        className="h-auto py-3 text-sm"
                       >
                         <div className="text-center">
-                          <TrendingDown className=" mx-auto mb-1"style={{width: '3px', height: '3px'}} />
+                          <TrendingDown className="w-5 h-5 mx-auto mb-1" />
                           <div>Lower</div>
-                          <div className="text-[8px] opacity-80">{quoteText(state.quote.lower)}</div>
+                          <div className="text-xs opacity-80">{quoteText(state.quote.lower)}</div>
                         </div>
                       </Button>
                     </div>
@@ -592,7 +592,7 @@ export default function HiloGame() {
                           onChange={(e) => setAutoCount(Number(e.target.value))}
                           disabled={running}
                         />
-                        <p className="text-[8px] text-muted-foreground">0 = infinite</p>
+                        <p className="text-xs text-muted-foreground">0 = infinite</p>
                       </div>
                     </div>
 
@@ -612,17 +612,17 @@ export default function HiloGame() {
                     </div>
 
                     {!running ? (
-                      <Button className="w-full" onClick={startAuto}>
-                        <Play className="mr-2 "style={{width: '3px', height: '3px'}} />
+                      <Button className="w-full text-sm" onClick={startAuto}>
+                        <Play className="mr-2 w-4 h-4" />
                         Start Autobet
                       </Button>
                     ) : (
                       <Button 
-                        className="w-full" 
+                        className="w-full text-sm" 
                         variant="destructive"
                         onClick={() => { stopFlag.current = true; }}
                       >
-                        <Square className="mr-2 "style={{width: '3px', height: '3px'}} />
+                        <Square className="mr-2 w-4 h-4" />
                         Stop
                       </Button>
                     )}
@@ -634,15 +634,15 @@ export default function HiloGame() {
               <div className="lg:col-span-2 space-y-6">
                 <div className="flex items-center gap-8">
                   <div>
-                    <p className="text-[8px] text-muted-foreground mb-2">Current Card</p>
+                    <p className="text-xs text-muted-foreground mb-2">Current Card</p>
                     <PlayingCard card={state.current} />
                   </div>
                   
                   {state.result && (
                     <>
-                      <div className="text-[10px] text-muted-foreground">→</div>
+                      <div className="text-sm text-muted-foreground">→</div>
                       <div>
-                        <p className="text-[8px] text-muted-foreground mb-2">Next Card</p>
+                        <p className="text-xs text-muted-foreground mb-2">Next Card</p>
                         <PlayingCard card={state.result.next} />
                       </div>
                     </>
@@ -655,24 +655,24 @@ export default function HiloGame() {
                       ? 'bg-green-50 dark:bg-green-950/30 border-green-500' 
                       : 'bg-red-50 dark:bg-red-950/30 border-red-500'
                   }`}>
-                    <div className="font-semibold text-[10px]">
+                    <div className="font-semibold text-base">
                       {state.result.win ? '✓ WIN' : '✗ LOSS'} — {state.result.outcome.toUpperCase()} @ {state.quote[state.result.outcome]?.toFixed(2)}x
                     </div>
-                    <div className="text-[8px] mt-1">
+                    <div className="text-xs mt-1">
                       Payout: {state.result.payout.toFixed(2)} • Profit: {state.result.profit.toFixed(2)} Credits
                     </div>
                   </div>
                 )}
 
                 {state.status === 'settled' && (
-                  <Button onClick={restart}>New Round</Button>
+                  <Button className="text-sm" onClick={restart}>New Round</Button>
                 )}
 
                 <Separator />
 
-                <div className="text-[8px] space-y-1">
+                <div className="text-xs space-y-1">
                   <p className="text-muted-foreground">
-                    Server Seed Hash: <span className="font-mono text-[8px]">{state.serverSeedHash.slice(0, 16)}...</span>
+                    Server Seed Hash: <span className="font-mono text-xs">{state.serverSeedHash.slice(0, 16)}...</span>
                   </p>
                   <p className="text-muted-foreground">
                     Round Nonce: {state.roundNonce}

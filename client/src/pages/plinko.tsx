@@ -615,12 +615,12 @@ export default function PlinkoPage() {
             {/* Game Header */}
             <div className="mb-4">
               <div className="flex justify-between items-center mb-2">
-                <h2 className="text-[10px] font-bold">Plinko</h2>
+                <h2 className="text-base font-bold">Plinko</h2>
                 <div className="flex items-center gap-2">
                   <FavoriteButton gameName="Plinko" />
                   <button
                     onClick={() => setLocation("/")}
-                    className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-[8px]"
+                    className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-sm"
                     data-testid="button-back-casino"
                   >
                     Back to Casino
@@ -635,7 +635,7 @@ export default function PlinkoPage() {
                 <button
                   onClick={() => setTab("manual")}
                   className={cx(
-                    "flex-1 md:flex-initial px-2 py-1 rounded-md text-[8px] font-medium transition",
+                    "flex-1 md:flex-initial px-2 py-1 rounded-md text-sm font-medium transition",
                     tab === "manual" ? "bg-[#2a2a2a] text-white shadow-inner" : "text-gray-400 hover:text-gray-200"
                   )}
                 >
@@ -644,7 +644,7 @@ export default function PlinkoPage() {
                 <button
                   onClick={() => setTab("auto")}
                   className={cx(
-                    "flex-1 md:flex-initial px-2 py-1 rounded-md text-[8px] font-medium transition",
+                    "flex-1 md:flex-initial px-2 py-1 rounded-md text-sm font-medium transition",
                     tab === "auto" ? "bg-[#2a2a2a] text-white shadow-inner" : "text-gray-400 hover:text-gray-200"
                   )}
                 >
@@ -657,16 +657,16 @@ export default function PlinkoPage() {
                 data-testid="button-toggle-audio"
                 title={audioEnabled ? "Mute sounds" : "Unmute sounds"}
               >
-                {audioEnabled ? <Volume2 style={{width: '3px', height: '3px'}} className=" text-gray-400" /> : <VolumeX style={{width: '3px', height: '3px'}} className=" text-gray-400" />}
+                {audioEnabled ? <Volume2 className="w-5 h-5 text-gray-400" /> : <VolumeX className="w-5 h-5 text-gray-400" />}
               </button>
             </div>
 
             {/* Bet Amount */}
             <div className="mt-4 md:mt-6">
-              <div className="flex items-center justify-between text-[8px] text-gray-400 mb-2">
+              <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
                 <span className="inline-flex items-center gap-2">
                   <span>Bet Amount</span>
-                  <span style={{width: '3px', height: '3px'}} className="inline-flex items-center justify-center  text-[10px] rounded-full bg-white/10">i</span>
+                  <span className="inline-flex items-center justify-center w-4 h-4 text-xs rounded-full bg-white/10">i</span>
                 </span>
                 <span>{(Number(bet) || 0).toFixed(2)} Credits</span>
               </div>
@@ -683,19 +683,19 @@ export default function PlinkoPage() {
                   <input
                     value={bet}
                     onChange={(e) => setBet(e.target.value)}
-                    className="w-full h-8 pl-9 pr-3 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-[8px] placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent"
+                    className="w-full h-8 pl-9 pr-3 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent"
                     placeholder="0.00"
                   />
                 </div>
                 <button 
                   onClick={halfBet} 
-                  className="h-8 px-2 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-[8px] hover:bg-[#2a2a2a]"
+                  className="h-8 px-2 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-sm hover:bg-[#2a2a2a]"
                 >
                   ½
                 </button>
                 <button 
                   onClick={doubleBet}
-                  className="h-8 px-2 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-[8px] hover:bg-[#2a2a2a]"
+                  className="h-8 px-2 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-sm hover:bg-[#2a2a2a]"
                 >
                   2×
                 </button>
@@ -704,7 +704,7 @@ export default function PlinkoPage() {
 
             {/* Risk */}
             <div className="mt-4 md:mt-6">
-              <div className="text-[8px] text-gray-400 mb-2">Risk</div>
+              <div className="text-xs text-gray-400 mb-2">Risk</div>
               <div className="flex gap-2 md:gap-3">
                 <RiskPill label="Low" active={risk === "low"} onClick={() => setRisk("low")} />
                 <RiskPill label="Medium" active={risk === "medium"} onClick={() => setRisk("medium")} />
@@ -714,8 +714,8 @@ export default function PlinkoPage() {
 
             {/* Rows slider */}
             <div className="mt-4 md:mt-6">
-              <div className="text-[8px] text-gray-400 mb-2">Rows</div>
-              <div className="text-[8px] mb-2">{rows}</div>
+              <div className="text-xs text-gray-400 mb-2">Rows</div>
+              <div className="text-base mb-2">{rows}</div>
               <input
                 type="range"
                 min={8}
@@ -733,8 +733,8 @@ export default function PlinkoPage() {
             {/* Manual mode controls */}
             {tab === "manual" && (
               <div className="mt-4 md:mt-6">
-                <div className="text-[8px] text-gray-400 mb-2">Manual Mode Active</div>
-                <div className="text-[8px] text-gray-300">Click the bet button below the game board to place your bet.</div>
+                <div className="text-xs text-gray-400 mb-2">Manual Mode Active</div>
+                <div className="text-sm text-gray-300">Click the bet button below the game board to place your bet.</div>
               </div>
             )}
             
@@ -744,13 +744,13 @@ export default function PlinkoPage() {
                 <div className="mt-4 md:mt-6 space-y-4">
                   {/* Number of rounds */}
                   <div>
-                    <label className="text-[8px] text-gray-400">Number of Rounds</label>
+                    <label className="text-xs text-gray-400">Number of Rounds</label>
                     <input
                       type="number"
                       value={autoRounds}
                       onChange={(e) => setAutoRounds(e.target.value)}
                       disabled={autoRunning}
-                      className="w-full h-8 px-2 mt-1 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-[8px]"
+                      className="w-full h-8 px-2 mt-1 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-sm"
                       placeholder="10"
                       min="1"
                       max="1000"
@@ -759,13 +759,13 @@ export default function PlinkoPage() {
                   
                   {/* Stop on win */}
                   <div>
-                    <label className="text-[8px] text-gray-400">Stop on Profit (optional)</label>
+                    <label className="text-xs text-gray-400">Stop on Profit (optional)</label>
                     <input
                       type="number"
                       value={stopOnWin}
                       onChange={(e) => setStopOnWin(e.target.value)}
                       disabled={autoRunning}
-                      className="w-full h-8 px-2 mt-1 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-[8px]"
+                      className="w-full h-8 px-2 mt-1 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-sm"
                       placeholder="0.00"
                       min="0"
                     />
@@ -773,13 +773,13 @@ export default function PlinkoPage() {
                   
                   {/* Stop on loss */}
                   <div>
-                    <label className="text-[8px] text-gray-400">Stop on Loss (optional)</label>
+                    <label className="text-xs text-gray-400">Stop on Loss (optional)</label>
                     <input
                       type="number"
                       value={stopOnLoss}
                       onChange={(e) => setStopOnLoss(e.target.value)}
                       disabled={autoRunning}
-                      className="w-full h-8 px-2 mt-1 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-[8px]"
+                      className="w-full h-8 px-2 mt-1 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-sm"
                       placeholder="0.00"
                       min="0"
                     />
@@ -788,11 +788,11 @@ export default function PlinkoPage() {
                   {/* Auto play stats */}
                   {autoRunning && (
                     <div className="p-3 rounded-lg bg-[#2a2a2a] space-y-2">
-                      <div className="flex justify-between text-[8px]">
+                      <div className="flex justify-between text-xs">
                         <span className="text-gray-400">Round</span>
                         <span className="text-white">{currentAutoRound} / {autoRounds}</span>
                       </div>
-                      <div className="flex justify-between text-[8px]">
+                      <div className="flex justify-between text-xs">
                         <span className="text-gray-400">Total Profit</span>
                         <span className={cx(
                           "font-semibold",
@@ -809,7 +809,7 @@ export default function PlinkoPage() {
                     onClick={autoRunning ? stopAutoPlay : startAutoPlay}
                     disabled={!autoRunning && (!canBet || activeBalls.length > 0)}
                     className={cx(
-                      "h-8 w-full rounded-xl text-[8px] font-semibold transition shadow-sm",
+                      "h-8 w-full rounded-xl text-sm font-semibold transition shadow-sm",
                       autoRunning 
                         ? "bg-red-500 hover:bg-red-600" 
                         : canBet && activeBalls.length === 0
@@ -882,28 +882,28 @@ export default function PlinkoPage() {
                     <input
                       value={bet}
                       onChange={(e) => setBet(e.target.value)}
-                      className="w-full h-8 pl-9 pr-3 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-[8px] placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent"
+                      className="w-full h-8 pl-9 pr-3 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent"
                       placeholder="0.00"
                       data-testid="input-bet-amount"
                     />
                   </div>
                   <button 
                     onClick={halfBet} 
-                    className="h-8 px-2 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-[8px] hover:bg-[#2a2a2a]"
+                    className="h-8 px-2 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-sm hover:bg-[#2a2a2a]"
                     data-testid="button-half-bet"
                   >
                     ½
                   </button>
                   <button 
                     onClick={doubleBet}
-                    className="h-8 px-2 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-[8px] hover:bg-[#2a2a2a]"
+                    className="h-8 px-2 rounded-lg bg-[#0a0a0a] border border-gray-700 text-white text-sm hover:bg-[#2a2a2a]"
                     data-testid="button-double-bet"
                   >
                     2×
                   </button>
                 </div>
                 
-                <div className="text-[8px] text-gray-400 text-center mb-4">
+                <div className="text-xs text-gray-400 text-center mb-4">
                   Balance: {balanceData ? formatCredits(balanceData.available) : '0.00'} Credits
                 </div>
                 
@@ -913,7 +913,7 @@ export default function PlinkoPage() {
                     onClick={handleBet}
                     disabled={!canBet}
                     className={cx(
-                      "h-8 w-full rounded-xl text-[8px] font-semibold transition shadow-lg mt-2",
+                      "h-8 w-full rounded-xl text-sm font-semibold transition shadow-lg mt-2",
                       canBet ? "bg-[#7c3aed] hover:bg-[#6d28d9] text-white" : "bg-[#7c3aed]/40 cursor-not-allowed text-gray-400"
                     )}
                     data-testid="button-bet"
@@ -943,7 +943,7 @@ function RiskPill({
     <button
       onClick={onClick}
       className={cx(
-        "h-8 rounded-md px-2 md:px-2 text-[8px] md:text-[8px] font-medium border border-gray-700 bg-[#0a0a0a]",
+        "h-8 rounded-md px-2 md:px-2 text-sm font-medium border border-gray-700 bg-[#0a0a0a]",
         "transition hover:bg-[#2a2a2a] text-gray-200 flex-1 md:flex-initial",
         active && "bg-[#1a1a1a] text-white border-purple-600"
       )}
@@ -995,7 +995,7 @@ function PegTriangle({
                 boxShadow: 'inset 0 2px 4px rgba(255, 255, 255, 0.5), inset 0 -2px 4px rgba(0, 0, 0, 0.2)'
               }}
             >
-              <div style={{width: '2.5px', height: '2.5px'}} className="absolute top-1 left-1/2 -translate-x-1/2  bg-white/60 rounded-full blur-sm" />
+              <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-white/60 rounded-full blur-sm" />
             </div>
           </div>
         ))}
@@ -1035,13 +1035,11 @@ function PegTriangle({
                   }}
                 >
                   <span 
+                    className="block w-1.5 h-1.5 rounded-full"
                     style={{
-                      width: '2.5px', 
-                      height: '2.5px',
                       background: '#ffffff',
                       boxShadow: '0 0 4px rgba(255, 255, 255, 0.5)'
                     }}
-                    className="block  md:w-2.5 md:h-2.5 rounded-full"
                   />
                 </span>
               ))}
@@ -1090,8 +1088,8 @@ function Chip({
   // Dynamic sizing based on number of chips and screen size
   const chipCount = rows + 1;
   const sizeClass = chipCount > 12 
-    ? "px-1 md:px-1.5 py-1.5 md:py-1 text-[10px] md:text-[8px] min-w-[28px] md:min-w-[35px]" // Smaller for 12+ chips
-    : "px-1.5 md:px-2.5 py-1 md:py-2.5 text-[8px] md:text-[8px] min-w-[35px] md:min-w-[45px]"; // Normal size for fewer chips
+    ? "px-1 md:px-1.5 py-1.5 md:py-1 text-sm min-w-[28px] md:min-w-[35px]" // Smaller for 12+ chips
+    : "px-1.5 md:px-2.5 py-1 md:py-2.5 text-sm min-w-[35px] md:min-w-[45px]"; // Normal size for fewer chips
   
   return (
     <div

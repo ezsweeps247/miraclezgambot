@@ -198,7 +198,7 @@ export default function Slots() {
         {/* Game Header */}
         <div className="mb-4 md:mb-6">
           <div className="flex justify-between items-center mb-2">
-            <h2 className="text-[10px] md:text-[10px] font-bold">Slot Machine</h2>
+            <h2 className="text-lg md:text-xl font-bold">Slot Machine</h2>
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
@@ -206,7 +206,7 @@ export default function Slots() {
                 onClick={() => setAudioEnabled(!audioEnabled)}
                 data-testid="button-toggle-audio"
               >
-                {audioEnabled ? <Volume2 style={{width: '3px', height: '3px'}} className="" /> : <VolumeX style={{width: '3px', height: '3px'}} className="" />}
+                {audioEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
                 <span className="ml-2 hidden md:inline">{audioEnabled ? 'Sound On' : 'Sound Off'}</span>
               </Button>
               <div className="flex items-center gap-2">
@@ -224,7 +224,7 @@ export default function Slots() {
             </div>
           </div>
           <div className="text-center">
-            <p className="text-[8px] md:text-[8px] text-gray-400">5x3 reels with multiple paylines</p>
+            <p className="text-xs md:text-sm text-gray-400">5x3 reels with multiple paylines</p>
           </div>
         </div>
 
@@ -245,7 +245,7 @@ export default function Slots() {
                         }`}
                       >
                         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                        <span className={`relative z-10 text-[10px] sm:text-[10px] md:text-[10px] ${getSymbolStyle(symbol)} ${
+                        <span className={`relative z-10 text-2xl sm:text-3xl md:text-4xl ${getSymbolStyle(symbol)} ${
                           isSpinning ? 'blur-sm' : ''
                         }`}>{symbol}</span>
                         {!isSpinning && (
@@ -259,20 +259,20 @@ export default function Slots() {
               
               {/* Payline Indicators */}
               <div className="flex justify-between mt-2 sm:mt-3 px-1 sm:px-2">
-                <div style={{width: '2.5px', height: '2.5px'}} className=" bg-casino-gold rounded-full animate-pulse" />
-                <div style={{width: '2.5px', height: '2.5px'}} className=" bg-casino-gold rounded-full animate-pulse" />
-                <div style={{width: '2.5px', height: '2.5px'}} className=" bg-casino-gold rounded-full animate-pulse" />
-                <div style={{width: '2.5px', height: '2.5px'}} className=" bg-casino-gold rounded-full animate-pulse" />
-                <div style={{width: '2.5px', height: '2.5px'}} className=" bg-casino-gold rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-casino-gold rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-casino-gold rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-casino-gold rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-casino-gold rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-casino-gold rounded-full animate-pulse" />
               </div>
             </div>
 
             {/* Last Win Display */}
             <div className="text-center mt-2">
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg px-2 py-1 border border-casino-gold/20">
-                <Coins style={{width: '3px', height: '3px'}} className=" text-casino-gold" />
-                <span className="text-[8px] text-gray-400">Last Win:</span>
-                <span className={`font-bold text-[8px] ${
+                <Coins className="w-4 h-4 text-casino-gold" />
+                <span className="text-sm text-gray-400">Last Win:</span>
+                <span className={`font-bold text-base ${
                   lastWin > 0 ? 'text-casino-green animate-pulse' : 'text-gray-500'
                 }`}>
                   {formatCredits(lastWin)}
@@ -285,7 +285,7 @@ export default function Slots() {
           <div className="space-y-3">
             {/* Bet Amount */}
             <div>
-              <label className="block text-[8px] font-medium mb-2">Bet Amount</label>
+              <label className="block text-sm font-medium mb-2">Bet Amount</label>
               <div className="grid grid-cols-3 gap-2">
                 {/* First row - $0.50, $1.00, $5.00 */}
                 {betOptions.slice(0, 3).map((amount) => (
@@ -297,7 +297,7 @@ export default function Slots() {
                       playSound("click");
                       setBetAmount(amount);
                     }}
-                    className={`w-full h-8 text-[8px] ${betAmount === amount ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
+                    className={`w-full h-8 text-sm ${betAmount === amount ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
                   >
                     {formatCredits(amount)}
                   </Button>
@@ -312,7 +312,7 @@ export default function Slots() {
                       playSound("click");
                       setBetAmount(amount);
                     }}
-                    className={`w-full h-8 text-[8px] ${betAmount === amount ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
+                    className={`w-full h-8 text-sm ${betAmount === amount ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
                   >
                     {formatCredits(amount)}
                   </Button>
@@ -328,7 +328,7 @@ export default function Slots() {
                     
                     setBetAmount(Math.min(maxBet, 1000)); // Cap at max bet limit
                   }}
-                  className="w-full h-8 text-[8px]"
+                  className="w-full h-8 text-sm"
                 >
                   MAX
                 </Button>
@@ -345,7 +345,7 @@ export default function Slots() {
                   pulseOnUpdate={true}
                   className="h-3"
                 >
-                  <span className="text-[8px] font-bold text-white">
+                  <span className="text-sm font-bold text-white">
                     🎰 SPINNING REELS...
                   </span>
                 </AnimatedProgressBar>
@@ -358,10 +358,10 @@ export default function Slots() {
                 onClick={handleSpin}
                 disabled={isSpinning || spinMutation.isPending}
                 size="lg"
-                className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-black text-[10px] py-6 disabled:opacity-50 shadow-xl"
+                className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-black text-base py-6 disabled:opacity-50 shadow-xl"
                 data-testid="button-spin"
               >
-                <RotateCcw style={{width: '3px', height: '3px'}} className={`mr-2 ${isSpinning ? 'animate-spin' : ''}`} />
+                <RotateCcw className={`w-5 h-5 mr-2 ${isSpinning ? 'animate-spin' : ''}`} />
                 {isSpinning ? 'Spinning...' : 'SPIN'}
               </Button>
             </div>
@@ -372,12 +372,12 @@ export default function Slots() {
       {/* Paytable */}
       <Card className="bg-gradient-to-b from-gray-900 to-gray-800 border-casino-gold/30 relative z-0">
         <CardContent className="p-4">
-          <h4 className="font-bold mb-3 text-casino-gold text-center text-[10px]">PAYTABLE</h4>
+          <h4 className="font-bold mb-3 text-casino-gold text-center text-base">PAYTABLE</h4>
           <div className="space-y-3">
             <div className="flex justify-between items-center bg-gray-800/50 p-2 rounded">
               <div className="flex gap-1">
                 {[...Array(5)].map((_, i) => (
-                  <span key={i} className="text-cyan-400 text-[10px]">💎</span>
+                  <span key={i} className="text-cyan-400 text-lg">💎</span>
                 ))}
               </div>
               <span className="text-casino-gold font-bold">1000x</span>
@@ -385,7 +385,7 @@ export default function Slots() {
             <div className="flex justify-between items-center bg-gray-800/50 p-2 rounded">
               <div className="flex gap-1">
                 {[...Array(5)].map((_, i) => (
-                  <span key={i} className="text-yellow-500 text-[10px]">🔔</span>
+                  <span key={i} className="text-yellow-500 text-lg">🔔</span>
                 ))}
               </div>
               <span className="text-casino-gold font-bold">500x</span>
@@ -393,7 +393,7 @@ export default function Slots() {
             <div className="flex justify-between items-center bg-gray-800/50 p-2 rounded">
               <div className="flex gap-1">
                 {[...Array(5)].map((_, i) => (
-                  <span key={i} className="text-yellow-300 text-[10px]">⭐</span>
+                  <span key={i} className="text-yellow-300 text-lg">⭐</span>
                 ))}
               </div>
               <span className="text-casino-gold font-bold">250x</span>
@@ -401,7 +401,7 @@ export default function Slots() {
             <div className="flex justify-between items-center bg-gray-800/50 p-2 rounded">
               <div className="flex gap-1">
                 {[...Array(5)].map((_, i) => (
-                  <span key={i} className="text-yellow-400 text-[10px]">🍋</span>
+                  <span key={i} className="text-yellow-400 text-lg">🍋</span>
                 ))}
               </div>
               <span className="text-casino-gold font-bold">100x</span>
@@ -409,7 +409,7 @@ export default function Slots() {
             <div className="flex justify-between items-center bg-gray-800/50 p-2 rounded">
               <div className="flex gap-1">
                 {[...Array(5)].map((_, i) => (
-                  <span key={i} className="text-red-500 text-[10px]">🍒</span>
+                  <span key={i} className="text-red-500 text-lg">🍒</span>
                 ))}
               </div>
               <span className="text-casino-gold font-bold">50x</span>

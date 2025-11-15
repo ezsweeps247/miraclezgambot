@@ -103,10 +103,10 @@ export function GameCanvas({ isMobile = false }: GameCanvasProps) {
       canvasWidth,
       canvasHeight,
       fontSize: {
-        title: Math.floor(28 * baseFontScale * Math.max(scale, 0.7)),
-        button: Math.floor(16 * baseFontScale * Math.max(scale, 0.7)),
-        label: Math.floor(10 * baseFontScale * Math.max(scale, 0.7)),
-        stats: Math.floor(12 * baseFontScale * Math.max(scale, 0.7))
+        title: Math.max(20, Math.floor(28 * baseFontScale * Math.max(scale, 0.7))),
+        button: Math.max(14, Math.floor(16 * baseFontScale * Math.max(scale, 0.7))),
+        label: Math.max(14, Math.floor(10 * baseFontScale * Math.max(scale, 0.7))),
+        stats: Math.max(14, Math.floor(12 * baseFontScale * Math.max(scale, 0.7)))
       }
     });
   }, []);
@@ -297,9 +297,9 @@ export function GameCanvas({ isMobile = false }: GameCanvasProps) {
               transition: 'transform 0.2s'
             }}>
               {soundMode === 'MUTE' ? (
-                <VolumeX size={16 * scale} color="#666" strokeWidth={2} />
+                <VolumeX size={Math.max(16, 16 * scale)} color="#666" strokeWidth={2} />
               ) : (
-                <Volume2 size={16 * scale} color="#666" strokeWidth={2} />
+                <Volume2 size={Math.max(16, 16 * scale)} color="#666" strokeWidth={2} />
               )}
             </div>
           </button>

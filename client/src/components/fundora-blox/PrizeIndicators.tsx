@@ -75,7 +75,7 @@ export function PrizeIndicators({ scale = 1, cellSize: propCellSize }: PrizeIndi
       width: `${170 * scale}px`,
       fontFamily: "'Arial Black', sans-serif",
       fontWeight: 'bold',
-      fontSize: `${13 * scale}px`,
+      fontSize: `${Math.max(14, 13 * scale)}px`,
       transform: 'none',
       transformOrigin: 'right top'
     }}>
@@ -171,7 +171,7 @@ export function PrizeIndicators({ scale = 1, cellSize: propCellSize }: PrizeIndi
                 minWidth: `${65 * scale}px`,
                 textAlign: 'right',
                 opacity: 1,
-                fontSize: `${20 * scale}px`,
+                fontSize: `${Math.max(14, 20 * scale)}px`,
                 letterSpacing: '0.25px',
                 fontWeight: 'bold',
                 WebkitTextStroke: (row >= 10 && !isFreeMode) ? '0.25px rgba(0, 0, 0, 0.4)' : 'none',

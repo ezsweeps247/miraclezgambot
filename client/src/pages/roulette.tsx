@@ -562,7 +562,7 @@ export default function Roulette() {
   return (
     <div className="container mx-auto p-4 max-w-7xl">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-[10px] font-bold text-center bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent flex-1">
+        <h1 className="text-xl font-bold text-center bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent flex-1">
           European Roulette
         </h1>
         <div className="flex items-center gap-2">
@@ -571,13 +571,13 @@ export default function Roulette() {
             className="p-2 rounded-lg bg-[#1a1d1e] border border-gray-700 text-white hover:bg-[#2a2d2e] transition-colors"
             title={audioEnabled ? "Mute sounds" : "Enable sounds"}
           >
-            {audioEnabled ? <Volume2 style={{width: '3px', height: '3px'}} className="" /> : <VolumeX style={{width: '3px', height: '3px'}} className="" />}
+            {audioEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
           </button>
           <div className="flex items-center gap-2">
             <FavoriteButton gameName="Roulette" />
             <button
               onClick={() => setLocation("/")}
-              className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-[8px]"
+              className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-3 py-1.5 rounded-lg text-sm"
               data-testid="button-back-casino"
             >
               Back to Casino
@@ -592,12 +592,12 @@ export default function Roulette() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Recent Numbers */}
             <div>
-              <h3 className="text-[10px] font-semibold mb-2">Recent Numbers</h3>
+              <h3 className="text-base font-semibold mb-2">Recent Numbers</h3>
               <div className="flex gap-2 overflow-x-auto scrollbar-hide">
                 {recentNumbers.map((num, idx) => (
                   <div
                     key={idx}
-                    className={`flex-shrink-0 w-10 h-8 rounded-full flex items-center justify-center text-white font-bold ${
+                    className={`flex-shrink-0 w-12 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${
                       num.color === 'red' ? 'bg-red-600' :
                       num.color === 'black' ? 'bg-gray-900' :
                       'bg-green-600'
@@ -611,13 +611,13 @@ export default function Roulette() {
             
             {/* Spin History */}
             <div>
-              <h3 className="text-[10px] font-semibold mb-2">Your Spin History</h3>
+              <h3 className="text-base font-semibold mb-2">Your Spin History</h3>
               <div className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar pr-2">
                 {history.slice(0, 5).map((spin, idx) => (
                   <div key={idx} className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <div
-                        className={`w-3 h-3 rounded-full flex items-center justify-center text-white text-[8px] font-bold ${
+                        className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold ${
                           spin.color === 'red' ? 'bg-red-600' :
                           spin.color === 'black' ? 'bg-gray-900' :
                           'bg-green-600'
@@ -625,11 +625,11 @@ export default function Roulette() {
                       >
                         {spin.result}
                       </div>
-                      <span className="text-[8px] text-gray-500">
+                      <span className="text-xs text-gray-500">
                         {new Date(spin.createdAt).toLocaleTimeString()}
                       </span>
                     </div>
-                    <div className={`font-bold text-[8px] ${spin.profit > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    <div className={`font-bold text-xs ${spin.profit > 0 ? 'text-green-500' : 'text-red-500'}`}>
                       {spin.profit > 0 ? '+' : ''}{spin.profit}
                     </div>
                   </div>
@@ -643,7 +643,7 @@ export default function Roulette() {
       {/* Animated Roulette Wheel */}
       <Card className="bg-gradient-to-br from-casino-card to-casino-dark mb-4">
         <CardContent className="p-4 sm:p-6 flex flex-col items-center">
-          <h3 className="text-[10px] font-semibold mb-4 text-center">Roulette Wheel</h3>
+          <h3 className="text-base font-semibold mb-4 text-center">Roulette Wheel</h3>
           <RouletteWheel 
             isSpinning={wheelSpinning}
             winningNumber={winningNumber}
@@ -652,8 +652,8 @@ export default function Roulette() {
             canSpin={bets.length > 0 && !isSpinning}
           />
           {isSpinning && !wheelSpinning && (
-            <div className="mt-4 text-center">
-              <Loader2 className="animate-spin inline mr-2" />
+            <div className="mt-4 text-center text-sm">
+              <Loader2 className="animate-spin inline mr-2 w-4 h-4" />
               <span>Placing bets...</span>
             </div>
           )}
@@ -669,11 +669,11 @@ export default function Roulette() {
               onClick={() => spinMutation.mutate()}
               disabled={isSpinning || bets.length === 0}
               variant="golden"
-              className="flex-1 h-8 text-[8px]"
+              className="flex-1 h-10 text-sm"
             >
               {isSpinning ? (
                 <>
-                  <Loader2 className="mr-1  animate-spin"style={{width: '2.5px', height: '2.5px'}} />
+                  <Loader2 className="mr-2 w-4 h-4 animate-spin" />
                   Spinning...
                 </>
               ) : (
@@ -684,7 +684,7 @@ export default function Roulette() {
               onClick={clearBets}
               variant="outline"
               disabled={bets.length === 0 || isSpinning}
-              className="h-8 text-[8px]"
+              className="h-10 text-sm"
             >
               Clear Bets
             </Button>
@@ -697,19 +697,19 @@ export default function Roulette() {
               placeholder="Bet amount"
               value={currentBetAmount}
               onChange={(e) => setCurrentBetAmount(e.target.value)}
-              className="w-32 h-8"
+              className="w-32 h-10 text-sm"
               min="1"
             />
-            <Button onClick={() => setCurrentBetAmount('10')} className="h-8 px-2 text-[8px]">10</Button>
-            <Button onClick={() => setCurrentBetAmount('50')} className="h-8 px-2 text-[8px]">50</Button>
-            <Button onClick={() => setCurrentBetAmount('100')} className="h-8 px-2 text-[8px]">100</Button>
-            <Button onClick={() => setCurrentBetAmount('500')} className="h-8 px-2 text-[8px]">500</Button>
+            <Button onClick={() => setCurrentBetAmount('10')} className="h-10 px-3 text-sm">10</Button>
+            <Button onClick={() => setCurrentBetAmount('50')} className="h-10 px-3 text-sm">50</Button>
+            <Button onClick={() => setCurrentBetAmount('100')} className="h-10 px-3 text-sm">100</Button>
+            <Button onClick={() => setCurrentBetAmount('500')} className="h-10 px-3 text-sm">500</Button>
             
             {/* Advanced Betting Toggle */}
             <Button 
               onClick={() => setShowAdvanced(!showAdvanced)}
               variant="outline"
-              className="ml-auto h-8 text-[8px]"
+              className="ml-auto h-10 text-sm"
             >
               {showAdvanced ? 'Simple Bets' : 'Advanced Bets'}
             </Button>
@@ -721,7 +721,7 @@ export default function Roulette() {
               onClick={rebetPrevious}
               variant="outline"
               disabled={previousBets.length === 0 || isSpinning}
-              className="h-8 text-[8px]"
+              className="h-10 text-sm"
             >
               Rebet
             </Button>
@@ -729,7 +729,7 @@ export default function Roulette() {
               onClick={halfBets}
               variant="outline"
               disabled={bets.length === 0 || isSpinning}
-              className="h-8 text-[8px]"
+              className="h-10 text-sm"
             >
               Half
             </Button>
@@ -737,7 +737,7 @@ export default function Roulette() {
               onClick={doubleBets}
               variant="outline"
               disabled={bets.length === 0 || isSpinning}
-              className="h-8 text-[8px]"
+              className="h-10 text-sm"
             >
               Double
             </Button>
@@ -745,7 +745,7 @@ export default function Roulette() {
               onClick={() => setRemoveMode(!removeMode)}
               variant={removeMode ? "destructive" : "outline"}
               disabled={isSpinning}
-              className="h-8 text-[8px]"
+              className="h-10 text-sm"
             >
               {removeMode ? 'Exit Remove Mode' : 'Remove Bets'}
             </Button>
@@ -757,28 +757,28 @@ export default function Roulette() {
               <Button 
                 variant={selectedBetType === 'split' ? 'default' : 'outline'}
                 onClick={() => setSelectedBetType('split')}
-                className="h-8 text-[8px]"
+                className="h-10 text-sm"
               >
                 Split (17:1)
               </Button>
               <Button 
                 variant={selectedBetType === 'street' ? 'default' : 'outline'}
                 onClick={() => setSelectedBetType('street')}
-                className="h-8 text-[8px]"
+                className="h-10 text-sm"
               >
                 Street (11:1)
               </Button>
               <Button 
                 variant={selectedBetType === 'corner' ? 'default' : 'outline'}
                 onClick={() => setSelectedBetType('corner')}
-                className="h-8 text-[8px]"
+                className="h-10 text-sm"
               >
                 Corner (8:1)
               </Button>
               <Button 
                 variant={selectedBetType === 'line' ? 'default' : 'outline'}
                 onClick={() => setSelectedBetType('line')}
-                className="h-8 text-[8px]"
+                className="h-10 text-sm"
               >
                 Line (5:1)
               </Button>
@@ -795,7 +795,7 @@ export default function Roulette() {
                   placeBet('straight', 0);
                 }
               }}
-              className={`w-full text-white font-bold`}
+              className={`w-full text-white font-bold text-xl h-12`}
               style={{
                 backgroundColor: removeMode ? '#dc2626' : '#059669',
                 color: '#ffffff',
@@ -884,7 +884,7 @@ export default function Roulette() {
                         }
                       }
                     }}
-                    className={`aspect-square text-white w-full font-bold border-0 ${
+                    className={`aspect-square text-white text-base w-full font-bold border-0 ${
                       removeMode ? 'ring-2 ring-red-500' : ''
                     } hover:opacity-80 ${showAdvanced && !removeMode ? 'ring-2 ring-purple-500' : ''}`}
                     style={{
@@ -922,7 +922,7 @@ export default function Roulette() {
           {/* Outside Bets */}
           <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="relative">
-              <Button onClick={() => placeBet('color', 'red')} className="bg-red-600 hover:bg-red-700 w-full text-white font-bold border border-red-700 h-8 text-[8px]">
+              <Button onClick={() => placeBet('color', 'red')} className="bg-red-600 hover:bg-red-700 w-full text-white font-bold border border-red-700 h-10 text-sm">
                 Red
               </Button>
               {getTotalBetAmount('color', 'red') > 0 && (
@@ -939,7 +939,7 @@ export default function Roulette() {
               )}
             </div>
             <div className="relative">
-              <Button onClick={() => placeBet('color', 'black')} className="bg-black hover:bg-gray-900 w-full text-white font-bold border border-gray-700 h-8 text-[8px]">
+              <Button onClick={() => placeBet('color', 'black')} className="bg-black hover:bg-gray-900 w-full text-white font-bold border border-gray-700 h-10 text-sm">
                 Black
               </Button>
               {getTotalBetAmount('color', 'black') > 0 && (
@@ -956,7 +956,7 @@ export default function Roulette() {
               )}
             </div>
             <div className="relative">
-              <Button onClick={() => placeBet('even_odd', 'even')} variant="outline" className="w-full h-8 text-[8px]">
+              <Button onClick={() => placeBet('even_odd', 'even')} variant="outline" className="w-full h-10 text-sm">
                 Even
               </Button>
               {getTotalBetAmount('even_odd', 'even') > 0 && (
@@ -973,7 +973,7 @@ export default function Roulette() {
               )}
             </div>
             <div className="relative">
-              <Button onClick={() => placeBet('even_odd', 'odd')} variant="outline" className="w-full h-8 text-[8px]">
+              <Button onClick={() => placeBet('even_odd', 'odd')} variant="outline" className="w-full h-10 text-sm">
                 Odd
               </Button>
               {getTotalBetAmount('even_odd', 'odd') > 0 && (
@@ -990,7 +990,7 @@ export default function Roulette() {
               )}
             </div>
             <div className="relative">
-              <Button onClick={() => placeBet('high_low', 'low')} variant="outline" className="w-full h-8 text-[8px]">
+              <Button onClick={() => placeBet('high_low', 'low')} variant="outline" className="w-full h-10 text-sm">
                 1-18
               </Button>
               {getTotalBetAmount('high_low', 'low') > 0 && (
@@ -1007,7 +1007,7 @@ export default function Roulette() {
               )}
             </div>
             <div className="relative">
-              <Button onClick={() => placeBet('high_low', 'high')} variant="outline" className="w-full h-8 text-[8px]">
+              <Button onClick={() => placeBet('high_low', 'high')} variant="outline" className="w-full h-10 text-sm">
                 19-36
               </Button>
               {getTotalBetAmount('high_low', 'high') > 0 && (
@@ -1028,7 +1028,7 @@ export default function Roulette() {
           {/* Dozens */}
           <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="relative">
-              <Button onClick={() => placeBet('dozen', 1)} variant="outline" className="w-full h-8 text-[8px]">
+              <Button onClick={() => placeBet('dozen', 1)} variant="outline" className="w-full h-10 text-sm">
                 1st 12
               </Button>
               {getTotalBetAmount('dozen', 1) > 0 && (
@@ -1045,7 +1045,7 @@ export default function Roulette() {
               )}
             </div>
             <div className="relative">
-              <Button onClick={() => placeBet('dozen', 2)} variant="outline" className="w-full h-8 text-[8px]">
+              <Button onClick={() => placeBet('dozen', 2)} variant="outline" className="w-full h-10 text-sm">
                 2nd 12
               </Button>
               {getTotalBetAmount('dozen', 2) > 0 && (
@@ -1062,7 +1062,7 @@ export default function Roulette() {
               )}
             </div>
             <div className="relative">
-              <Button onClick={() => placeBet('dozen', 3)} variant="outline" className="w-full h-8 text-[8px]">
+              <Button onClick={() => placeBet('dozen', 3)} variant="outline" className="w-full h-10 text-sm">
                 3rd 12
               </Button>
               {getTotalBetAmount('dozen', 3) > 0 && (
@@ -1083,7 +1083,7 @@ export default function Roulette() {
           {/* Columns */}
           <div className="grid grid-cols-3 gap-2">
             <div className="relative">
-              <Button onClick={() => placeBet('column', 1)} variant="outline" className="w-full h-8 text-[8px]">
+              <Button onClick={() => placeBet('column', 1)} variant="outline" className="w-full h-10 text-sm">
                 Column 1
               </Button>
               {getTotalBetAmount('column', 1) > 0 && (
@@ -1100,7 +1100,7 @@ export default function Roulette() {
               )}
             </div>
             <div className="relative">
-              <Button onClick={() => placeBet('column', 2)} variant="outline" className="w-full h-8 text-[8px]">
+              <Button onClick={() => placeBet('column', 2)} variant="outline" className="w-full h-10 text-sm">
                 Column 2
               </Button>
               {getTotalBetAmount('column', 2) > 0 && (
@@ -1117,7 +1117,7 @@ export default function Roulette() {
               )}
             </div>
             <div className="relative">
-              <Button onClick={() => placeBet('column', 3)} variant="outline" className="w-full h-8 text-[8px]">
+              <Button onClick={() => placeBet('column', 3)} variant="outline" className="w-full h-10 text-sm">
                 Column 3
               </Button>
               {getTotalBetAmount('column', 3) > 0 && (
@@ -1141,10 +1141,10 @@ export default function Roulette() {
       {bets.length > 0 && (
         <Card className="mb-6">
           <CardContent className="p-4">
-            <h3 className="text-[10px] font-semibold mb-2">Current Bets (Total: {formatCredits(totalBetAmount)})</h3>
-            <div className="space-y-1">
+            <h3 className="text-base font-semibold mb-2">Current Bets (Total: {formatCredits(totalBetAmount)})</h3>
+            <div className="space-y-2">
               {bets.map((bet, idx) => (
-                <div key={idx} className="flex justify-between">
+                <div key={idx} className="flex justify-between text-sm">
                   <span>{bet.type === 'straight' ? `Number ${bet.value}` : `${bet.type}: ${bet.value}`}</span>
                   <span className="font-bold">{bet.amount} credits</span>
                 </div>
@@ -1158,12 +1158,12 @@ export default function Roulette() {
       {lastResult && (
         <Card className="mb-6">
           <CardContent className="p-4">
-            <h3 className="text-[10px] font-semibold mb-2">Last Spin Result</h3>
-            <div className="space-y-2">
+            <h3 className="text-base font-semibold mb-2">Last Spin Result</h3>
+            <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
                 <span>Winning Number:</span>
                 <div
-                  className={`w-10 h-8 rounded-full flex items-center justify-center text-white font-bold ${
+                  className={`w-12 h-10 rounded-full flex items-center justify-center text-white font-bold text-base ${
                     ROULETTE_NUMBERS[lastResult.winningNumber].color === 'red' ? 'bg-red-600' :
                     ROULETTE_NUMBERS[lastResult.winningNumber].color === 'black' ? 'bg-gray-900' :
                     'bg-green-600'
@@ -1175,7 +1175,7 @@ export default function Roulette() {
               <div>Profit: <span className={lastResult.profit > 0 ? 'text-green-500' : 'text-red-500'}>
                 {lastResult.profit > 0 ? '+' : ''}{lastResult.profit} credits
               </span></div>
-              <div className="text-[8px] text-gray-500">
+              <div className="text-xs text-gray-500">
                 <div>Server Seed Hash: {lastResult.serverSeedHash.substring(0, 16)}...</div>
                 <div>Client Seed: {lastResult.clientSeed}</div>
                 <div>Nonce: {lastResult.nonce}</div>

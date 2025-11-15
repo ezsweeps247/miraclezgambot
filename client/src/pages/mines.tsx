@@ -498,9 +498,9 @@ export default function Mines() {
               className="w-full h-full flex items-center justify-center"
             >
               {isMine ? (
-                <Bomb style={{width: '3.5px', height: '2.5px'}} className="md: md:text-red-500" />
+                <Bomb className="w-6 h-6 text-red-500" />
               ) : (
-                <Gem style={{width: '3.5px', height: '2.5px'}} className="md: md:text-green-500" />
+                <Gem className="w-6 h-6 text-green-500" />
               )}
             </motion.div>
           )}
@@ -514,8 +514,8 @@ export default function Mines() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-4 md:mb-6 flex items-center justify-between">
-          <h1 className="text-[10px] md:text-[10px] font-bold flex items-center gap-2">
-            <Shield style={{width: '3px', height: '3px'}} className=" text-purple-500" />
+          <h1 className="text-lg md:text-xl font-bold flex items-center gap-2">
+            <Shield className="w-5 h-5 text-purple-500" />
             Mines
           </h1>
           <div className="flex items-center gap-2">
@@ -526,13 +526,13 @@ export default function Mines() {
               data-testid="button-toggle-audio"
               title={audioEnabled ? "Mute sounds" : "Unmute sounds"}
             >
-              {audioEnabled ? <Volume2 style={{width: '3px', height: '3px'}} className="" /> : <VolumeX style={{width: '3px', height: '3px'}} className="" />}
+              {audioEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </Button>
             <div className="flex items-center gap-2">
               <FavoriteButton gameName="Mines" />
               <button
                 onClick={() => setLocation("/")}
-                className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-[8px]"
+                className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-sm"
                 data-testid="button-back-casino"
               >
                 Back to Casino
@@ -552,21 +552,21 @@ export default function Mines() {
               {/* Multiplier Table */}
               {gameState.multiplierTable.length > 0 && !gameState.gameActive && (
                 <div className="mt-6 p-4 bg-[#0B0D13] rounded-lg">
-                  <h3 className="text-[8px] font-semibold mb-2 text-gray-400">
+                  <h3 className="text-sm font-semibold mb-2 text-gray-400">
                     Multiplier Progression ({gameState.mines} mines)
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {gameState.multiplierTable.slice(0, 10).map((mult, idx) => (
                       <div
                         key={idx}
-                        className="px-2 py-1 bg-[#1A1D24] rounded text-[8px]"
+                        className="px-2 py-1 bg-[#1A1D24] rounded text-xs"
                       >
                         <span className="text-gray-500">{idx + 1}:</span>{" "}
                         <span className="text-yellow-500 font-bold">{mult.toFixed(2)}x</span>
                       </div>
                     ))}
                     {gameState.multiplierTable.length > 10 && (
-                      <div className="px-2 py-1 text-[8px] text-gray-500">
+                      <div className="px-2 py-1 text-xs text-gray-500">
                         +{gameState.multiplierTable.length - 10} more...
                       </div>
                     )}
@@ -581,11 +581,11 @@ export default function Mines() {
                   animate={{ scale: 1, opacity: 1 }}
                   className="mt-6 p-4 bg-green-600/10 border border-green-500 rounded-lg text-center"
                 >
-                  <Trophy style={{width: '3.5px', height: '3.5px'}} className="text-green-500 mx-auto mb-2" />
-                  <p className="text-[10px] font-bold text-green-500">
+                  <Trophy className="w-6 h-6 text-green-500 mx-auto mb-2" />
+                  <p className="text-base font-bold text-green-500">
                     Won {formatCredits(parseFloat(gameState.betAmount) * gameState.currentMultiplier)}!
                   </p>
-                  <p className="text-[8px] text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 mt-1">
                     {gameState.picks} safe tiles × {gameState.currentMultiplier.toFixed(2)}x multiplier
                   </p>
                 </motion.div>
@@ -606,10 +606,10 @@ export default function Mines() {
               
               {/* Bet Amount */}
               <div>
-                <label className="text-[8px] text-gray-400 mb-1 block">Bet Amount</label>
+                <label className="text-sm text-gray-400 mb-1 block">Bet Amount</label>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
-                    <DollarSign style={{width: '3px', height: '3px'}} className="absolute left-2 top-1/2 -translate-y-1/2  text-gray-500" />
+                    <DollarSign className="w-4 h-4 absolute left-2 top-1/2 -translate-y-1/2 text-gray-500" />
                     <Input
                       type="number"
                       value={gameState.betAmount}
@@ -617,7 +617,7 @@ export default function Mines() {
                       className="pl-8 bg-[#0f1212] border-gray-700 text-white"
                       disabled={gameState.gameActive}
                     />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] text-gray-500">
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">
                       {parseFloat(gameState.betAmount).toFixed(2)} Credits
                     </span>
                   </div>
@@ -644,7 +644,7 @@ export default function Mines() {
               
               {/* Mines Selector */}
               <div>
-                <label className="text-[8px] text-gray-400 mb-1 block">Mines</label>
+                <label className="text-sm text-gray-400 mb-1 block">Mines</label>
                 <Select
                   value={gameState.mines.toString()}
                   onValueChange={(v) => setGameState(prev => ({ ...prev, mines: parseInt(v) }))}
@@ -667,23 +667,23 @@ export default function Mines() {
               {/* Game Info */}
               {gameState.gameActive && (
                 <div className="space-y-2 p-3 bg-[#0f1212] rounded-lg">
-                  <div className="flex justify-between text-[8px]">
+                  <div className="flex justify-between text-sm">
                     <span className="text-gray-400">Current Multiplier</span>
                     <span className="font-bold text-green-500">
                       {gameState.currentMultiplier.toFixed(2)}x
                     </span>
                   </div>
-                  <div className="flex justify-between text-[8px]">
+                  <div className="flex justify-between text-sm">
                     <span className="text-gray-400">Potential Win</span>
                     <span className="font-bold">
                       {(parseFloat(gameState.betAmount) * gameState.currentMultiplier).toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between text-[8px]">
+                  <div className="flex justify-between text-sm">
                     <span className="text-gray-400">Safe Tiles Left</span>
                     <span>{gameState.safeRemaining}</span>
                   </div>
-                  <div className="flex justify-between text-[8px]">
+                  <div className="flex justify-between text-sm">
                     <span className="text-gray-400">Next Pick Multiplier</span>
                     <span className="text-yellow-500">
                       {gameState.multiplierTable[gameState.picks]?.toFixed(2) || "MAX"}x
@@ -728,7 +728,7 @@ export default function Mines() {
                   {/* Auto Settings */}
                   <div className="space-y-2">
                     <div>
-                      <label className="text-[8px] text-gray-400">Number of Rounds</label>
+                      <label className="text-sm text-gray-400">Number of Rounds</label>
                       <Input
                         type="number"
                         value={autoRounds}
@@ -740,7 +740,7 @@ export default function Mines() {
                       />
                     </div>
                     <div>
-                      <label className="text-[8px] text-gray-400">Picks per Round</label>
+                      <label className="text-sm text-gray-400">Picks per Round</label>
                       <Input
                         type="number"
                         value={autoPicksPerRound}
@@ -752,7 +752,7 @@ export default function Mines() {
                       />
                     </div>
                     <div>
-                      <label className="text-[8px] text-gray-400">Stop on Profit (multiplier)</label>
+                      <label className="text-sm text-gray-400">Stop on Profit (multiplier)</label>
                       <Input
                         type="number"
                         value={autoStopOnProfit}
@@ -764,7 +764,7 @@ export default function Mines() {
                         step="0.1"
                       />
                     </div>
-                    <label className="flex items-center gap-2 text-[8px]">
+                    <label className="flex items-center gap-2 text-sm">
                       <input
                         type="checkbox"
                         checked={autoStopOnLoss}
@@ -810,7 +810,7 @@ export default function Mines() {
               
               {/* Balance Display */}
               <div className="pt-2 border-t border-gray-700">
-                <div className="flex justify-between text-[8px]">
+                <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Balance</span>
                   <span className="font-bold">{balance?.available?.toFixed(2) || "0.00"}</span>
                 </div>
@@ -820,7 +820,7 @@ export default function Mines() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full text-[8px] text-gray-500 hover:text-gray-300"
+                className="w-full text-xs text-gray-500 hover:text-gray-300"
                 onClick={() => {
                   if (gameState.serverSeedHash) {
                     toast({
@@ -830,7 +830,7 @@ export default function Mines() {
                   }
                 }}
               >
-                <Info style={{width: '3px', height: '3px'}} className=" mr-1" />
+                <Info className="w-4 h-4 mr-1" />
                 Provably Fair
               </Button>
             </CardContent>

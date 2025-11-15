@@ -61,7 +61,7 @@ export function StakeSelector({ scale = 1, fontSize }: StakeSelectorProps) {
           }
         }}
       >
-        <ChevronUp size={18 * scale} color={phase === 'ready' ? '#fff' : '#666'} strokeWidth={3} />
+        <ChevronUp size={Math.max(20, 20 * scale)} color={phase === 'ready' ? '#fff' : '#666'} strokeWidth={3} />
       </button>
       
       <button
@@ -97,7 +97,7 @@ export function StakeSelector({ scale = 1, fontSize }: StakeSelectorProps) {
           }
         }}
       >
-        <ChevronDown size={18 * scale} color={phase === 'ready' ? '#fff' : '#666'} strokeWidth={3} />
+        <ChevronDown size={Math.max(20, 20 * scale)} color={phase === 'ready' ? '#fff' : '#666'} strokeWidth={3} />
       </button>
     </div>
   );

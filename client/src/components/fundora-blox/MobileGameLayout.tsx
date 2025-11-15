@@ -269,7 +269,7 @@ export function MobileGameLayout() {
           position: 'relative',
         }}>
           <div style={{
-            fontSize: '11px',
+            fontSize: '12px',
             color: 'rgba(255, 255, 255, 0.5)',
             fontWeight: '600',
             letterSpacing: '1px',
@@ -327,7 +327,7 @@ export function MobileGameLayout() {
           position: 'relative',
         }}>
           <div style={{
-            fontSize: '11px',
+            fontSize: '12px',
             color: 'rgba(255, 255, 255, 0.5)',
             fontWeight: '600',
             letterSpacing: '1px',
@@ -374,7 +374,7 @@ export function MobileGameLayout() {
           position: 'relative',
         }}>
           <div style={{
-            fontSize: '11px',
+            fontSize: '12px',
             color: 'rgba(255, 255, 255, 0.5)',
             fontWeight: '600',
             letterSpacing: '1px',
@@ -471,7 +471,7 @@ export function MobileGameLayout() {
             {soundMode === 'MUTE' ? <VolumeX size={24} /> : <Volume2 size={24} />}
           </button>
           <div style={{
-            fontSize: '9px',
+            fontSize: '12px',
             color: '#999',
             textAlign: 'center',
           }}>
@@ -534,7 +534,7 @@ export function MobileGameLayout() {
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255,255,255,0.15)',
             }}
           >
-            <ChevronUp size={16} />
+            <ChevronUp size={20} />
           </button>
           <div style={{
             background: 'rgba(255, 255, 255, 0.1)',
@@ -569,7 +569,7 @@ export function MobileGameLayout() {
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255,255,255,0.15)',
             }}
           >
-            <ChevronDown size={16} />
+            <ChevronDown size={20} />
           </button>
         </div>
       </div>
