@@ -519,14 +519,14 @@ export function MobileGameLayout() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '2px',
+          gap: '1px',
         }}>
           <button
             onClick={() => cycleStake('up')}
             disabled={phase !== 'ready'}
             style={{
               width: '50px',
-              height: '25px',
+              height: '20px',
               background: phase === 'ready' 
                 ? 'linear-gradient(145deg, rgba(90,90,95,0.95), rgba(60,60,65,0.95))' 
                 : 'linear-gradient(145deg, #555, #444)',
@@ -561,7 +561,7 @@ export function MobileGameLayout() {
             disabled={phase !== 'ready'}
             style={{
               width: '50px',
-              height: '25px',
+              height: '20px',
               background: phase === 'ready' 
                 ? 'linear-gradient(145deg, rgba(90,90,95,0.95), rgba(60,60,65,0.95))' 
                 : 'linear-gradient(145deg, #555, #444)',
