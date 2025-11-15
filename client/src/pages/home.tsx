@@ -153,7 +153,7 @@ const games = [
     badgeColor: 'bg-red-500',
     tag: 'PUZZLE',
     icon: Boxes,
-    bgImage: '/game-images/mines.png',
+    bgImage: '/game-images/fundora-blox-card-v2.png',
     description: 'Stack blocks to reach higher rows and win bigger prizes! Reach row 13 for 100x!',
     rtp: 98.5,
     category: 'freetoplay' as const

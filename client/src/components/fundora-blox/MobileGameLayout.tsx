@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useGame } from '@/lib/stores/useGame';
 import { useAudio } from '@/lib/stores/useAudio';
@@ -77,7 +77,8 @@ export function MobileGameLayout() {
     canvasHeight: 600,
   });
 
-  useEffect(() => {
+  // Use useLayoutEffect to ensure refs are populated before calculating dimensions
+  useLayoutEffect(() => {
     const calculateDimensions = () => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
@@ -85,8 +86,8 @@ export function MobileGameLayout() {
       // Dynamically measure actual heights of UI panels
       const headerHeight = headerRef.current?.offsetHeight || 60;
       const balanceHeight = balanceRef.current?.offsetHeight || 45;
-      const bottomHeight = bottomRef.current?.offsetHeight || 140;
-      const safetyMargin = 10;
+      const bottomHeight = bottomRef.current?.offsetHeight || 120;
+      const safetyMargin = 15; // Increased safety margin
       
       const reservedHeight = headerHeight + balanceHeight + bottomHeight + safetyMargin;
       const availableHeight = vh - reservedHeight;
@@ -106,11 +107,14 @@ export function MobileGameLayout() {
       setDimensions({ cellSize, cellSpacing, padding, canvasWidth, canvasHeight });
     };
 
-    calculateDimensions();
+    // Small delay to ensure refs are fully populated
+    const timeoutId = setTimeout(calculateDimensions, 0);
+    
     window.addEventListener('resize', calculateDimensions);
     window.addEventListener('orientationchange', calculateDimensions);
     
     return () => {
+      clearTimeout(timeoutId);
       window.removeEventListener('resize', calculateDimensions);
       window.removeEventListener('orientationchange', calculateDimensions);
     };
