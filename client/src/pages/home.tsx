@@ -778,7 +778,7 @@ export default function Home() {
               }`}
               data-testid="tab-originals"
             >
-              <span className="font-semibold tracking-wide text-lg">Originals</span>
+              <span className="font-semibold tracking-wide text-lg"> Originals</span>
             </button>
             
             <div className="w-px bg-gray-700/50 my-1 flex-shrink-0" />
@@ -906,7 +906,6 @@ export default function Home() {
       </section>
       {/* Live Bets Feed */}
       <LiveBetsFeed />
-      
       {/* Smart Contract Wallet Section */}
       <section className="px-4 py-6 bg-[#0a0a0a] border-t border-gray-800">
         <h3 className="text-white text-center mb-6 text-xl font-bold">Smart Contract Wallet</h3>
@@ -964,7 +963,6 @@ export default function Home() {
           </Link>
         </div>
       </section>
-      
       {/* Add slide animation keyframe */}
       <style>{`
         @keyframes slide {
