@@ -49,6 +49,9 @@ function formatNumber(num: number): string {
 export function MobileGameLayout() {
   const [, setLocation] = useLocation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const balanceRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>();
   const lastTimeRef = useRef(Date.now());
   const [showStats, setShowStats] = useState(false);
@@ -79,8 +82,14 @@ export function MobileGameLayout() {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       
-      // Reserve space for top bar (60px), balance bar (45px), and bottom controls (120px)
-      const availableHeight = vh - 225;
+      // Dynamically measure actual heights of UI panels
+      const headerHeight = headerRef.current?.offsetHeight || 60;
+      const balanceHeight = balanceRef.current?.offsetHeight || 45;
+      const bottomHeight = bottomRef.current?.offsetHeight || 140;
+      const safetyMargin = 10;
+      
+      const reservedHeight = headerHeight + balanceHeight + bottomHeight + safetyMargin;
+      const availableHeight = vh - reservedHeight;
       const availableWidth = vw - 20; // 10px padding on each side
       
       // Calculate cell size to fit the game board
@@ -192,7 +201,7 @@ export function MobileGameLayout() {
       backgroundColor: '#2d3748',
     }}>
       {/* Top Bar with Prize Indicator */}
-      <div style={{
+      <div ref={headerRef} style={{
         height: '60px',
         background: 'linear-gradient(180deg, rgba(80,80,85,0.95) 0%, rgba(50,50,55,0.95) 45%, rgba(35,35,40,0.95) 55%, rgba(25,25,30,0.98) 100%)',
         backdropFilter: 'blur(20px) saturate(180%)',
@@ -252,7 +261,7 @@ export function MobileGameLayout() {
       </div>
       
       {/* Balance Bar - Always Visible */}
-      <div style={{
+      <div ref={balanceRef} style={{
         background: 'linear-gradient(135deg, rgba(55,55,60,0.95) 0%, rgba(45,45,50,0.95) 100%)',
         backdropFilter: 'blur(20px) saturate(180%)',
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
@@ -437,7 +446,7 @@ export function MobileGameLayout() {
       </div>
       
       {/* Bottom Control Panel */}
-      <div style={{
+      <div ref={bottomRef} style={{
         height: '120px',
         background: 'linear-gradient(0deg, rgba(80,80,85,0.95) 0%, rgba(50,50,55,0.95) 45%, rgba(35,35,40,0.95) 55%, rgba(25,25,30,0.98) 100%)',
         backdropFilter: 'blur(20px) saturate(180%)',
