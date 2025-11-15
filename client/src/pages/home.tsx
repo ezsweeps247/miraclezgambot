@@ -778,7 +778,7 @@ export default function Home() {
               }`}
               data-testid="tab-originals"
             >
-              <span className="font-semibold tracking-wide text-lg"> Originals</span>
+              <span className="font-semibold tracking-wide text-lg">Originals</span>
             </button>
             
             <div className="w-px bg-gray-700/50 my-1 flex-shrink-0" />
