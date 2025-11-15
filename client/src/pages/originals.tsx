@@ -133,19 +133,19 @@ export default function OriginalsPage() {
         <Button 
           variant="ghost" 
           onClick={() => setLocation('/')}
-          className="text-gray-400 hover:text-white mb-4 rounded-lg"
+          className="text-sm text-gray-400 hover:text-white mb-4 rounded-lg"
           data-testid="button-back-home"
         >
-          <ArrowLeft style={{width: '3.5px', height: '3.5px'}} className="mr-2" />
+          <ArrowLeft className="w-5 h-5 mr-2" />
           Back to Casino
         </Button>
         
         <div className="flex items-center gap-3 mb-2">
-          <Sparkles style={{width: '3px', height: '3px'}} className="text-[#D4AF37]" />
-          <h1 className="text-[10px] md:text-[10px] font-bold text-white">Miraclez Originals</h1>
-          <Crown style={{width: '3px', height: '3px'}} className="text-[#D4AF37]" />
+          <Sparkles className="w-6 h-6 text-[#D4AF37]" />
+          <h1 className="text-2xl md:text-3xl font-bold text-white">Miraclez Originals</h1>
+          <Crown className="w-6 h-6 text-[#D4AF37]" />
         </div>
-        <p className="text-gray-400">Exclusively designed and developed by Miraclez Gaming</p>
+        <p className="text-sm text-gray-400">Exclusively designed and developed by Miraclez Gaming</p>
       </div>
 
       {/* Featured Banner */}
@@ -153,25 +153,25 @@ export default function OriginalsPage() {
         <CardContent className="p-6 md:p-8">
           <div className="text-center">
             <div className="flex justify-center items-center gap-2 mb-4">
-              <Sparkles style={{width: '3.5px', height: '3.5px'}} className="text-[#D4AF37]" />
-              <h2 className="text-[10px] md:text-[10px] font-bold text-white">Exclusive Originals</h2>
-              <Sparkles style={{width: '3.5px', height: '3.5px'}} className="text-[#D4AF37]" />
+              <Sparkles className="w-6 h-6 text-[#D4AF37]" />
+              <h2 className="text-lg md:text-xl font-bold text-white">Exclusive Originals</h2>
+              <Sparkles className="w-6 h-6 text-[#D4AF37]" />
             </div>
-            <p className="text-gray-300 text-[10px] mb-4">
+            <p className="text-sm text-gray-300 mb-4">
               Experience unique games crafted exclusively for Miraclez Gaming. From innovative mechanics 
               to classic reimaginings, these games offer something you won't find anywhere else.
             </p>
-            <div className="flex flex-wrap justify-center gap-4 text-[8px] text-gray-400">
+            <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-400">
               <div className="flex items-center gap-2">
-                <div style={{width: '2.5px', height: '2.5px'}} className="bg-green-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 <span>Provably Fair</span>
               </div>
               <div className="flex items-center gap-2">
-                <div style={{width: '2.5px', height: '2.5px'}} className="bg-[#D4AF37] rounded-full"></div>
+                <div className="w-2 h-2 bg-[#D4AF37] rounded-full"></div>
                 <span>High RTP</span>
               </div>
               <div className="flex items-center gap-2">
-                <div style={{width: '2.5px', height: '2.5px'}} className="bg-purple-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                 <span>Mobile Optimized</span>
               </div>
             </div>
@@ -198,13 +198,13 @@ export default function OriginalsPage() {
                   }}
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 flex items-center justify-center transition-all duration-300">
-                  <Play style={{width: '3.5px', height: '3.5px'}} className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <Play className="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
                 
                 {/* Original Badge */}
                 <div className="absolute top-3 left-3">
-                  <Badge className="bg-gradient-to-r from-[#D4AF37] to-yellow-500 text-black font-semibold">
-                    <Crown style={{width: '3px', height: '3px'}} className="mr-1" />
+                  <Badge className="text-xs bg-gradient-to-r from-[#D4AF37] to-yellow-500 text-black font-semibold">
+                    <Crown className="w-3 h-3 mr-1" />
                     ORIGINAL
                   </Badge>
                 </div>
@@ -212,7 +212,7 @@ export default function OriginalsPage() {
                 {/* Free Badge for Enigma */}
                 {game.rtp === 'FREE' && (
                   <div className="absolute top-3 right-12">
-                    <Badge className="bg-green-500 text-white font-semibold">
+                    <Badge className="text-xs bg-green-500 text-white font-semibold">
                       FREE
                     </Badge>
                   </div>
@@ -230,23 +230,23 @@ export default function OriginalsPage() {
               {/* Game Info */}
               <div className="p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-[10px] font-bold text-white">
+                  <h3 className="text-lg font-bold text-white">
                     {game.displayName}
                   </h3>
                   <Badge 
                     variant="secondary" 
-                    className={`text-[8px] text-white ${getVolatilityColor(game.volatility)}`}
+                    className={`text-xs text-white ${getVolatilityColor(game.volatility)}`}
                   >
                     {game.volatility}
                   </Badge>
                 </div>
                 
-                <p className="text-gray-400 mb-3 text-[8px] line-clamp-2">
+                <p className="text-sm text-gray-400 mb-3 line-clamp-2">
                   {game.description}
                 </p>
                 
                 {/* Game Stats */}
-                <div className="flex items-center justify-between mb-3 text-[8px]">
+                <div className="flex items-center justify-between mb-3 text-xs">
                   <div className="flex items-center gap-1">
                     <span className="text-gray-500">RTP:</span>
                     <span className="text-[#D4AF37] font-semibold">{game.rtp}</span>
@@ -260,10 +260,10 @@ export default function OriginalsPage() {
                 {/* Play Button */}
                 <Button
                   onClick={() => handlePlayGame(game.path)}
-                  className="w-full bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold py-2 transition-all duration-200"
+                  className="w-full text-sm bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold py-2 transition-all duration-200"
                   data-testid={`button-play-${game.id}`}
                 >
-                  <Play style={{width: '3.5px', height: '3.5px'}} className="mr-2" />
+                  <Play className="w-4 h-4 mr-2" />
                   {game.rtp === 'FREE' ? 'Play for Free' : 'Play Now'}
                 </Button>
               </div>
@@ -275,23 +275,23 @@ export default function OriginalsPage() {
       {/* Call to Action */}
       <Card className="mt-12 bg-casino-card border-casino-border">
         <CardContent className="p-8 text-center">
-          <Sparkles style={{width: '4px', height: '4px'}} className="mx-auto mb-4 text-[#D4AF37]" />
-          <h2 className="text-[10px] font-bold mb-4 text-white">More Originals Coming Soon</h2>
-          <p className="text-gray-400 mb-6 max-w-2xl mx-auto">
+          <Sparkles className="w-8 h-8 mx-auto mb-4 text-[#D4AF37]" />
+          <h2 className="text-xl md:text-2xl font-bold mb-4 text-white">More Originals Coming Soon</h2>
+          <p className="text-sm text-gray-400 mb-6 max-w-2xl mx-auto">
             Our team is constantly innovating and creating new gaming experiences. 
             Stay tuned for more exclusive Miraclez originals that will redefine online gaming.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button 
               onClick={() => setLocation('/')}
-              className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold"
+              className="text-sm bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold"
             >
               Explore All Games
             </Button>
             <Button 
               onClick={() => setLocation('/latest')}
               variant="outline"
-              className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black"
+              className="text-sm border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black"
             >
               View Latest Releases
             </Button>

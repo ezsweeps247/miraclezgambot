@@ -334,40 +334,40 @@ export default function ChallengesPage() {
         <div className="flex items-start gap-2">
           <div className={`p-1.5 rounded-full ${challenge.completed ? 'bg-green-500/20' : 'bg-[#D4AF37]/20'}`}>
             {challenge.completed ? (
-              <CheckCircle style={{width: '3px', height: '3px'}} className=" text-green-500" />
+              <CheckCircle className="w-5 h-5 text-green-500" />
             ) : (
-              <challenge.icon style={{width: '3px', height: '3px'}} className=" text-[#D4AF37]" />
+              <challenge.icon className="w-5 h-5 text-[#D4AF37]" />
             )}
           </div>
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1 mb-1">
-              <h3 className="text-[8px] font-semibold text-white truncate">
+              <h3 className="text-sm font-semibold text-white truncate">
                 {challenge.title}
               </h3>
               <Badge 
                 variant="secondary" 
-                className={`text-[8px] px-1 py-0 text-white ${getDifficultyColor(challenge.difficulty)}`}
+                className={`text-xs px-1 py-0 text-white ${getDifficultyColor(challenge.difficulty)}`}
               >
                 {challenge.difficulty.charAt(0).toUpperCase() + challenge.difficulty.slice(1)}
               </Badge>
               {challenge.completed && (
-                <Badge className="bg-green-500 text-white text-[8px] px-1 py-0">
-                  <CheckCircle style={{width: '2.5px', height: '2.5px'}} className=" mr-0.5" />
+                <Badge className="bg-green-500 text-white text-xs px-1 py-0">
+                  <CheckCircle className="w-4 h-4 mr-0.5" />
                   Done
                 </Badge>
               )}
             </div>
             
-            <p className="text-gray-400 mb-2 text-[10px]">
+            <p className="text-gray-400 mb-2 text-sm">
               {challenge.description}
             </p>
             
             {!challenge.completed && (
               <div className="mb-2">
-                <div className="flex justify-between text-[9px] mb-0.5">
-                  <span className="text-[8px] text-gray-400">Progress</span>
-                  <span className="text-[10px] text-white">{challenge.progress}/{challenge.target}</span>
+                <div className="flex justify-between mb-0.5">
+                  <span className="text-xs text-gray-400">Progress</span>
+                  <span className="text-base text-white">{challenge.progress}/{challenge.target}</span>
                 </div>
                 <Progress 
                   value={(challenge.progress / challenge.target) * 100} 
@@ -378,15 +378,15 @@ export default function ChallengesPage() {
             
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1">
-                <Gift style={{width: '3px', height: '3px'}} className=" text-[#D4AF37]" />
-                <span className="text-[#D4AF37] font-medium text-[10px]">
+                <Gift className="w-5 h-5 text-[#D4AF37]" />
+                <span className="text-[#D4AF37] font-medium text-base">
                   {formatReward(challenge.reward)}
                 </span>
               </div>
               
               {challenge.expiresAt && !challenge.completed && (
-                <div className="flex items-center gap-0.5 text-[9px] text-gray-400">
-                  <Clock style={{width: '3px', height: '3px'}} className="" />
+                <div className="flex items-center gap-0.5 text-xs text-gray-400">
+                  <Clock className="w-4 h-4" />
                   {formatTimeRemaining(challenge.expiresAt)}
                 </div>
               )}
@@ -410,24 +410,24 @@ export default function ChallengesPage() {
           <Button 
             variant="ghost" 
             onClick={() => setLocation('/')}
-            className="text-gray-400 hover:text-white mb-4 rounded-lg"
+            className="text-gray-400 hover:text-white mb-4 rounded-lg text-sm"
             data-testid="button-back-home"
           >
-            <ArrowLeft style={{width: '3.5px', height: '3.5px'}} className=" mr-2" />
+            <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Casino
           </Button>
         </div>
 
         <Card className="bg-casino-card border-casino-border">
           <CardContent className="p-8 text-center">
-            <Trophy style={{width: '4px', height: '4px'}} className="mx-auto mb-4 text-gray-500" />
-            <h2 className="text-[10px] font-semibold mb-2 text-white">Sign In Required</h2>
-            <p className="text-gray-400 mb-6">
+            <Trophy className="w-12 h-12 mx-auto mb-4 text-gray-500" />
+            <h2 className="text-lg font-semibold mb-2 text-white">Sign In Required</h2>
+            <p className="text-sm text-gray-400 mb-6">
               Please sign in to view and complete challenges.
             </p>
             <Button 
               onClick={() => setLocation('/')}
-              className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold"
+              className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold text-sm"
               data-testid="button-go-home"
             >
               Go to Home
@@ -449,25 +449,25 @@ export default function ChallengesPage() {
           variant="outline" 
           size="xs"
           onClick={() => setLocation('/')}
-          className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black mb-2 text-[10px] h-6 px-2"
+          className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black mb-2 text-sm h-6 px-2"
           data-testid="button-back-home"
         >
-          <ArrowLeft style={{width: '3px', height: '3px'}} className=" mr-0.5" />
+          <ArrowLeft className="w-5 h-5 mr-0.5" />
           Back
         </Button>
         
         <div className="flex items-center gap-2 mb-1">
-          <Trophy style={{width: '3.5px', height: '3.5px'}} className=" text-[#D4AF37]" />
-          <h1 className="text-[10px] font-bold text-white">Challenges</h1>
+          <Trophy className="w-6 h-6 text-[#D4AF37]" />
+          <h1 className="text-3xl font-bold text-white">Challenges</h1>
         </div>
-        <p className="text-[10px] text-gray-400">Complete challenges to earn rewards</p>
+        <p className="text-sm text-gray-400">Complete challenges to earn rewards</p>
       </div>
 
       {/* Daily Rewards Section */}
       <Card className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border-[#D4AF37]/30 mb-3">
         <CardHeader className="p-3">
-          <CardTitle className="flex items-center gap-1.5 text-white text-[8px]">
-            <Gift style={{width: '3px', height: '3px'}} className=" text-[#D4AF37]" />
+          <CardTitle className="flex items-center gap-1.5 text-white text-base">
+            <Gift className="w-5 h-5 text-[#D4AF37]" />
             Daily Login Rewards
           </CardTitle>
         </CardHeader>
@@ -476,17 +476,17 @@ export default function ChallengesPage() {
           <div className="bg-black/30 rounded-lg p-2 border border-green-500/30">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-1.5">
-                <Flame style={{width: '3px', height: '3px'}} className=" text-green-400" />
-                <span className="text-white font-semibold text-[10px]">GC Streak (Auto)</span>
+                <Flame className="w-5 h-5 text-green-400" />
+                <span className="text-white font-semibold text-sm">GC Streak (Auto)</span>
               </div>
-              <Badge className="bg-green-500/20 text-green-400 border-green-500/50 text-[9px] px-1 py-0">
+              <Badge className="bg-green-500/20 text-green-400 border-green-500/50 text-xs px-1 py-0">
                 {userData?.loginStreak || 0} Days
               </Badge>
             </div>
-            <p className="text-gray-400 text-[9px] mb-1">
+            <p className="text-gray-400 text-sm mb-1">
               Auto reward: 50 GC/day from day 3, max 500 GC.
             </p>
-            <div className="flex items-center gap-1.5 text-[9px]">
+            <div className="flex items-center gap-1.5 text-xs">
               <span className="text-gray-500">Longest:</span>
               <span className="text-white font-medium">{userData?.longestStreak || 0} days</span>
             </div>
@@ -496,14 +496,14 @@ export default function ChallengesPage() {
           <div className="bg-black/30 rounded-lg p-2 border border-[#D4AF37]/30">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-1.5">
-                <Zap style={{width: '3px', height: '3px'}} className=" text-[#D4AF37]" />
-                <span className="text-white font-semibold text-[10px]">Daily Wheel Spinner</span>
+                <Zap className="w-5 h-5 text-[#D4AF37]" />
+                <span className="text-white font-semibold text-sm">Daily Wheel Spinner</span>
               </div>
-              <Badge className="bg-[#D4AF37]/20 text-[#D4AF37] border-[#D4AF37]/50 text-[9px] px-1 py-0">
+              <Badge className="bg-[#D4AF37]/20 text-[#D4AF37] border-[#D4AF37]/50 text-xs px-1 py-0">
                 Daily Bonus
               </Badge>
             </div>
-            <p className="text-gray-400 text-[9px] mb-2 text-center">
+            <p className="text-gray-400 text-sm mb-2 text-center">
               Spin once per day for random rewards!
             </p>
             <div className="flex justify-center" data-testid="wheel-spinner-container">
@@ -513,7 +513,7 @@ export default function ChallengesPage() {
                 disabled={userData?.lastWheelSpinDate === new Date().toISOString().split('T')[0]}
               />
             </div>
-            <p className="text-[8px] text-center text-gray-500 mt-2">
+            <p className="text-xs text-center text-gray-500 mt-2">
               Prizes: 25-500 GC or 1-25 SC
             </p>
           </div>
@@ -528,9 +528,9 @@ export default function ChallengesPage() {
             data-testid="tab-daily-challenges"
           >
             <div className="flex items-center gap-1 w-full justify-center">
-              <Calendar className="w-3 h-3" />
-              <span className="text-[10px] font-medium">Daily</span>
-              <Badge variant="secondary" className="text-[8px] px-1 py-0">
+              <Calendar className="w-5 h-5" />
+              <span className="text-sm font-medium">Daily</span>
+              <Badge variant="secondary" className="text-xs px-1 py-0">
                 {dailyStats.completed}/{dailyStats.total}
               </Badge>
             </div>
@@ -541,9 +541,9 @@ export default function ChallengesPage() {
             data-testid="tab-weekly-challenges"
           >
             <div className="flex items-center gap-1 w-full justify-center">
-              <Flame className="w-3 h-3" />
-              <span className="text-[10px] font-medium">Weekly</span>
-              <Badge variant="secondary" className="text-[8px] px-1 py-0">
+              <Flame className="w-5 h-5" />
+              <span className="text-sm font-medium">Weekly</span>
+              <Badge variant="secondary" className="text-xs px-1 py-0">
                 {weeklyStats.completed}/{weeklyStats.total}
               </Badge>
             </div>
@@ -554,9 +554,9 @@ export default function ChallengesPage() {
             data-testid="tab-achievements"
           >
             <div className="flex items-center gap-1 w-full justify-center">
-              <Trophy className="w-3 h-3" />
-              <span className="text-[10px] font-medium">Achieve</span>
-              <Badge variant="secondary" className="text-[8px] px-1 py-0">
+              <Trophy className="w-5 h-5" />
+              <span className="text-sm font-medium">Achieve</span>
+              <Badge variant="secondary" className="text-xs px-1 py-0">
                 {achievementStats.completed}/{achievementStats.total}
               </Badge>
             </div>
@@ -565,8 +565,8 @@ export default function ChallengesPage() {
 
         <TabsContent value="daily" className="mt-3">
           <div className="mb-2">
-            <h2 className="text-[8px] font-semibold text-white mb-1">Daily Challenges</h2>
-            <p className="text-[9px] text-gray-400">Reset every day at midnight UTC</p>
+            <h2 className="text-lg font-semibold text-white mb-1">Daily Challenges</h2>
+            <p className="text-sm text-gray-400">Reset every day at midnight UTC</p>
           </div>
           <div className="grid gap-2 md:grid-cols-2">
             {dailyChallenges.map(renderChallenge)}
@@ -575,8 +575,8 @@ export default function ChallengesPage() {
 
         <TabsContent value="weekly" className="mt-3">
           <div className="mb-2">
-            <h2 className="text-[8px] font-semibold text-white mb-1">Weekly Challenges</h2>
-            <p className="text-[9px] text-gray-400">Reset every Monday at midnight UTC</p>
+            <h2 className="text-lg font-semibold text-white mb-1">Weekly Challenges</h2>
+            <p className="text-sm text-gray-400">Reset every Monday at midnight UTC</p>
           </div>
           <div className="grid gap-2 md:grid-cols-2">
             {weeklyChallenges.map(renderChallenge)}
@@ -585,8 +585,8 @@ export default function ChallengesPage() {
 
         <TabsContent value="achievements" className="mt-3">
           <div className="mb-2">
-            <h2 className="text-[8px] font-semibold text-white mb-1">Achievements</h2>
-            <p className="text-[9px] text-gray-400">Permanent challenges that unlock special rewards</p>
+            <h2 className="text-lg font-semibold text-white mb-1">Achievements</h2>
+            <p className="text-sm text-gray-400">Permanent challenges that unlock special rewards</p>
           </div>
           <div className="grid gap-2 md:grid-cols-2">
             {achievements.map(renderChallenge)}
@@ -597,28 +597,28 @@ export default function ChallengesPage() {
       {/* Summary Stats */}
       <Card className="mt-4 bg-casino-card border-casino-border">
         <CardHeader className="p-3">
-          <CardTitle className="text-center text-white text-[8px]">Your Challenge Progress</CardTitle>
+          <CardTitle className="text-center text-white text-lg">Your Challenge Progress</CardTitle>
         </CardHeader>
         <CardContent className="p-3 pt-0">
           <div className="grid grid-cols-3 gap-2 text-center">
             <div>
-              <div className="text-[10px] font-bold text-[#D4AF37] mb-0.5">
+              <div className="text-base font-bold text-[#D4AF37] mb-0.5">
                 {dailyStats.completed + weeklyStats.completed + achievementStats.completed}
               </div>
-              <div className="text-[9px] text-gray-400">Total Completed</div>
+              <div className="text-xs text-gray-400">Total Completed</div>
             </div>
             <div>
-              <div className="text-[10px] font-bold text-[#D4AF37] mb-0.5">
+              <div className="text-base font-bold text-[#D4AF37] mb-0.5">
                 {dailyStats.total + weeklyStats.total + achievementStats.total}
               </div>
-              <div className="text-[9px] text-gray-400">Total Available</div>
+              <div className="text-xs text-gray-400">Total Available</div>
             </div>
             <div>
-              <div className="text-[10px] font-bold text-[#D4AF37] mb-0.5">
+              <div className="text-base font-bold text-[#D4AF37] mb-0.5">
                 {Math.round(((dailyStats.completed + weeklyStats.completed + achievementStats.completed) / 
                 (dailyStats.total + weeklyStats.total + achievementStats.total)) * 100)}%
               </div>
-              <div className="text-[9px] text-gray-400">Completion Rate</div>
+              <div className="text-xs text-gray-400">Completion Rate</div>
             </div>
           </div>
         </CardContent>

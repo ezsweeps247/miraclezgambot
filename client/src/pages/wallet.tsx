@@ -347,9 +347,9 @@ export default function Wallet() {
   const getCurrencyIcon = (currency: string) => {
     switch (currency) {
       case 'BTC':
-        return <Bitcoin style={{width: '3px', height: '3px'}} className=" text-orange-500" />;
+        return <Bitcoin className="w-5 h-5 text-orange-500" />;
       default:
-        return <DollarSign style={{width: '3px', height: '3px'}} className=" text-green-500" />;
+        return <DollarSign className="w-5 h-5 text-green-500" />;
     }
   };
 
@@ -396,8 +396,8 @@ export default function Wallet() {
       <div className="relative z-10">
       {/* Wallet Header */}
       <div className="text-center mb-6">
-        <h2 className="text-[10px] font-bold mb-2">Wallet</h2>
-        <p className="text-casino-text">Manage your casino balance</p>
+        <h2 className="text-3xl font-bold mb-2">Wallet</h2>
+        <p className="text-casino-text text-sm">Manage your casino balance</p>
       </div>
 
       {/* Liquid Animated Balance Card */}
@@ -418,8 +418,8 @@ export default function Wallet() {
       {/* Daily Rewards Section */}
       <Card className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border-[#D4AF37]/30 mb-6">
         <CardHeader>
-          <CardTitle className="text-[10px] flex items-center gap-2 text-white">
-            <Gift style={{width: '3px', height: '3px'}} className=" text-[#D4AF37]" />
+          <CardTitle className="text-lg flex items-center gap-2 text-white">
+            <Gift className="w-5 h-5 text-[#D4AF37]" />
             Daily Rewards
           </CardTitle>
         </CardHeader>
@@ -428,17 +428,17 @@ export default function Wallet() {
           <div className="bg-black/30 rounded-lg p-4 border border-green-500/30">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <Flame style={{width: '3px', height: '3px'}} className=" text-green-400" />
-                <span className="text-[10px] text-white font-semibold">GC Streak (Automatic)</span>
+                <Flame className="w-5 h-5 text-green-400" />
+                <span className="text-sm text-white font-semibold">GC Streak (Automatic)</span>
               </div>
-              <Badge className="bg-green-500/20 text-green-400 border-green-500/50">
+              <Badge className="bg-green-500/20 text-green-400 border-green-500/50 text-xs">
                 {userData?.loginStreak || 0} Days
               </Badge>
             </div>
-            <p className="text-gray-400 text-[8px] mb-2">
+            <p className="text-gray-400 text-xs mb-2">
               Awarded automatically when you log in. 50 GC/day from day 3, max 500 GC.
             </p>
-            <div className="flex items-center gap-2 text-[8px]">
+            <div className="flex items-center gap-2 text-xs">
               <span className="text-gray-500">Longest:</span>
               <span className="text-white font-medium">{userData?.longestStreak || 0} days</span>
             </div>
@@ -448,25 +448,25 @@ export default function Wallet() {
           <div className="bg-black/30 rounded-lg p-4 border border-purple-500/30">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <Crown style={{width: '3px', height: '3px'}} className=" text-purple-400" />
-                <span className="text-white font-semibold">SC Streak (Claim Required)</span>
+                <Crown className="w-5 h-5 text-purple-400" />
+                <span className="text-sm text-white font-semibold">SC Streak (Claim Required)</span>
               </div>
-              <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/50">
+              <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/50 text-xs">
                 {userData?.scStreakCount || 0} Days
               </Badge>
             </div>
-            <p className="text-gray-400 text-[8px] mb-3">
+            <p className="text-gray-400 text-xs mb-3">
               Click to claim your daily SC reward. 50 SC/day from day 3, max 500 SC.
             </p>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-[8px]">
+              <div className="flex items-center gap-2 text-xs">
                 <span className="text-gray-500">Longest:</span>
                 <span className="text-white font-medium">{userData?.longestScStreak || 0} days</span>
               </div>
               <Button
                 onClick={() => claimScStreakMutation.mutate()}
                 disabled={claimScStreakMutation.isPending || userData?.lastScClaimDate === new Date().toISOString().split('T')[0]}
-                className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold disabled:opacity-50"
+                className="bg-[#D4AF37] hover:bg-[#B8941F] text-black text-sm font-semibold disabled:opacity-50"
                 data-testid="button-claim-sc-streak-wallet"
               >
                 {claimScStreakMutation.isPending ? 'Claiming...' : userData?.lastScClaimDate === new Date().toISOString().split('T')[0] ? 'Claimed Today' : 'Claim SC Reward'}
@@ -486,10 +486,10 @@ export default function Wallet() {
           </DialogTrigger>
           <DialogContent className="bg-casino-card border-casino-accent max-w-md">
             <DialogHeader>
-              <DialogTitle className="text-white">Deposit Cryptocurrency</DialogTitle>
+              <DialogTitle className="text-white text-lg">Deposit Cryptocurrency</DialogTitle>
             </DialogHeader>
             <div className="p-4">
-              <p className="text-casino-text">Deposit feature coming soon.</p>
+              <p className="text-casino-text text-sm">Deposit feature coming soon.</p>
             </div>
           </DialogContent>
         </Dialog>
@@ -502,10 +502,10 @@ export default function Wallet() {
           </DialogTrigger>
           <DialogContent className="bg-casino-card border-casino-accent max-w-md">
             <DialogHeader>
-              <DialogTitle className="text-white">Withdraw Cryptocurrency</DialogTitle>
+              <DialogTitle className="text-white text-lg">Withdraw Cryptocurrency</DialogTitle>
             </DialogHeader>
             <div className="p-4">
-              <p className="text-casino-text">Withdrawal feature coming soon.</p>
+              <p className="text-casino-text text-sm">Withdrawal feature coming soon.</p>
             </div>
           </DialogContent>
         </Dialog>
@@ -519,17 +519,17 @@ export default function Wallet() {
       {/* Crypto Wallets */}
       <Card className="bg-casino-card border-casino-accent mb-6">
         <CardHeader>
-          <CardTitle className="text-white flex items-center">
-            <Bitcoin style={{width: '3px', height: '3px'}} className=" mr-2" />
+          <CardTitle className="text-white text-lg flex items-center">
+            <Bitcoin className="w-5 h-5 mr-2" />
             Cryptocurrency Wallets
           </CardTitle>
         </CardHeader>
         <CardContent>
           {!cryptoWallets || cryptoWallets.length === 0 ? (
             <div className="text-center py-6">
-              <Bitcoin style={{width: '3.5px', height: '3.5px'}} className="text-casino-text mx-auto mb-4 opacity-50" />
-              <p className="text-casino-text mb-4">Connect Your Crypto Wallet</p>
-              <p className="text-[8px] text-casino-text/70 mb-4">Connect MetaMask, Trust Wallet, or other popular wallets</p>
+              <Bitcoin className="w-12 h-12 text-casino-text mx-auto mb-4 opacity-50" />
+              <p className="text-casino-text text-sm mb-4">Connect Your Crypto Wallet</p>
+              <p className="text-xs text-casino-text/70 mb-4">Connect MetaMask, Trust Wallet, or other popular wallets</p>
               <Button
                 onClick={() => setShowWalletDialog(true)}
                 variant="default"
@@ -546,8 +546,8 @@ export default function Wallet() {
                     <div className="flex items-center space-x-3">
                       {getCurrencyIcon(wallet.currency)}
                       <div>
-                        <div className="text-white font-medium">{wallet.currency}</div>
-                        <div className="text-casino-text text-[8px]">Balance: {wallet.balance}</div>
+                        <div className="text-white font-medium text-sm">{wallet.currency}</div>
+                        <div className="text-casino-text text-xs">Balance: {wallet.balance}</div>
                       </div>
                     </div>
                   </div>
@@ -555,14 +555,14 @@ export default function Wallet() {
                     <Input
                       value={wallet.address}
                       readOnly
-                      className="bg-casino-card border-casino-accent/30 text-casino-text text-[8px]"
+                      className="bg-casino-card border-casino-accent/30 text-casino-text text-sm"
                     />
                     <Button
                       size="sm"
                       onClick={() => copyToClipboard(wallet.address)}
                       variant="outline"
                     >
-                      <Copy style={{width: '3.5px', height: '3.5px'}} className="" />
+                      <Copy className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
@@ -582,13 +582,13 @@ export default function Wallet() {
         <TabsContent value="deposits">
           <Card className="bg-casino-card border-casino-accent">
             <CardHeader>
-              <CardTitle className="text-white">Recent Deposits</CardTitle>
+              <CardTitle className="text-white text-lg">Recent Deposits</CardTitle>
             </CardHeader>
             <CardContent>
               {!cryptoDeposits || cryptoDeposits.length === 0 ? (
                 <div className="text-center py-6">
-                  <Plus style={{width: '3.5px', height: '3.5px'}} className="text-casino-text mx-auto mb-4 opacity-50" />
-                  <p className="text-casino-text">No deposits yet</p>
+                  <Plus className="w-12 h-12 text-casino-text mx-auto mb-4 opacity-50" />
+                  <p className="text-casino-text text-sm">No deposits yet</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -598,17 +598,17 @@ export default function Wallet() {
                         <div className="flex items-center space-x-3">
                           {getCurrencyIcon(deposit.currency)}
                           <div>
-                            <div className="text-white font-medium">
+                            <div className="text-white font-medium text-sm">
                               {deposit.amount} {deposit.currency}
                             </div>
-                            <div className="text-casino-text text-[8px]">
+                            <div className="text-casino-text text-xs">
                               {deposit.creditsAmount ? `≈ ${deposit.creditsAmount} Credits` : 'Processing...'}
                             </div>
                           </div>
                         </div>
                         <div className="text-right">
                           {getStatusBadge(deposit.status)}
-                          <div className="text-casino-text text-[8px] mt-1">
+                          <div className="text-casino-text text-xs mt-1">
                             {formatTimeAgo(deposit.createdAt)}
                           </div>
                         </div>
@@ -618,14 +618,14 @@ export default function Wallet() {
                           <Input
                             value={deposit.txHash}
                             readOnly
-                            className="bg-casino-card border-casino-accent/30 text-casino-text text-[8px]"
+                            className="bg-casino-card border-casino-accent/30 text-casino-text text-sm"
                           />
                           <Button
                             size="sm"
                             onClick={() => copyToClipboard(deposit.txHash!)}
                             className="bg-casino-accent hover:bg-casino-accent/80"
                           >
-                            <Copy style={{width: '3.5px', height: '3.5px'}} className="" />
+                            <Copy className="w-4 h-4" />
                           </Button>
                         </div>
                       )}
@@ -640,13 +640,13 @@ export default function Wallet() {
         <TabsContent value="withdrawals">
           <Card className="bg-casino-card border-casino-accent">
             <CardHeader>
-              <CardTitle className="text-white">Recent Withdrawals</CardTitle>
+              <CardTitle className="text-white text-lg">Recent Withdrawals</CardTitle>
             </CardHeader>
             <CardContent>
               {!cryptoWithdrawals || cryptoWithdrawals.length === 0 ? (
                 <div className="text-center py-6">
-                  <Minus style={{width: '3.5px', height: '3.5px'}} className="text-casino-text mx-auto mb-4 opacity-50" />
-                  <p className="text-casino-text">No withdrawals yet</p>
+                  <Minus className="w-12 h-12 text-casino-text mx-auto mb-4 opacity-50" />
+                  <p className="text-casino-text text-sm">No withdrawals yet</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -656,22 +656,22 @@ export default function Wallet() {
                         <div className="flex items-center space-x-3">
                           {getCurrencyIcon(withdrawal.currency)}
                           <div>
-                            <div className="text-white font-medium">
+                            <div className="text-white font-medium text-sm">
                               {withdrawal.amount} {withdrawal.currency}
                             </div>
-                            <div className="text-casino-text text-[8px]">
+                            <div className="text-casino-text text-xs">
                               {withdrawal.creditsAmount} Credits
                             </div>
                           </div>
                         </div>
                         <div className="text-right">
                           {getStatusBadge(withdrawal.status)}
-                          <div className="text-casino-text text-[8px] mt-1">
+                          <div className="text-casino-text text-xs mt-1">
                             {formatTimeAgo(withdrawal.createdAt)}
                           </div>
                         </div>
                       </div>
-                      <div className="text-casino-text text-[8px]">
+                      <div className="text-casino-text text-xs">
                         To: {withdrawal.toAddress.substring(0, 20)}...
                         {withdrawal.networkFee && ` • Fee: ${withdrawal.networkFee} ${withdrawal.currency}`}
                       </div>
@@ -710,9 +710,9 @@ export default function Wallet() {
           
           {!transactions || transactions.length === 0 ? (
             <div className="text-center py-8">
-              <WalletIcon style={{width: '3.5px', height: '3.5px'}} className="text-casino-text mx-auto mb-4 opacity-50" />
-              <div className="text-casino-text">No transactions yet</div>
-              <div className="text-[8px] text-casino-text mt-1">
+              <WalletIcon className="w-12 h-12 text-casino-text mx-auto mb-4 opacity-50" />
+              <div className="text-casino-text text-sm">No transactions yet</div>
+              <div className="text-xs text-casino-text mt-1">
                 Start playing to see your transaction history
               </div>
             </div>
@@ -728,24 +728,24 @@ export default function Wallet() {
                       {getTransactionIcon(transaction.type, transaction.meta?.game)}
                     </div>
                     <div>
-                      <div className="font-medium">
+                      <div className="font-medium text-sm">
                         {getTransactionTitle(transaction.type, transaction.meta?.game, transaction.meta)}
                       </div>
-                      <div className="text-[8px] text-casino-text flex items-center">
-                        <Clock style={{width: '3px', height: '3px'}} className="mr-1" />
+                      <div className="text-xs text-casino-text flex items-center">
+                        <Clock className="w-4 h-4 mr-1" />
                         {formatTimeAgo(transaction.createdAt)}
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className={`font-bold ${
+                    <div className={`font-bold text-sm ${
                       transaction.amount >= 0 ? 'text-casino-green' : 'text-casino-red'
                     }`}>
                       {transaction.amount >= 0 ? '+' : ''}
                       {transaction.amount.toFixed(2)}
                     </div>
-                    <div className="text-[8px] text-casino-text flex items-center justify-end">
-                      <CheckCircle style={{width: '3px', height: '3px'}} className="mr-1" />
+                    <div className="text-xs text-casino-text flex items-center justify-end">
+                      <CheckCircle className="w-4 h-4 mr-1" />
                       Completed
                     </div>
                   </div>
@@ -773,8 +773,8 @@ export default function Wallet() {
             className="w-full bg-casino-card border border-casino-accent/30 text-white font-medium py-4 hover:bg-casino-accent hover:border-casino-accent transition-colors flex flex-col items-center justify-center gap-2"
             data-testid="button-provably-fair"
           >
-            <Shield style={{width: '3px', height: '3px'}} className=" text-casino-green" />
-            <span className="text-[8px]">Provably Fair</span>
+            <Shield className="w-5 h-5 text-casino-green" />
+            <span className="text-xs">Provably Fair</span>
           </Button>
         </Link>
 
@@ -783,8 +783,8 @@ export default function Wallet() {
             className="w-full bg-casino-card border border-casino-accent/30 text-white font-medium py-4 hover:bg-casino-accent hover:border-casino-accent transition-colors flex flex-col items-center justify-center gap-2"
             data-testid="button-redeem"
           >
-            <Gift style={{width: '3px', height: '3px'}} className=" text-golden" />
-            <span className="text-[8px]">Redeem</span>
+            <Gift className="w-5 h-5 text-golden" />
+            <span className="text-xs">Redeem</span>
           </Button>
         </Link>
 
@@ -793,8 +793,8 @@ export default function Wallet() {
             className="w-full bg-casino-card border border-casino-accent/30 text-white font-medium py-4 hover:bg-casino-accent hover:border-casino-accent transition-colors flex flex-col items-center justify-center gap-2"
             data-testid="button-recharge"
           >
-            <Plus style={{width: '3px', height: '3px'}} className=" text-casino-neon" />
-            <span className="text-[8px]">Recharge</span>
+            <Plus className="w-5 h-5 text-casino-neon" />
+            <span className="text-xs">Recharge</span>
           </Button>
         </Link>
       </div>
@@ -804,11 +804,11 @@ export default function Wallet() {
         <Link href="/">
           <Button 
             variant="outline" 
-            size="xs" 
-            className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-colors rounded-lg"
+            size="sm" 
+            className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-colors rounded-lg text-sm"
             data-testid="button-back-home-wallet"
           >
-            <ArrowLeft className=" mr-1"style={{width: '2.5px', height: '2.5px'}} />
+            <ArrowLeft className="w-4 h-4 mr-1" />
             Back to Home
           </Button>
         </Link>
@@ -840,17 +840,17 @@ export default function Wallet() {
         </div>
 
         <div className="space-y-2">
-          <Label className="text-casino-text">Amount ({selectedCurrency})</Label>
+          <Label className="text-casino-text text-sm">Amount ({selectedCurrency})</Label>
           <Input
             type="number"
             step="0.00000001"
             placeholder="0.00000000"
             value={depositAmount}
             onChange={(e) => setDepositAmount(e.target.value)}
-            className="bg-casino-dark border-casino-accent/30 text-white"
+            className="bg-casino-dark border-casino-accent/30 text-white text-sm"
           />
           {depositAmount && (
-            <div className="text-casino-text text-[8px]">
+            <div className="text-casino-text text-xs">
               ≈ {calculateCredits(depositAmount, selectedCurrency)} Credits
             </div>
           )}
@@ -858,16 +858,16 @@ export default function Wallet() {
 
         {exchangeRates && (
           <div className="bg-casino-dark p-3 rounded-lg">
-            <div className="text-casino-text text-[8px] mb-2">Current Rate</div>
-            <div className="text-white font-medium">
+            <div className="text-casino-text text-xs mb-2">Current Rate</div>
+            <div className="text-white font-medium text-sm">
               1 {selectedCurrency} = {getCurrentRate(selectedCurrency).toFixed(2)} Credits
             </div>
           </div>
         )}
 
         <Alert className="border-blue-500 bg-blue-500/10">
-          <Info className=""style={{width: '3px', height: '3px'}} />
-          <AlertDescription className="text-blue-300 text-[8px]">
+          <Info className="w-5 h-5" />
+          <AlertDescription className="text-blue-300 text-xs">
             After clicking deposit, you'll receive a unique address to send your {selectedCurrency} to. 
             Credits will be added to your account after network confirmation.
           </AlertDescription>
@@ -898,7 +898,7 @@ export default function Wallet() {
     return (
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label className="text-casino-text">Select Cryptocurrency</Label>
+          <Label className="text-casino-text text-sm">Select Cryptocurrency</Label>
           <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
             <SelectTrigger className="bg-casino-dark border-casino-accent/30">
               <SelectValue />
@@ -917,27 +917,27 @@ export default function Wallet() {
         </div>
 
         <div className="space-y-2">
-          <Label className="text-casino-text">Withdrawal Address</Label>
+          <Label className="text-casino-text text-sm">Withdrawal Address</Label>
           <Input
             placeholder="Enter destination address"
             value={withdrawAddress}
             onChange={(e) => setWithdrawAddress(e.target.value)}
-            className="bg-casino-dark border-casino-accent/30 text-white"
+            className="bg-casino-dark border-casino-accent/30 text-white text-sm"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="text-casino-text">Amount (Credits)</Label>
+          <Label className="text-casino-text text-sm">Amount (Credits)</Label>
           <Input
             type="number"
             step="0.01"
             placeholder="0.00"
             value={withdrawAmount}
             onChange={(e) => setWithdrawAmount(e.target.value)}
-            className="bg-casino-dark border-casino-accent/30 text-white"
+            className="bg-casino-dark border-casino-accent/30 text-white text-sm"
           />
           {withdrawAmount && (
-            <div className="text-casino-text text-[8px]">
+            <div className="text-casino-text text-xs">
               ≈ {calculateCrypto(withdrawAmount, selectedCurrency)} {selectedCurrency}
             </div>
           )}
@@ -945,8 +945,8 @@ export default function Wallet() {
 
         {balance && (
           <div className="bg-casino-dark p-3 rounded-lg">
-            <div className="text-casino-text text-[8px] mb-1">Available Balance</div>
-            <div className="text-white font-medium">
+            <div className="text-casino-text text-xs mb-1">Available Balance</div>
+            <div className="text-white font-medium text-sm">
               {balance.balanceMode === 'SC' 
                 ? `$${balance.sweepsCashRedeemable.toFixed(2)} SC` 
                 : `${balance.available.toFixed(2)} GC`
@@ -956,8 +956,8 @@ export default function Wallet() {
         )}
 
         <Alert className="border-yellow-500 bg-yellow-500/10">
-          <AlertTriangle className=""style={{width: '3px', height: '3px'}} />
-          <AlertDescription className="text-yellow-400 text-[8px]">
+          <AlertTriangle className="w-5 h-5" />
+          <AlertDescription className="text-yellow-400 text-xs">
             Network fees will be deducted from your withdrawal amount. 
             Minimum withdrawal: 100 Credits. Processing time: 1-24 hours.
           </AlertDescription>
@@ -998,106 +998,4 @@ export default function Wallet() {
       </div>
     );
   }
-
-  return (
-    <>
-      {/* Wallet selection dialog */}
-      <Dialog open={showWalletDialog} onOpenChange={setShowWalletDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="text-casino-gold text-[10px] flex items-center gap-2">
-              <WalletIcon style={{width: '3px', height: '3px'}} className="" />
-              Connect Your Crypto Wallet
-            </DialogTitle>
-            <DialogDescription className="text-casino-text/70">
-              Choose a wallet to connect and manage your crypto deposits
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-            {popularWallets.map((wallet) => (
-              <button
-                key={wallet.name}
-                onClick={() => handleWalletConnect(wallet)}
-                className="p-4 rounded-lg border-2 border-casino-accent/30 bg-casino-dark/50 hover:bg-casino-dark hover:border-casino-gold/50 transition-all text-left group"
-                data-testid={`button-wallet-${wallet.name.toLowerCase().replace(' ', '-')}`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="text-[10px]">{wallet.icon}</div>
-                  <div className="flex-1">
-                    <h3 className="text-white font-semibold group-hover:text-casino-gold transition-colors">
-                      {wallet.name}
-                    </h3>
-                    <p className="text-[8px] text-casino-text/70 mt-1">
-                      {wallet.description}
-                    </p>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          <Alert className="border-casino-gold/30 bg-casino-gold/5 mt-4">
-            <Info className=" text-casino-gold"style={{width: '3px', height: '3px'}} />
-            <AlertDescription className="text-casino-text/80 text-[8px]">
-              You'll be redirected to download the wallet app. After installation, return here to connect your wallet.
-            </AlertDescription>
-          </Alert>
-        </DialogContent>
-      </Dialog>
-
-      <LiquidBackground variant="cosmic" />
-      <div className="relative z-10 max-w-6xl mx-auto p-4 sm:p-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="mb-8">
-            <div className="text-center mb-6">
-              <h1 className="text-[10px] md:text-[10px] font-bold text-transparent bg-clip-text bg-gradient-to-r from-casino-gold via-yellow-500 to-casino-gold mb-2">
-                Wallet Center
-              </h1>
-              <p className="text-casino-text text-[10px]">Manage your funds, transactions, and crypto assets</p>
-            </div>
-
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-2 bg-casino-dark/60 p-2 rounded-xl backdrop-blur-sm">
-              <TabsTrigger value="balance" className="data-[state=active]:bg-casino-accent data-[state=active]:text-white">
-                <Coins style={{width: '3.5px', height: '3.5px'}} className="mr-2" />
-                Balance
-              </TabsTrigger>
-              <TabsTrigger value="transactions" className="data-[state=active]:bg-casino-accent data-[state=active]:text-white">
-                <ArrowUpDown style={{width: '3.5px', height: '3.5px'}} className="mr-2" />
-                Transactions
-              </TabsTrigger>
-              <TabsTrigger value="crypto" className="data-[state=active]:bg-casino-accent data-[state=active]:text-white">
-                <Bitcoin style={{width: '3.5px', height: '3.5px'}} className="mr-2" />
-                Crypto
-              </TabsTrigger>
-              <TabsTrigger value="referral" className="data-[state=active]:bg-casino-accent data-[state=active]:text-white">
-                <Gift style={{width: '3.5px', height: '3.5px'}} className="mr-2" />
-                Referral
-              </TabsTrigger>
-            </TabsList>
-          </div>
-
-          {/* Balance Tab */}
-          <TabsContent value="balance">
-            {balanceRenderContent()}
-          </TabsContent>
-
-          {/* Transactions Tab */}
-          <TabsContent value="transactions">
-            {transactionsRenderContent()}
-          </TabsContent>
-
-          {/* Crypto Tab */}
-          <TabsContent value="crypto">
-            {cryptoRenderContent()}
-          </TabsContent>
-
-          {/* Referral Tab */}
-          <TabsContent value="referral">
-            {referralRenderContent()}
-          </TabsContent>
-        </Tabs>
-      </div>
-    </>
-  );
 }

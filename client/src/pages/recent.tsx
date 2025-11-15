@@ -168,24 +168,24 @@ export default function RecentGames() {
           <Button 
             variant="ghost" 
             onClick={() => setLocation('/')}
-            className="text-gray-400 hover:text-white mb-4 rounded-lg"
+            className="text-gray-400 hover:text-white mb-4 rounded-lg text-sm"
             data-testid="button-back-home"
           >
-            <ArrowLeft style={{width: '3.5px', height: '3.5px'}} className="mr-2" />
+            <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Casino
           </Button>
         </div>
 
         <Card className="bg-casino-card border-casino-border">
           <CardContent className="p-8 text-center">
-            <Clock style={{width: '4px', height: '4px'}} className="mx-auto mb-4 text-gray-500" />
-            <h2 className="text-[10px] font-semibold mb-2 text-white">Sign In Required</h2>
-            <p className="text-gray-400 mb-6">
+            <Clock className="w-12 h-12 mx-auto mb-4 text-gray-500" />
+            <h2 className="text-lg font-semibold mb-2 text-white">Sign In Required</h2>
+            <p className="text-sm text-gray-400 mb-6">
               Please sign in to view your recently played games.
             </p>
             <Button 
               onClick={() => setLocation('/')}
-              className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold"
+              className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold text-sm"
               data-testid="button-go-home"
             >
               Go to Home
@@ -203,18 +203,18 @@ export default function RecentGames() {
           variant="outline" 
           size="xs"
           onClick={() => setLocation('/')}
-          className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black mb-4 rounded-lg"
+          className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black mb-4 rounded-lg text-sm"
           data-testid="button-back-home"
         >
-          <ArrowLeft style={{width: '3px', height: '3px'}} className="mr-1" />
+          <ArrowLeft className="w-5 h-5 mr-1" />
           Back to Casino
         </Button>
         
         <div className="flex items-center gap-3 mb-2">
-          <Clock style={{width: '3px', height: '3px'}} className="text-[#D4AF37]" />
-          <h1 className="text-[10px] md:text-[10px] font-bold text-white">Recently Played</h1>
+          <Clock className="w-6 h-6 text-[#D4AF37]" />
+          <h1 className="text-2xl md:text-3xl font-bold text-white">Recently Played</h1>
         </div>
-        <p className="text-gray-400">Your last 3 played games</p>
+        <p className="text-sm text-gray-400">Your last 3 played games</p>
       </div>
 
       {isLoading ? (
@@ -223,7 +223,7 @@ export default function RecentGames() {
             <Card key={i} className="bg-casino-card border-casino-border animate-pulse">
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gray-700 rounded-lg"></div>
+                  <div className="w-20 h-20 bg-gray-700 rounded-lg"></div>
                   <div className="flex-1 space-y-2">
                     <div className="h-5 bg-gray-700 rounded w-32"></div>
                     <div className="h-4 bg-gray-700 rounded w-48"></div>
@@ -239,23 +239,23 @@ export default function RecentGames() {
         <Card className="bg-casino-card border-casino-border">
           <CardContent className="p-8 text-center">
             <div className="text-red-400 mb-4">
-              <Clock style={{width: '4px', height: '4px'}} className="mx-auto mb-4" />
-              <h2 className="text-[10px] font-semibold mb-2">Error Loading Games</h2>
-              <p>Unable to load your recently played games. Please try again later.</p>
+              <Clock className="w-12 h-12 mx-auto mb-4" />
+              <h2 className="text-lg font-semibold mb-2">Error Loading Games</h2>
+              <p className="text-sm">Unable to load your recently played games. Please try again later.</p>
             </div>
           </CardContent>
         </Card>
       ) : !recentGames || recentGames.length === 0 ? (
         <Card className="bg-casino-card border-casino-border">
           <CardContent className="p-8 text-center">
-            <Clock style={{width: '4px', height: '4px'}} className="mx-auto mb-4 text-gray-500" />
-            <h2 className="text-[10px] font-semibold mb-2 text-white">No Recent Games</h2>
-            <p className="text-gray-400 mb-6">
+            <Clock className="w-12 h-12 mx-auto mb-4 text-gray-500" />
+            <h2 className="text-lg font-semibold mb-2 text-white">No Recent Games</h2>
+            <p className="text-sm text-gray-400 mb-6">
               Start playing some games and they'll appear here!
             </p>
             <Button 
               onClick={() => setLocation('/')}
-              className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold"
+              className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold text-sm"
               data-testid="button-browse-games"
             >
               Browse Games
@@ -279,32 +279,32 @@ export default function RecentGames() {
                       <img
                         src={metadata.image}
                         alt={metadata.displayName}
-                        className="w-16 h-16 rounded-lg object-cover"
+                        className="w-20 h-20 rounded-lg object-cover"
                         onError={(e) => {
                           e.currentTarget.src = '/game-images/placeholder.png';
                         }}
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 rounded-lg flex items-center justify-center transition-all">
-                        <Play style={{width: '3px', height: '3px'}} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <Play className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                     </div>
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-[10px] font-semibold text-white truncate">
+                        <h3 className="text-base font-semibold text-white truncate">
                           {metadata.displayName}
                         </h3>
-                        <Badge variant="secondary" className="text-[8px]">
-                          <Clock style={{width: '3px', height: '3px'}} className="mr-1" />
+                        <Badge variant="secondary" className="text-xs">
+                          <Clock className="w-3 h-3 mr-1" />
                           {formatLastPlayed(game.lastPlayed)}
                         </Badge>
                       </div>
                       
-                      <p className="text-[8px] text-gray-400 mb-2 line-clamp-2">
+                      <p className="text-sm text-gray-400 mb-2 line-clamp-2">
                         {metadata.description}
                       </p>
                       
-                      <div className="flex items-center gap-4 text-[8px] text-gray-500">
+                      <div className="flex items-center gap-4 text-xs text-gray-500">
                         {metadata.rtp && (
                           <span>RTP: {metadata.rtp}</span>
                         )}
@@ -321,10 +321,10 @@ export default function RecentGames() {
                       />
                       <Button
                         onClick={() => handlePlayGame(metadata.path)}
-                        className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold px-6"
+                        className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold px-6 text-sm"
                         data-testid={`button-play-${game.gameName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                       >
-                        <Play style={{width: '3.5px', height: '3.5px'}} className="mr-1" />
+                        <Play className="w-4 h-4 mr-1" />
                         Play
                       </Button>
                     </div>

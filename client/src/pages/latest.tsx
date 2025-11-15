@@ -54,16 +54,16 @@ export default function LatestReleases() {
         <Button 
           variant="ghost" 
           onClick={() => setLocation('/')}
-          className="text-gray-400 hover:text-white mb-4 rounded-lg"
+          className="text-gray-400 hover:text-white mb-4 rounded-lg text-sm"
           data-testid="button-back-home"
         >
-          <ArrowLeft style={{width: '3.5px', height: '3.5px'}} className="mr-2" />
+          <ArrowLeft className="w-5 h-5 mr-2" />
           Back to Casino
         </Button>
         
         <div className="flex items-center gap-3 mb-2">
-          <Rocket style={{width: '3px', height: '3px'}} className="text-[#D4AF37]" />
-          <h1 className="text-[10px] md:text-[10px] font-bold text-white">Latest Releases</h1>
+          <Rocket className="w-6 h-6 text-[#D4AF37]" />
+          <h1 className="text-2xl md:text-3xl font-bold text-white">Latest Releases</h1>
         </div>
         <p className="text-gray-400">Discover our newest games and features</p>
       </div>
@@ -86,14 +86,14 @@ export default function LatestReleases() {
                   }}
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 flex items-center justify-center transition-all duration-300">
-                  <Play style={{width: '3.5px', height: '3.5px'}} className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <Play className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
                 
                 {/* New Badge */}
                 {game.isNew && (
                   <div className="absolute top-3 left-3">
-                    <Badge className="bg-[#D4AF37] text-black font-semibold">
-                      <Star style={{width: '3px', height: '3px'}} className="mr-1 fill-current" />
+                    <Badge className="bg-[#D4AF37] text-black font-semibold text-xs">
+                      <Star className="w-4 h-4 mr-1 fill-current" />
                       NEW
                     </Badge>
                   </div>
@@ -111,20 +111,20 @@ export default function LatestReleases() {
               {/* Game Info */}
               <div className="p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-[10px] font-bold text-white">
+                  <h3 className="text-lg font-bold text-white">
                     {game.displayName}
                   </h3>
-                  <Badge variant="secondary" className="text-[8px]">
+                  <Badge variant="secondary" className="text-xs">
                     {formatReleaseDate(game.releaseDate)}
                   </Badge>
                 </div>
                 
-                <p className="text-gray-400 mb-3 text-[8px] line-clamp-2">
+                <p className="text-gray-400 mb-3 text-sm line-clamp-2">
                   {game.description}
                 </p>
                 
                 {/* Game Stats */}
-                <div className="flex items-center justify-between mb-3 text-[8px]">
+                <div className="flex items-center justify-between mb-3 text-xs">
                   <div className="flex items-center gap-1">
                     <span className="text-gray-500">RTP:</span>
                     <span className="text-[#D4AF37] font-semibold">{game.rtp}</span>
@@ -138,10 +138,10 @@ export default function LatestReleases() {
                 {/* Play Button */}
                 <Button
                   onClick={() => handlePlayGame(game.path)}
-                  className="w-full bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold py-2 transition-all duration-200"
+                  className="w-full bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold py-2 transition-all duration-200 text-sm"
                   data-testid={`button-play-${game.id}`}
                 >
-                  <Play style={{width: '3.5px', height: '3.5px'}} className="mr-2" />
+                  <Play className="w-5 h-5 mr-2" />
                   {game.rtp === 'FREE' ? 'Play for Free' : 'Play Now'}
                 </Button>
               </div>
@@ -153,15 +153,15 @@ export default function LatestReleases() {
       {/* Coming Soon Section */}
       <div className="mt-12">
         <div className="text-center bg-casino-card border-casino-border rounded-lg p-8">
-          <Rocket style={{width: '4px', height: '4px'}} className="mx-auto mb-4 text-gray-500" />
-          <h2 className="text-[10px] font-semibold mb-2 text-white">More Games Coming Soon</h2>
+          <Rocket className="w-12 h-12 mx-auto mb-4 text-gray-500" />
+          <h2 className="text-xl font-semibold mb-2 text-white">More Games Coming Soon</h2>
           <p className="text-gray-400 mb-4">
             We're constantly working on new and exciting games for you to enjoy.
           </p>
           <Button 
             onClick={() => setLocation('/')}
             variant="outline"
-            className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black"
+            className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black text-sm"
           >
             Explore All Games
           </Button>
