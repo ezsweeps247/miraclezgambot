@@ -24,7 +24,7 @@ export function StakeSelector({ scale = 1, fontSize }: StakeSelectorProps) {
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      gap: `${4 * scale}px`,
+      gap: `${2 * scale}px`,
       fontFamily: "'Roboto', sans-serif",
       justifyContent: 'center'
     }}>
@@ -33,7 +33,7 @@ export function StakeSelector({ scale = 1, fontSize }: StakeSelectorProps) {
         disabled={phase !== 'ready'}
         style={{
           width: `${40 * scale}px`,
-          height: `${32 * scale}px`,
+          height: `${24 * scale}px`,
           background: phase === 'ready' 
             ? 'linear-gradient(135deg, #FFB84D 0%, #FF8C00 100%)' 
             : 'linear-gradient(135deg, #ccc 0%, #999 100%)',
@@ -69,7 +69,7 @@ export function StakeSelector({ scale = 1, fontSize }: StakeSelectorProps) {
         disabled={phase !== 'ready'}
         style={{
           width: `${40 * scale}px`,
-          height: `${32 * scale}px`,
+          height: `${24 * scale}px`,
           background: phase === 'ready' 
             ? 'linear-gradient(135deg, #FFB84D 0%, #FF8C00 100%)' 
             : 'linear-gradient(135deg, #ccc 0%, #999 100%)',
