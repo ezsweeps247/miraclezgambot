@@ -754,59 +754,59 @@ export default function Home() {
       {/* Navigation Tabs - Between Quick Play and All Games */}
       <section className="py-0.5 mt-2 text-base">
         <div className="bg-black/40 backdrop-blur-sm border-t border-b border-gray-800/30 p-2">
-          <div className="flex items-stretch gap-3 px-2">
+          <div className="flex items-stretch gap-1 md:gap-3 px-0 md:px-2">
             <button
               onClick={() => setActiveCategory('all')}
-              className={`flex-1 flex items-center justify-center h-14 rounded-lg transition-all whitespace-nowrap px-4 ${
+              className={`flex-1 flex items-center justify-center h-14 rounded-lg transition-all whitespace-nowrap px-1 md:px-4 ${
                 activeCategory === 'all'
                   ? 'bg-purple-600/30 text-purple-300 shadow-lg shadow-purple-500/30'
                   : 'hover:bg-white/5 text-gray-400 hover:text-white'
               }`}
               data-testid="tab-lobby"
             >
-              <span className="font-semibold tracking-wide text-lg w-full text-center">Lobby</span>
+              <span className="font-semibold tracking-wide text-sm md:text-lg w-full text-center">Lobby</span>
             </button>
             
             <div className="w-px bg-gray-700/50 my-1 flex-shrink-0" />
             
             <button
               onClick={() => setActiveCategory('originals')}
-              className={`flex-1 flex items-center justify-center h-14 rounded-lg transition-all whitespace-nowrap px-4 ${
+              className={`flex-1 flex items-center justify-center h-14 rounded-lg transition-all whitespace-nowrap px-1 md:px-4 ${
                 activeCategory === 'originals'
                   ? 'bg-purple-600/30 text-purple-300 shadow-lg shadow-purple-500/30'
                   : 'hover:bg-white/5 text-gray-400 hover:text-white'
               }`}
               data-testid="tab-originals"
             >
-              <span className="font-semibold tracking-wide text-lg w-full text-center">Originals</span>
+              <span className="font-semibold tracking-wide text-sm md:text-lg w-full text-center">Originals</span>
             </button>
             
             <div className="w-px bg-gray-700/50 my-1 flex-shrink-0" />
             
             <button
               onClick={() => setActiveCategory('slots')}
-              className={`flex-1 flex items-center justify-center h-14 rounded-lg transition-all whitespace-nowrap px-4 ${
+              className={`flex-1 flex items-center justify-center h-14 rounded-lg transition-all whitespace-nowrap px-1 md:px-4 ${
                 activeCategory === 'slots'
                   ? 'bg-purple-600/30 text-purple-300 shadow-lg shadow-purple-500/30'
                   : 'hover:bg-white/5 text-gray-400 hover:text-white'
               }`}
               data-testid="tab-slots"
             >
-              <span className="font-semibold tracking-wide text-lg w-full text-center">Slots</span>
+              <span className="font-semibold tracking-wide text-sm md:text-lg w-full text-center">Slots</span>
             </button>
             
             <div className="w-px bg-gray-700/50 my-1 flex-shrink-0" />
             
             <button
               onClick={() => setActiveCategory('freetoplay')}
-              className={`flex-1 flex items-center justify-center h-14 rounded-lg transition-all whitespace-nowrap px-4 ${
+              className={`flex-1 flex items-center justify-center h-14 rounded-lg transition-all whitespace-nowrap px-1 md:px-4 ${
                 activeCategory === 'freetoplay'
                   ? 'bg-purple-600/30 text-purple-300 shadow-lg shadow-purple-500/30'
                   : 'hover:bg-white/5 text-gray-400 hover:text-white'
               }`}
               data-testid="tab-freetoplay"
             >
-              <span className="font-semibold tracking-wide text-lg w-full text-center">Free</span>
+              <span className="font-semibold tracking-wide text-sm md:text-lg w-full text-center">Free</span>
             </button>
           </div>
         </div>
