@@ -107,7 +107,7 @@ const games: Game[] = [
     id: 'fundora-blox',
     name: 'FUNDORA BLOX',
     path: '/fundora-blox-game',
-    image: '/game-images/fundora-blox-carousel.png',
+    image: '/game-images/fundora-blox-carousel-v2.png',
     description: 'Stack blocks to reach prize levels - perfect placement multiplies rewards!',
     rtp: '98.5%',
     volatility: 'medium',
