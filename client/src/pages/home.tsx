@@ -862,7 +862,7 @@ export default function Home() {
                 )}
 
                 {/* Enhanced dark overlay for better text visibility */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/40" />
 
                 {/* Top section with MIRACLEZ badge, description and RTP */}
                 <div className="absolute top-0 left-0 right-0 p-1 z-10">
