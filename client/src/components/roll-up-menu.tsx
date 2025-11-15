@@ -172,7 +172,7 @@ export function RollUpMenu({ isOpen, onClose, onSearchClick }: RollUpMenuProps) 
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
               className="fixed left-0 top-0 bottom-16 w-[72%] max-w-md bg-black z-[260] flex flex-col"
           >
-            {/* Back to Casino Button */}
+            {/* Back to Home Button */}
             <div className="p-3 border-b border-gray-800">
               <button
                 onClick={() => handleNavigate('/')}
@@ -180,7 +180,7 @@ export function RollUpMenu({ isOpen, onClose, onSearchClick }: RollUpMenuProps) 
                 data-testid="menu-back-to-casino"
               >
                 <Home className="w-6 h-6" />
-                <span className="text-lg font-bold tracking-wide uppercase">Back to Casino</span>
+                <span className="text-lg font-bold tracking-wide uppercase">Back to Home</span>
               </button>
             </div>
 

@@ -832,7 +832,7 @@ export default function Miracoaster() {
                 className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-[8px]"
                 data-testid="button-back-casino"
               >
-                Back to Casino
+                Back to Home
               </button>
             </div>
             <Button variant="ghost" size="sm" className="hidden md:inline-flex">Tick ↗</Button>

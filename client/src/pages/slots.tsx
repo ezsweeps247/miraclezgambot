@@ -218,7 +218,7 @@ export default function Slots() {
                   className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black rounded-lg"
                   data-testid="button-back-casino"
                 >
-                  Back to Casino
+                  Back to Home
                 </Button>
               </div>
             </div>

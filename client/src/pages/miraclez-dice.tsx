@@ -562,7 +562,7 @@ export default function MiraclezDice() {
                   className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-xs"
                   data-testid="button-back-casino"
                 >
-                  Back to Casino
+                  Back to Home
                 </button>
               </div>
             </div>

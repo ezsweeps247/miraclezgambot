@@ -26,7 +26,7 @@ export default function LiveDealerPage() {
           data-testid="button-back-home"
         >
           <ArrowLeft style={{width: '3px', height: '3px'}} className="mr-1" />
-          Back to Casino
+          Back to Home
         </Button>
         
         <div className="flex items-center gap-3 mb-2">

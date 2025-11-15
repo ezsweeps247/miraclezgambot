@@ -266,7 +266,7 @@ export default function FundoraBloxGame() {
           className="text-white"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Casino
+          Back to Home
         </Button>
       </div>
       <div 

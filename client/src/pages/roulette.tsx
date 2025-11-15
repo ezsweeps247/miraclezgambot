@@ -580,7 +580,7 @@ export default function Roulette() {
               className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-3 py-1.5 rounded-lg text-sm"
               data-testid="button-back-casino"
             >
-              Back to Casino
+              Back to Home
             </button>
           </div>
         </div>

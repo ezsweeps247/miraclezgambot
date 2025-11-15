@@ -845,7 +845,7 @@ export default function EnigmaGame() {
                   className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-2 py-1 rounded-lg text-xs"
                   data-testid="button-back-casino"
                 >
-                  Back to Casino
+                  Back to Home
                 </button>
               </div>
             </div>

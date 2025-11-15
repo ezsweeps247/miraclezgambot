@@ -189,7 +189,7 @@ export default function FundoraBloxNew() {
           className="flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Casino
+          Back to Home
         </Button>
       </div>
 
