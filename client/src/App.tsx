@@ -23,7 +23,6 @@ import MiraclezDice from "@/pages/miraclez-dice";
 import Miracoaster from "@/pages/miracoaster";
 import TowerDefense from "@/pages/tower-defense";
 import Enigma from "@/pages/enigma";
-import FundoraBlox from "@/pages/fundora-blox";
 import FundoraBloxGame from "@/pages/fundora-blox-game";
 import CoinFlip from "@/pages/coinflip";
 import Wallet from "@/pages/wallet";
@@ -186,9 +185,6 @@ function Router() {
           <JurisdictionBanner />
           <Enigma />
         </Layout>
-      )} />
-      <Route path="/fundora-blox" component={() => (
-        <FundoraBlox />
       )} />
       <Route path="/wallet" component={() => (
         <Layout>
