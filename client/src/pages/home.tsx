@@ -153,7 +153,7 @@ const games = [
     badgeColor: 'bg-red-500',
     tag: 'PUZZLE',
     icon: Boxes,
-    bgImage: '/game-images/fundora-blocks-bg.png',
+    bgImage: '/game-images/mines.png',
     description: 'Stack blocks to reach higher rows and win bigger prizes! Reach row 13 for 100x!',
     rtp: 98.5,
     category: 'freetoplay' as const
@@ -840,13 +840,18 @@ export default function Home() {
               className="relative group cursor-pointer transform transition-all duration-200 hover:scale-105"
             >
               {/* Game Card */}
-              <div className={`relative h-32 rounded-xl overflow-hidden border-2 ${game.borderColor}`}>
+              <div className={`relative h-32 rounded-xl overflow-hidden border-2 ${game.borderColor}`} style={{backgroundColor: game.id === 'fundora-blox' ? 'transparent' : undefined}}>
                 {/* Background image or gradient - stretched to cover entire card */}
                 {game.bgImage ? (
                   <img 
                     src={game.bgImage}
                     alt={game.name}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full"
+                    style={{
+                      objectFit: game.id === 'fundora-blox' ? 'fill' : 'cover',
+                      objectPosition: 'center',
+                      zIndex: 1
+                    }}
                   />
                 ) : (
                   <div className={`absolute inset-0 bg-gradient-to-br ${game.gradient}`}>
@@ -857,13 +862,10 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* Enhanced dark overlay for better text visibility - skip for Fundora Blox */}
-                {game.id !== 'fundora-blox' && (
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/50" />
-                )}
+                {/* Enhanced dark overlay for better text visibility */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/50" />
 
-                {/* Top section with MIRACLEZ badge, description and RTP - skip for Fundora Blox */}
-                {game.id !== 'fundora-blox' && (
+                {/* Top section with MIRACLEZ badge, description and RTP */}
                 <div className="absolute top-0 left-0 right-0 p-1 z-10">
                   {/* Miraclez Logo centered at top */}
                   <div className="flex justify-center mb-1">
@@ -886,23 +888,18 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                )}
 
-                {/* Game Name at bottom center - skip for Fundora Blox */}
-                {game.id !== 'fundora-blox' && (
+                {/* Game Name at bottom center */}
                 <div className="absolute bottom-0 left-0 right-0 p-2 z-10">
                   <h3 className="text-white font-black text-center tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] uppercase text-xl">
                     {game.name}
                   </h3>
                 </div>
-                )}
 
-                {/* Hover effect - skip for Fundora Blox */}
-                {game.id !== 'fundora-blox' && (
+                {/* Hover effect */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                   <div className="absolute inset-0 bg-gradient-to-t from-purple-600/20 to-transparent" />
                 </div>
-                )}
               </div>
             </div>
           ))}
