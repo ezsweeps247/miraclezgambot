@@ -206,12 +206,12 @@ export default function UserProfile({ params }: UserProfileProps) {
   
   // Get game icon
   const getGameIcon = (game: string) => {
-    return <Gamepad2 style={{width: '3px', height: '3px'}} />;
+    return <Gamepad2 className="w-5 h-5" />;
   };
   
   // Get crypto icon
   const getCryptoIcon = (crypto: string) => {
-    return <Bitcoin style={{width: '3px', height: '3px'}} />;
+    return <Bitcoin className="w-5 h-5" />;
   };
 
   return (
@@ -225,14 +225,14 @@ export default function UserProfile({ params }: UserProfileProps) {
                 variant="outline"
                 size="xs"
                 onClick={() => navigate('/')}
-                className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black text-[8px] px-2 py-1 h-auto"
+                className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black text-sm px-2 py-1 h-auto"
                 data-testid="button-back-home"
               >
-                <ArrowLeft style={{width: '3px', height: '3px'}} className="mr-1" />
-                <span className="text-[8px]">Back</span>
+                <ArrowLeft className="w-5 h-5 mr-1" />
+                <span className="text-sm">Back</span>
               </Button>
             </div>
-            <h1 className="font-bold text-white text-[12px]">User Information</h1>
+            <h1 className="font-bold text-white text-2xl">User Information</h1>
             <div className="w-20" /> {/* Spacer for center alignment */}
           </div>
         </div>
@@ -243,8 +243,8 @@ export default function UserProfile({ params }: UserProfileProps) {
         {isLoading && (
           <div className="flex justify-center py-20">
             <div className="flex flex-col items-center gap-4">
-              <Loader2 style={{width: '3.5px', height: '3.5px'}} className="text-purple-500 animate-spin" />
-              <p className="text-[8px] text-gray-400">Loading profile...</p>
+              <Loader2 className="w-6 h-6 text-purple-500 animate-spin" />
+              <p className="text-sm text-gray-400">Loading profile...</p>
             </div>
           </div>
         )}
@@ -252,8 +252,8 @@ export default function UserProfile({ params }: UserProfileProps) {
         {isError && (
           <div className="flex justify-center py-20">
             <div className="flex flex-col items-center gap-4">
-              <X style={{width: '3.5px', height: '3.5px'}} className="text-red-500" />
-              <p className="text-[8px] text-red-400">Failed to load profile data</p>
+              <X className="w-6 h-6 text-red-500" />
+              <p className="text-sm text-red-400">Failed to load profile data</p>
               <Button onClick={() => navigate('/')} variant="outline">
                 Return Home
               </Button>
@@ -277,7 +277,7 @@ export default function UserProfile({ params }: UserProfileProps) {
                       backgroundColor: profile.avatarBackgroundColor || '#9333ea' 
                     }}
                   >
-                    <span className="text-white text-[10px]" role="img" aria-label={`${profile.avatarType || 'default'} avatar`}>
+                    <span className="text-white text-4xl" role="img" aria-label={`${profile.avatarType || 'default'} avatar`}>
                       {avatarIcons[profile.avatarType as keyof typeof avatarIcons] || avatarIcons.default}
                     </span>
                   </div>
@@ -290,24 +290,24 @@ export default function UserProfile({ params }: UserProfileProps) {
                       className="absolute -bottom-2 -right-2 px-3 py-1 h-auto rounded-full shadow-2xl shadow-[#D4AF37]/50 border-2 border-white hover:scale-110 transition-all duration-300"
                       data-testid="button-edit-avatar"
                     >
-                      <span className="text-[8px] font-bold text-[#FFFFFF]">Edit</span>
+                      <span className="text-sm font-bold text-[#FFFFFF]">Edit</span>
                     </Button>
                   )}
                 </div>
-                <h2 className="casino-heading mb-2 text-[12px]">{profile.username}</h2>
-                <p className="casino-body text-[12px]">Joined {format(new Date(profile.joinedOn), 'MMMM yyyy')}</p>
+                <h2 className="casino-heading mb-2 text-lg">{profile.username}</h2>
+                <p className="casino-body text-base">Joined {format(new Date(profile.joinedOn), 'MMMM yyyy')}</p>
               </div>
 
               {/* Rank Section */}
               <div className="casino-glass p-4 mb-6">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="px-3 py-1 rounded-md bg-gradient-to-r from-cyan-400 to-cyan-300 text-white font-bold text-[12px]">
+                    <div className="px-3 py-1 rounded-md bg-gradient-to-r from-cyan-400 to-cyan-300 text-white font-bold text-base">
                       {profile?.rank || 'BRONZE'} {profile?.rankLevel || 1}
                     </div>
-                    <Trophy style={{width: '3px', height: '3px'}} className="text-yello" />
+                    <Trophy className="w-5 h-5 text-yello" />
                   </div>
-                  <span className="casino-body text-[12px]">
+                  <span className="casino-body text-base">
                     Next: {profile?.nextRank || 'SILVER'}
                   </span>
                 </div>
@@ -320,28 +320,28 @@ export default function UserProfile({ params }: UserProfileProps) {
                   />
                 </div>
                 <div className="flex justify-between items-center mt-2">
-                  <p className="casino-body text-[12px]">{formatCurrency(profile.currentProgress)}</p>
-                  <p className="casino-body text-[12px]">{rankProgress}%</p>
+                  <p className="casino-body text-base">{formatCurrency(profile.currentProgress)}</p>
+                  <p className="casino-body text-base">{rankProgress}%</p>
                 </div>
               </div>
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="casino-glass p-4 text-center">
-                  <p className="casino-body mb-1 text-[12px]">Total Bets</p>
-                  <p className="casino-heading text-[12px] stat-number">{formatNumber(profile.totalBets)}</p>
+                  <p className="casino-body mb-1 text-sm">Total Bets</p>
+                  <p className="casino-heading text-lg stat-number">{formatNumber(profile.totalBets)}</p>
                 </div>
                 <div className="casino-glass p-4 text-center">
-                  <p className="casino-body mb-1 text-[12px]">Wagered</p>
-                  <p className="casino-heading text-[12px] stat-number">{formatCurrency(profile.totalWagered)}</p>
+                  <p className="casino-body mb-1 text-sm">Wagered</p>
+                  <p className="casino-heading text-lg stat-number">{formatCurrency(profile.totalWagered)}</p>
                 </div>
                 <div className="casino-glass p-4 text-center">
-                  <p className="casino-body mb-1 text-[12px]">Rewarded</p>
-                  <p className="casino-heading text-[12px] text-green-400 stat-number">{formatCurrency(profile.totalRewarded)}</p>
+                  <p className="casino-body mb-1 text-sm">Rewarded</p>
+                  <p className="casino-heading text-lg text-green-400 stat-number">{formatCurrency(profile.totalRewarded)}</p>
                 </div>
                 <div className="casino-glass p-4 text-center">
-                  <p className="casino-body mb-1 text-[12px]">Joined</p>
-                  <p className="casino-heading text-[12px] stat-number">{format(new Date(profile.joinedOn), 'MMM yyyy')}</p>
+                  <p className="casino-body mb-1 text-sm">Joined</p>
+                  <p className="casino-heading text-lg stat-number">{format(new Date(profile.joinedOn), 'MMM yyyy')}</p>
                 </div>
               </div>
             </Card>
@@ -349,8 +349,8 @@ export default function UserProfile({ params }: UserProfileProps) {
             {/* Active Bonuses */}
             {activeBonuses && activeBonuses.length > 0 && (
               <Card className="casino-card p-6">
-                <h3 className="casino-gradient-text text-[10px] mb-4 flex items-center gap-2">
-                  <Gift style={{width: '3px', height: '3px'}} />
+                <h3 className="casino-gradient-text text-lg mb-4 flex items-center gap-2">
+                  <Gift className="w-5 h-5" />
                   Active Bonuses
                 </h3>
                 <div className="space-y-4">
@@ -385,14 +385,14 @@ export default function UserProfile({ params }: UserProfileProps) {
                           <div>
                             <div className="flex items-center gap-2">
                               <Gift className={`w-5 h-5 ${iconColor}`} />
-                              <p className="text-[10px] font-semibold text-white">{bonusTitle}</p>
+                              <p className="text-base font-semibold text-white">{bonusTitle}</p>
                             </div>
-                            <p className="text-[8px] text-gray-400 mt-1">
+                            <p className="text-sm text-gray-400 mt-1">
                               ${bonusAmount.toFixed(2)} bonus ({bonus.percentage}%)
                             </p>
                           </div>
-                          <div className="flex items-center gap-2 text-[8px]">
-                            <Clock style={{width: '3.5px', height: '3.5px'}} className={` ${isExpiringSoon ? 'text-red-400' : 'text-gray-400'}`} />
+                          <div className="flex items-center gap-2 text-sm">
+                            <Clock className={`w-6 h-6 ${isExpiringSoon ? 'text-red-400' : 'text-gray-400'}`} />
                             <span className={isExpiringSoon ? 'text-red-400' : 'text-gray-400'}>
                               {hoursRemaining}h {minutesRemaining}m
                             </span>
@@ -400,7 +400,7 @@ export default function UserProfile({ params }: UserProfileProps) {
                         </div>
                         
                         <div className="space-y-2">
-                          <div className="flex justify-between text-[8px]">
+                          <div className="flex justify-between text-sm">
                             <span className="text-gray-400">Wagering Progress</span>
                             <span className="text-[#D4AF37] font-semibold">
                               {percentage.toFixed(1)}%
@@ -412,14 +412,14 @@ export default function UserProfile({ params }: UserProfileProps) {
                               style={{ width: `${Math.min(100, percentage)}%` }}
                             />
                           </div>
-                          <div className="flex justify-between text-[8px] text-gray-400">
+                          <div className="flex justify-between text-sm text-gray-400">
                             <span>${(wagered / 100).toFixed(2)}</span>
                             <span>${(requirement / 100).toFixed(2)}</span>
                           </div>
                         </div>
                         
                         {percentage >= 100 && (
-                          <div className="mt-3 text-[8px] text-green-400 font-semibold text-center">
+                          <div className="mt-3 text-sm text-green-400 font-semibold text-center">
                             ✓ Wagering requirement completed!
                           </div>
                         )}
@@ -434,19 +434,19 @@ export default function UserProfile({ params }: UserProfileProps) {
             {!params?.userId && (
               <Card className="bg-[#1a1a2e] border-gray-800 p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-[#D4AF37] flex items-center gap-2 text-[12px]">
-                    <History style={{width: '3px', height: '3px'}} />
+                  <h3 className="font-bold text-[#D4AF37] flex items-center gap-2 text-lg">
+                    <History className="w-5 h-5" />
                     Bonus History
                   </h3>
                   <Button
                     onClick={() => setShowBonusHistory(!showBonusHistory)}
                     variant="outline"
                     size="sm"
-                    className="text-[#D4AF37] border-[#D4AF37] hover:bg-[#D4AF37] hover:text-black"
+                    className="text-[#D4AF37] border-[#D4AF37] hover:bg-[#D4AF37] hover:text-black text-sm"
                     data-testid="button-toggle-bonus-history"
                   >
-                    {showBonusHistory ? 'Hide' : 'Show'} History
-                    <RefreshCw style={{width: '3.5px', height: '3.5px'}} className="ml-2" />
+                    <span className="text-sm">{showBonusHistory ? 'Hide' : 'Show'} History</span>
+                    <RefreshCw className="w-5 h-5 ml-2" />
                   </Button>
                 </div>
                 
@@ -462,19 +462,19 @@ export default function UserProfile({ params }: UserProfileProps) {
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2">
-                                    <Gift style={{width: '3.5px', height: '3.5px'}} className="text-green-400" />
+                                    <Gift className="w-6 h-6 text-green-400" />
                                     <span className="font-medium text-white">
                                       {item.bonusType?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} Bonus
                                     </span>
                                   </div>
-                                  <div className="text-[8px] text-gray-400 mt-1">
+                                  <div className="text-sm text-gray-400 mt-1">
                                     ${item.depositAmount?.toFixed(2)} deposit • ${item.bonusAmount?.toFixed(2)} bonus
                                   </div>
-                                  <div className="text-[8px] text-gray-500 mt-1">
+                                  <div className="text-xs text-gray-500 mt-1">
                                     {item.claimedAt ? format(new Date(item.claimedAt), 'MMM d, yyyy') : ''}
                                   </div>
                                 </div>
-                                <span className={`text-[8px] px-3 py-1 rounded ${
+                                <span className={`text-sm px-3 py-1 rounded ${
                                   item.status === 'completed' ? 'bg-green-500/20 text-green-400' :
                                   item.status === 'expired' ? 'bg-red-500/20 text-red-400' :
                                   'bg-yellow-500/20 text-yellow-400'
@@ -486,19 +486,19 @@ export default function UserProfile({ params }: UserProfileProps) {
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2">
-                                    <RefreshCw style={{width: '3.5px', height: '3.5px'}} className="text-purple-400" />
+                                    <RefreshCw className="w-6 h-6 text-purple-400" />
                                     <span className="font-medium text-white">
                                       Bonus Reset
                                     </span>
                                   </div>
-                                  <div className="text-[8px] text-gray-400 mt-1">
+                                  <div className="text-sm text-gray-400 mt-1">
                                     Balance: ${item.balanceAtReset?.toFixed(2)} • {item.resetType?.replace(/_/g, ' ')}
                                   </div>
-                                  <div className="text-[8px] text-gray-500 mt-1">
+                                  <div className="text-xs text-gray-500 mt-1">
                                     {item.resetAt ? format(new Date(item.resetAt), 'MMM d, yyyy HH:mm') : ''}
                                   </div>
                                 </div>
-                                <span className="text-[8px] px-3 py-1 rounded bg-purple-500/20 text-purple-400">
+                                <span className="text-sm px-3 py-1 rounded bg-purple-500/20 text-purple-400">
                                   reset
                                 </span>
                               </div>
@@ -506,7 +506,7 @@ export default function UserProfile({ params }: UserProfileProps) {
                           </div>
                         ))}
                         {bonusHistoryData.history.length > 10 && (
-                          <p className="text-[8px] text-gray-400 text-center pt-3">
+                          <p className="text-xs text-gray-400 text-center pt-3">
                             Showing 10 of {bonusHistoryData.history.length} entries
                           </p>
                         )}
@@ -516,11 +516,11 @@ export default function UserProfile({ params }: UserProfileProps) {
                       <div className="mt-4 pt-4 border-t border-gray-700 grid grid-cols-2 gap-4">
                         <div className="text-center">
                           <p className="text-gray-400">Total Bonuses</p>
-                          <p className="text-[#D4AF37] font-bold text-[8px]">{bonusHistoryData.totalBonuses}</p>
+                          <p className="text-[#D4AF37] font-bold text-base">{bonusHistoryData.totalBonuses}</p>
                         </div>
                         <div className="text-center">
                           <p className="text-gray-400">Total Resets</p>
-                          <p className="text-purple-400 font-bold text-[8px]">{bonusHistoryData.totalResets}</p>
+                          <p className="text-purple-400 font-bold text-base">{bonusHistoryData.totalResets}</p>
                         </div>
                       </div>
                     )}
@@ -531,7 +531,7 @@ export default function UserProfile({ params }: UserProfileProps) {
 
             {/* Favorites */}
             <Card className="bg-[#1a1a2e] border-gray-800 p-6">
-              <h3 className="font-bold text-white mb-4 text-[12px]">Favorites</h3>
+              <h3 className="font-bold text-white mb-4 text-lg">Favorites</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-[#2a2a3e] rounded-lg p-4">
                   <p className="text-gray-400 mb-2">Favorite Game</p>

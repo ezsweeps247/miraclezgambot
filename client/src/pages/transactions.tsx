@@ -111,13 +111,13 @@ export default function Transactions() {
 
   const getTransactionIcon = (type: string) => {
     switch (type) {
-      case 'deposit': return <TrendingUp style={{width: '3.5px', height: '3.5px'}} className="text-green-400" />;
-      case 'withdrawal': return <TrendingDown style={{width: '3.5px', height: '3.5px'}} className="text-red-400" />;
-      case 'bet': return <Gamepad2 style={{width: '3.5px', height: '3.5px'}} className="text-blue-400" />;
-      case 'payout': return <TrendingUp style={{width: '3.5px', height: '3.5px'}} className="text-green-400" />;
-      case 'bonus': return <Gift style={{width: '3.5px', height: '3.5px'}} className="text-golden" />;
-      case 'refund': return <TrendingUp style={{width: '3.5px', height: '3.5px'}} className="text-yellow-400" />;
-      default: return <CreditCard style={{width: '3.5px', height: '3.5px'}} className="text-gray-400" />;
+      case 'deposit': return <TrendingUp className="w-6 h-6 text-green-400" />;
+      case 'withdrawal': return <TrendingDown className="w-6 h-6 text-red-400" />;
+      case 'bet': return <Gamepad2 className="w-6 h-6 text-blue-400" />;
+      case 'payout': return <TrendingUp className="w-6 h-6 text-green-400" />;
+      case 'bonus': return <Gift className="w-6 h-6 text-golden" />;
+      case 'refund': return <TrendingUp className="w-6 h-6 text-yellow-400" />;
+      default: return <CreditCard className="w-6 h-6 text-gray-400" />;
     }
   };
 
@@ -164,9 +164,9 @@ export default function Transactions() {
             className="text-white hover:bg-white/10 mr-4"
             data-testid="button-back"
           >
-            <ArrowLeft style={{width: '3px', height: '3px'}} className="" />
+            <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-[10px] font-bold text-white">Transaction History</h1>
+          <h1 className="text-2xl font-bold text-white">Transaction History</h1>
         </div>
 
         {/* Filters */}
@@ -180,7 +180,7 @@ export default function Transactions() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-[8px] text-gray-400 mb-2 block">Type</label>
+                <label className="text-sm text-gray-400 mb-2 block">Type</label>
                 <Select value={filterType} onValueChange={setFilterType}>
                   <SelectTrigger className="bg-white/5 border-white/10 text-white" data-testid="select-transaction-type">
                     <SelectValue placeholder="All types" />
@@ -197,7 +197,7 @@ export default function Transactions() {
                 </Select>
               </div>
               <div>
-                <label className="text-[8px] text-gray-400 mb-2 block">Currency</label>
+                <label className="text-sm text-gray-400 mb-2 block">Currency</label>
                 <Select value={filterCurrency} onValueChange={setFilterCurrency}>
                   <SelectTrigger className="bg-white/5 border-white/10 text-white" data-testid="select-currency">
                     <SelectValue placeholder="All currencies" />
@@ -210,14 +210,14 @@ export default function Transactions() {
                 </Select>
               </div>
               <div>
-                <label className="text-[8px] text-gray-400 mb-2 block">Search</label>
+                <label className="text-sm text-gray-400 mb-2 block">Search</label>
                 <div className="relative">
-                  <Search style={{width: '3.5px', height: '3.5px'}} className="absolute left-3 top-3 text-gray-400" />
+                  <Search className="w-5 h-5 absolute left-3 top-3 text-gray-400" />
                   <Input
                     placeholder="Search transactions..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="bg-white/5 border-white/10 text-white pl-10"
+                    className="bg-white/5 border-white/10 text-white text-sm pl-10"
                     data-testid="input-search-transactions"
                   />
                 </div>
@@ -231,8 +231,8 @@ export default function Transactions() {
           {filteredTransactions.length === 0 ? (
             <Card className="bg-black/40 backdrop-blur-xl border-white/10">
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <Clock style={{width: '3.5px', height: '3.5px'}} className="text-gray-400 mb-4" />
-                <h3 className="text-[10px] font-semibold text-white mb-2">No Transactions Found</h3>
+                <Clock className="w-6 h-6 text-gray-400 mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">No Transactions Found</h3>
                 <p className="text-gray-400 text-center">
                   {searchTerm || filterType !== "all" || filterCurrency !== "all" 
                     ? "Try adjusting your filters or search term."
@@ -251,11 +251,11 @@ export default function Transactions() {
                       </div>
                       <div>
                         <h3 className="text-white font-medium capitalize" data-testid="text-transaction-type">{transaction.type}</h3>
-                        <p className="text-gray-400 text-[8px]" data-testid="text-transaction-description">{transaction.description}</p>
+                        <p className="text-gray-400 text-sm" data-testid="text-transaction-description">{transaction.description}</p>
                         {transaction.game && (
-                          <p className="text-golden text-[8px]" data-testid="text-transaction-game">Game: {transaction.game}</p>
+                          <p className="text-golden text-sm" data-testid="text-transaction-game">Game: {transaction.game}</p>
                         )}
-                        <p className="text-gray-500 text-[8px]" data-testid="text-transaction-date">
+                        <p className="text-gray-500 text-xs" data-testid="text-transaction-date">
                           {transaction.timestamp ? format(new Date(transaction.timestamp), "MMM d, yyyy 'at' h:mm a") : 'N/A'}
                         </p>
                       </div>
@@ -265,7 +265,7 @@ export default function Transactions() {
                         <p className={`font-semibold ${transaction.amount >= 0 ? 'text-green-400' : 'text-red-400'}`} data-testid="text-transaction-amount">
                           {transaction.amount >= 0 ? '+' : ''}{Number(transaction.amount || 0).toFixed(2)} {transaction.currency}
                         </p>
-                        <p className="text-gray-400 text-[8px]" data-testid="text-transaction-id">ID: {transaction.id.substring(0, 8)}...</p>
+                        <p className="text-gray-400 text-xs" data-testid="text-transaction-id">ID: {transaction.id.substring(0, 8)}...</p>
                       </div>
                       {getStatusBadge(transaction.status)}
                     </div>

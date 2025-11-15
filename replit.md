@@ -3,6 +3,9 @@
 ## Overview
 Miraclez Gaming is a production-ready hybrid casino platform offering a provably fair gaming experience through both Telegram WebApp and standalone web access. It features core casino games (Dice, Slots, Crash, CryptoCoaster, Plinko, Keno, Tower Defense, Mines) and puzzle games (Enigma), with real-time multiplayer capabilities and cryptographic proof of fairness. The platform includes wallet management, transaction history, deposit bonus systems, a 98-feature admin panel, and a 4-tier progressive jackpot system. The business vision is to provide an accessible, transparent, and engaging online casino experience to Telegram's user base and traditional web users.
 
+## Recent Changes (November 15, 2025)
+- **COMPLETE VISIBILITY OVERHAUL - ALL GAMES & USER PAGES**: Comprehensive typography and icon size improvements across entire application. Established formal standards: 12px (text-xs) for non-interactive metadata only, 14px (text-sm) minimum for all interactive/body text, 16px+ (text-base) for important values, 18-20px (text-lg/xl) for section titles. Icon standards: 16px (small), 20px (regular), 24px (large). Updated all 13 game pages (Dice, Plinko, Mines, Slots, Crash, Keno, Limbo, HiLo, Blackjack, Roulette, Tower Defense, Fundora Blox, Enigma) plus Jackpot Ticker, Game Carousel, Live Bets Feed, Footer, and Chat Widget. Updated all 4 user information pages (User Profile, Settings, Transactions, Edit Avatar) with 2-3x larger text and properly sized icons. Fundora Blox received special attention with complete minimum size clamping (14px) across all components ensuring scale-based calculations never drop below visibility standards on any screen size. Result: Perfect consistency, professional appearance, mobile-friendly readability throughout the entire app.
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 

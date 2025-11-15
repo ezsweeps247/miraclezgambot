@@ -141,11 +141,11 @@ export default function EditAvatar() {
                 className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black"
                 data-testid="button-back-profile"
               >
-                <ArrowLeft style={{width: '3px', height: '3px'}} className="mr-1" />
+                <ArrowLeft className="w-5 h-5 mr-1" />
                 Back to Profile
               </Button>
             </div>
-            <h1 className="text-[10px] font-bold text-white whitespace-nowrap">Edit Avatar & Settings</h1>
+            <h1 className="text-2xl font-bold text-white whitespace-nowrap">Edit Avatar & Settings</h1>
             <div className="w-20" /> {/* Spacer for center alignment */}
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function EditAvatar() {
         {isLoading && (
           <div className="flex justify-center py-20">
             <div className="flex flex-col items-center gap-4">
-              <Loader2 style={{width: '3.5px', height: '3.5px'}} className="text-purple-500 animate-spin" />
+              <Loader2 className="w-6 h-6 text-purple-500 animate-spin" />
               <p className="text-gray-400">Loading profile...</p>
             </div>
           </div>
@@ -174,7 +174,7 @@ export default function EditAvatar() {
               <div className="flex flex-col items-center text-center mb-6">
                 <div className="relative mb-4">
                   <div 
-                    className="w-24 h-24 rounded-full flex items-center justify-center text-[10px]"
+                    className="w-24 h-24 rounded-full flex items-center justify-center text-4xl"
                     style={{ 
                       backgroundColor: selectedBackground
                     }}
@@ -184,16 +184,16 @@ export default function EditAvatar() {
                     </span>
                   </div>
                 </div>
-                <h2 className="text-[10px] font-bold text-white mb-2">{profile.username}</h2>
+                <h2 className="text-lg font-bold text-white mb-2">{profile.username}</h2>
                 
                 {/* VIP Badge */}
-                <div className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-600 rounded-full text-[8px] font-bold text-black mb-4">
+                <div className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-600 rounded-full text-sm font-bold text-black mb-4">
                   🏆 {profile.vipLevel || 'UNRANKED'}
                 </div>
                 
                 {/* VIP Progress Bar */}
                 <div className="w-full max-w-sm">
-                  <div className="flex justify-between text-[8px] text-gray-400 mb-1">
+                  <div className="flex justify-between text-xs text-gray-400 mb-1">
                     <span>{getVipProgress().toFixed(1)}%</span>
                     <span>Next: PLATINUM</span>
                   </div>
@@ -209,23 +209,23 @@ export default function EditAvatar() {
 
             {/* Stats Grid */}
             <Card className="bg-[#1a1a2e] border-gray-800 p-6">
-              <h3 className="text-[10px] font-bold text-white mb-4">Your Stats</h3>
+              <h3 className="text-lg font-bold text-white mb-4">Your Stats</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-[#2a2a3e] rounded-lg p-4 text-center">
-                  <p className="text-gray-400 text-[8px] mb-1">Total Bets</p>
-                  <p className="text-white font-bold text-[10px]">{profile.totalBets || 0}</p>
+                  <p className="text-gray-400 text-sm mb-1">Total Bets</p>
+                  <p className="text-white font-bold text-base">{profile.totalBets || 0}</p>
                 </div>
                 <div className="bg-[#2a2a3e] rounded-lg p-4 text-center">
-                  <p className="text-gray-400 text-[8px] mb-1">Wagered</p>
-                  <p className="text-white font-bold text-[10px]">{formatCurrency(profile.totalWagered || 0)}</p>
+                  <p className="text-gray-400 text-sm mb-1">Wagered</p>
+                  <p className="text-white font-bold text-base">{formatCurrency(profile.totalWagered || 0)}</p>
                 </div>
                 <div className="bg-[#2a2a3e] rounded-lg p-4 text-center">
-                  <p className="text-gray-400 text-[8px] mb-1">Rewarded</p>
-                  <p className="text-green-400 font-bold text-[10px]">{formatCurrency(profile.totalRewarded || 0)}</p>
+                  <p className="text-gray-400 text-sm mb-1">Rewarded</p>
+                  <p className="text-green-400 font-bold text-base">{formatCurrency(profile.totalRewarded || 0)}</p>
                 </div>
                 <div className="bg-[#2a2a3e] rounded-lg p-4 text-center">
-                  <p className="text-gray-400 text-[8px] mb-1">Joined</p>
-                  <p className="text-white font-bold text-[10px]">{profile.joinDate ? formatDate(profile.joinDate) : 'Sep 2025'}</p>
+                  <p className="text-gray-400 text-sm mb-1">Joined</p>
+                  <p className="text-white font-bold text-base">{profile.joinDate ? formatDate(profile.joinDate) : 'Sep 2025'}</p>
                 </div>
               </div>
             </Card>
@@ -242,14 +242,14 @@ export default function EditAvatar() {
                   <button
                     key={id}
                     onClick={() => setActiveTab(id)}
-                    className={`flex-1 flex items-center justify-center gap-1 px-3 py-1.5 text-[8px] font-medium transition-all ${
+                    className={`flex-1 flex items-center justify-center gap-1 px-3 py-1.5 text-sm font-medium transition-all ${
                       activeTab === id
                         ? 'text-purple-300 border-b-2 border-purple-500 bg-gradient-to-b from-purple-600/20 to-purple-700/30'
                         : 'text-gray-400 hover:text-white'
                     }`}
                     data-testid={`tab-${id}`}
                   >
-                    <Icon style={{width: '2.5px', height: '2.5px'}} />
+                    <Icon className="w-4 h-4" />
                     {label}
                   </button>
                 ))}
@@ -260,7 +260,7 @@ export default function EditAvatar() {
                 {activeTab === 'account' && (
                   <div className="space-y-6">
                     <div className="space-y-4">
-                      <h4 className="text-[10px] font-semibold text-white">Choose Your Avatar</h4>
+                      <h4 className="text-lg font-semibold text-white">Choose Your Avatar</h4>
                       <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto p-2 bg-[#2a2a3e] rounded-lg">
                         {avatarOptions.map((avatar) => (
                           <button
@@ -270,7 +270,7 @@ export default function EditAvatar() {
                               selectedAvatar === avatar.id
                                 ? 'border-[#D4AF37] bg-[#D4AF37]/20 scale-105'
                                 : 'border-gray-600 hover:border-gray-500'
-                            } flex items-center justify-center text-[10px]`}
+                            } flex items-center justify-center text-xl`}
                             style={{ backgroundColor: selectedBackground }}
                             data-testid={`avatar-${avatar.id}`}
                             title={avatar.name}
@@ -282,7 +282,7 @@ export default function EditAvatar() {
                     </div>
 
                     <div className="space-y-4">
-                      <h4 className="text-[10px] font-semibold text-white">Background Color</h4>
+                      <h4 className="text-lg font-semibold text-white">Background Color</h4>
                       <div className="grid grid-cols-4 gap-3">
                         {backgroundColors.map((color) => (
                           <button
@@ -305,7 +305,7 @@ export default function EditAvatar() {
                       <Button
                         onClick={handleAvatarSave}
                         disabled={updateAvatarMutation.isPending || !hasAvatarChanges}
-                        className={`w-full py-4 text-[10px] font-bold border-2 transition-all duration-300 ${
+                        className={`w-full py-4 text-base font-bold border-2 transition-all duration-300 ${
                           hasAvatarChanges
                             ? 'bg-gradient-to-r from-[#D4AF37] to-[#F4E37D] text-black border-[#D4AF37] hover:from-[#F4E37D] hover:to-[#D4AF37] shadow-lg shadow-[#D4AF37]/30 hover:shadow-xl hover:shadow-[#D4AF37]/50 transform hover:scale-105'
                             : 'bg-gray-700 text-gray-400 border-gray-600 cursor-not-allowed'
@@ -313,22 +313,22 @@ export default function EditAvatar() {
                         data-testid="button-save-avatar"
                       >
                         <div className="flex items-center justify-center gap-2">
-                          <CheckCircle style={{width: '3px', height: '3px'}} className="" />
+                          <CheckCircle className="w-5 h-5" />
                           {updateAvatarMutation.isPending ? 'Saving Avatar...' : hasAvatarChanges ? 'Save Avatar Changes' : 'No Changes to Save'}
                         </div>
                       </Button>
                       {hasAvatarChanges && (
-                        <div style={{width: '3px', height: '3px'}} className="absolute -top-1 -right-1 bg-red-500 rounded-full animate-pulse" />
+                        <div className="w-3 h-3 absolute -top-1 -right-1 bg-red-500 rounded-full animate-pulse" />
                       )}
                     </div>
 
                     <div className="space-y-4">
                       <div>
-                        <label className="text-[8px] font-medium text-white">Email</label>
+                        <label className="text-sm font-medium text-white">Email</label>
                         <Input
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="mt-1 bg-gray-800 border-gray-600"
+                          className="mt-1 bg-gray-800 border-gray-600 text-sm"
                           data-testid="input-email"
                         />
                       </div>
@@ -338,10 +338,10 @@ export default function EditAvatar() {
 
                 {activeTab === 'verify' && (
                   <div className="space-y-4">
-                    <h4 className="text-[10px] font-semibold text-white">Account Verification</h4>
+                    <h4 className="text-lg font-semibold text-white">Account Verification</h4>
                     <div className="bg-gray-800 rounded-lg p-4">
                       <div className="flex items-center gap-3">
-                        <CheckCircle style={{width: '3px', height: '3px'}} className=" text-green-500" />
+                        <CheckCircle className="w-5 h-5 text-green-500" />
                         <span className="text-white">Email Verified</span>
                       </div>
                     </div>
@@ -356,13 +356,13 @@ export default function EditAvatar() {
 
                 {activeTab === 'security' && (
                   <div className="space-y-4">
-                    <h4 className="text-[10px] font-semibold text-white">Security Settings</h4>
+                    <h4 className="text-lg font-semibold text-white">Security Settings</h4>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-white">Two-Factor Authentication</span>
-                        <Switch style={{width: '3px', height: '3px'}} className="data-[state=checked]:bg-[#D4AF37] data-[state=unchecked]:bg-gray-600 border-2 data-[state=checked]:border-[#D4AF37] data-[state=unchecked]:border-gray-500 shadow-lg" />
+                        <span className="text-white text-sm">Two-Factor Authentication</span>
+                        <Switch className="data-[state=checked]:bg-[#D4AF37] data-[state=unchecked]:bg-gray-600 border-2 data-[state=checked]:border-[#D4AF37] data-[state=unchecked]:border-gray-500 shadow-lg" />
                       </div>
-                      <Button variant="outline" className="w-full">
+                      <Button variant="outline" className="w-full text-sm">
                         Change Password
                       </Button>
                     </div>
@@ -371,10 +371,10 @@ export default function EditAvatar() {
 
                 {activeTab === 'preferences' && (
                   <div className="space-y-4">
-                    <h4 className="text-[10px] font-semibold text-white">Privacy & Preferences</h4>
+                    <h4 className="text-lg font-semibold text-white">Privacy & Preferences</h4>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-white">Private Mode</span>
+                        <span className="text-white text-sm">Private Mode</span>
                         <Switch
                           checked={privateMode}
                           onCheckedChange={setPrivateMode}
@@ -382,7 +382,7 @@ export default function EditAvatar() {
                         />
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-white">Email Marketing</span>
+                        <span className="text-white text-sm">Email Marketing</span>
                         <Switch
                           checked={emailMarketing}
                           onCheckedChange={setEmailMarketing}
@@ -390,7 +390,7 @@ export default function EditAvatar() {
                         />
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-white">Streamer Mode</span>
+                        <span className="text-white text-sm">Streamer Mode</span>
                         <Switch
                           checked={streamerMode}
                           onCheckedChange={setStreamerMode}
