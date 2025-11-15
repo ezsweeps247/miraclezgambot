@@ -754,7 +754,7 @@ export default function Home() {
       {/* Navigation Tabs - Between Quick Play and All Games */}
       <section className="py-0.5 mt-2 text-base">
         <div className="bg-black/40 backdrop-blur-sm border-t border-b border-gray-800/30 p-2">
-          <div className="flex items-center gap-1 px-2">
+          <div className="flex items-center gap-3 px-2">
             <button
               onClick={() => setActiveCategory('all')}
               className={`flex-1 flex items-center justify-center h-14 rounded-lg transition-all whitespace-nowrap ${
