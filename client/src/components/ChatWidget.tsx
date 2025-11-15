@@ -245,10 +245,10 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                     onClick={onClose}
                     variant="ghost"
                     size="icon"
-                    className="text-gray-300 hover:text-white transition-colors h-11 w-11"
+                    className="text-gray-300 hover:text-white transition-colors h-12 w-12"
                     data-testid="chat-close-button"
                   >
-                    <X className="w-6 h-6" />
+                    <X className="w-7 h-7" />
                   </Button>
                 </div>
 
