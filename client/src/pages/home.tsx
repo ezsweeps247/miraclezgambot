@@ -861,49 +861,44 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* For Fundora Blox, show image as-is without overlay - user provided complete card design */}
-                {game.id !== 'fundora-blox' && (
-                  <>
-                    {/* Enhanced dark overlay for better text visibility */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
+                {/* Enhanced dark overlay for better text visibility */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
 
-                    {/* Top section with MIRACLEZ badge, description and RTP */}
-                    <div className="absolute top-0 left-0 right-0 p-1 z-10">
-                      {/* Miraclez Logo centered at top */}
-                      <div className="flex justify-center mb-1">
-                        <div className={`px-3 py-1 ${game.badgeColor} rounded-md flex items-center justify-center`}>
-                          <span className="font-bold text-white tracking-wider text-base">MIRACLEZ</span>
-                        </div>
-                      </div>
+                {/* Top section with MIRACLEZ badge, description and RTP */}
+                <div className="absolute top-0 left-0 right-0 p-1 z-10">
+                  {/* Miraclez Logo centered at top */}
+                  <div className="flex justify-center mb-1">
+                    <div className={`px-3 py-1 ${game.badgeColor} rounded-md flex items-center justify-center`}>
+                      <span className="font-bold text-white tracking-wider text-base">MIRACLEZ</span>
+                    </div>
+                  </div>
 
-                      {/* Game Description and RTP - only visible on hover */}
-                      <div className="px-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 translate-y-1 group-hover:translate-y-0 group-focus-within:translate-y-0 transition-all duration-200">
-                        <p className="text-white/90 text-center mb-1.5 line-clamp-2 text-base">
-                          {game.description}
-                        </p>
-                        
-                        {/* RTP Badge - only visible on hover */}
-                        <div className="flex justify-center">
-                          <div className="bg-green-500/30 backdrop-blur-sm rounded-full px-3 py-1 border border-green-400/50 shadow-lg shadow-green-500/20">
-                            <span className="font-bold text-green-300 text-base">RTP: {game.rtp}%</span>
-                          </div>
-                        </div>
+                  {/* Game Description and RTP - only visible on hover */}
+                  <div className="px-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 translate-y-1 group-hover:translate-y-0 group-focus-within:translate-y-0 transition-all duration-200">
+                    <p className="text-white/90 text-center mb-1.5 line-clamp-2 text-base">
+                      {game.description}
+                    </p>
+                    
+                    {/* RTP Badge - only visible on hover */}
+                    <div className="flex justify-center">
+                      <div className="bg-green-500/30 backdrop-blur-sm rounded-full px-3 py-1 border border-green-400/50 shadow-lg shadow-green-500/20">
+                        <span className="font-bold text-green-300 text-base">RTP: {game.rtp}%</span>
                       </div>
                     </div>
+                  </div>
+                </div>
 
-                    {/* Game Name at bottom center - prominent and centered */}
-                    <div className="absolute bottom-0 left-0 right-0 p-2 z-10">
-                      <h3 className="text-white font-black text-center tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] uppercase text-xl">
-                        {game.name}
-                      </h3>
-                    </div>
+                {/* Game Name at bottom center - prominent and centered */}
+                <div className="absolute bottom-0 left-0 right-0 p-2 z-10">
+                  <h3 className="text-white font-black text-center tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] uppercase text-xl">
+                    {game.name}
+                  </h3>
+                </div>
 
-                    {/* Hover effect - subtle glow */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                      <div className="absolute inset-0 bg-gradient-to-t from-purple-600/20 to-transparent" />
-                    </div>
-                  </>
-                )}
+                {/* Hover effect - subtle glow */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                  <div className="absolute inset-0 bg-gradient-to-t from-purple-600/20 to-transparent" />
+                </div>
               </div>
             </div>
           ))}
