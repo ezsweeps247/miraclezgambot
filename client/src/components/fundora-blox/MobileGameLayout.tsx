@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
+import { useLocation } from 'wouter';
 import { useGame } from '@/lib/stores/useGame';
 import { useAudio } from '@/lib/stores/useAudio';
 import { Volume2, VolumeX, ChevronUp, ChevronDown, Menu, X, Home } from 'lucide-react';
@@ -46,6 +47,7 @@ function formatNumber(num: number): string {
 }
 
 export function MobileGameLayout() {
+  const [, setLocation] = useLocation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
   const lastTimeRef = useRef(Date.now());
@@ -207,7 +209,7 @@ export function MobileGameLayout() {
       }}>
         {/* Home Button */}
         <button
-          onClick={restart}
+          onClick={() => setLocation('/')}
           style={{
             background: 'linear-gradient(145deg, rgba(60,60,65,0.8), rgba(40,40,45,0.8))',
             border: '2px solid rgba(255, 255, 255, 0.2)',
