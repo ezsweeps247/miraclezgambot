@@ -24,7 +24,6 @@ import Miracoaster from "@/pages/miracoaster";
 import TowerDefense from "@/pages/tower-defense";
 import Enigma from "@/pages/enigma";
 import FundoraBlox from "@/pages/fundora-blox";
-import FundoraBloxGame from "@/pages/fundora-blox-game";
 import CoinFlip from "@/pages/coinflip";
 import Wallet from "@/pages/wallet";
 import Crypto from "@/pages/crypto";
@@ -78,8 +77,10 @@ function Router() {
       {/* Telegram error page - no layout wrapper */}
       <Route path="/telegram-error" component={TelegramError} />
       
-      {/* Fundora Blox fullscreen game - no layout wrapper */}
-      <Route path="/fundora-blox-game" component={FundoraBloxGame} />
+      {/* Fundora Blox fullscreen game - old route now uses new carousel version */}
+      <Route path="/fundora-blox-game" component={() => (
+        <FundoraBlox />
+      )} />
       
       {/* Admin routes - no layout wrapper, must be checked first */}
       <Route path="/admin" component={AdminLogin} />
