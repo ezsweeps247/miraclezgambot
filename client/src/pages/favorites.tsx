@@ -186,21 +186,21 @@ export default function FavoriteGames() {
             className="text-gray-400 hover:text-white mb-4"
             data-testid="button-back-home"
           >
-            <ArrowLeft style={{width: '3.5px', height: '3.5px'}} className="mr-2" />
-            Back to Casino
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            <span className="text-sm">Back to Casino</span>
           </Button>
         </div>
 
         <Card className="bg-casino-card border-casino-border">
           <CardContent className="p-8 text-center">
-            <Star style={{width: '4px', height: '4px'}} className="mx-auto mb-4 text-gray-500" />
-            <h2 className="text-[10px] font-semibold mb-2 text-white">Sign In Required</h2>
-            <p className="text-gray-400 mb-6">
+            <Star className="w-12 h-12 mx-auto mb-4 text-gray-500" />
+            <h2 className="text-xl font-semibold mb-2 text-white">Sign In Required</h2>
+            <p className="text-sm text-gray-400 mb-6">
               Please sign in to view your favorite games.
             </p>
             <Button 
               onClick={() => setLocation('/')}
-              className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold"
+              className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold text-sm"
               data-testid="button-go-home"
             >
               Go to Home
@@ -216,20 +216,20 @@ export default function FavoriteGames() {
       <div className="mb-6">
         <Button 
           variant="outline" 
-          size="xs"
+          size="sm"
           onClick={() => setLocation('/')}
           className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black mb-4 rounded-lg"
           data-testid="button-back-home"
         >
-          <ArrowLeft style={{width: '3px', height: '3px'}} className="mr-1" />
-          Back to Casino
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          <span className="text-sm">Back to Casino</span>
         </Button>
         
         <div className="flex items-center gap-3 mb-2">
-          <Star style={{width: '3px', height: '3px'}} className="text-[#D4AF37] fill-[#D4AF37]" />
-          <h1 className="text-[10px] md:text-[10px] font-bold text-white">Favorite Games</h1>
+          <Star className="w-6 h-6 text-[#D4AF37] fill-[#D4AF37]" />
+          <h1 className="text-2xl md:text-3xl font-bold text-white">Favorite Games</h1>
         </div>
-        <p className="text-gray-400">Games you've marked as favorites</p>
+        <p className="text-sm text-gray-400">Games you've marked as favorites</p>
       </div>
 
       {isLoading ? (
@@ -253,23 +253,23 @@ export default function FavoriteGames() {
         <Card className="bg-casino-card border-casino-border">
           <CardContent className="p-8 text-center">
             <div className="text-red-400 mb-4">
-              <Star style={{width: '4px', height: '4px'}} className="mx-auto mb-4" />
-              <h2 className="text-[10px] font-semibold mb-2">Error Loading Games</h2>
-              <p>Unable to load your favorite games. Please try again later.</p>
+              <Star className="w-12 h-12 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">Error Loading Games</h2>
+              <p className="text-sm">Unable to load your favorite games. Please try again later.</p>
             </div>
           </CardContent>
         </Card>
       ) : !favoriteGames || favoriteGames.length === 0 ? (
         <Card className="bg-casino-card border-casino-border">
           <CardContent className="p-8 text-center">
-            <Star style={{width: '4px', height: '4px'}} className="mx-auto mb-4 text-gray-500" />
-            <h2 className="text-[10px] font-semibold mb-2 text-white">No Favorite Games</h2>
-            <p className="text-gray-400 mb-6">
+            <Star className="w-12 h-12 mx-auto mb-4 text-gray-500" />
+            <h2 className="text-xl font-semibold mb-2 text-white">No Favorite Games</h2>
+            <p className="text-sm text-gray-400 mb-6">
               Start adding games to your favorites by clicking the star icon on any game!
             </p>
             <Button 
               onClick={() => setLocation('/')}
-              className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold"
+              className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold text-sm"
               data-testid="button-browse-games"
             >
               Browse Games
@@ -293,32 +293,32 @@ export default function FavoriteGames() {
                       <img
                         src={metadata.image}
                         alt={metadata.displayName}
-                        className="w-16 h-16 rounded-lg object-cover"
+                        className="w-20 h-20 md:w-24 md:h-24 rounded-lg object-cover"
                         onError={(e) => {
                           e.currentTarget.src = '/game-images/placeholder.png';
                         }}
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 rounded-lg flex items-center justify-center transition-all">
-                        <Play style={{width: '3px', height: '3px'}} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <Play className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                     </div>
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-[10px] font-semibold text-white truncate">
+                        <h3 className="text-base md:text-lg font-semibold text-white truncate">
                           {metadata.displayName}
                         </h3>
-                        <Badge variant="secondary" className="text-[8px]">
-                          <Star style={{width: '3px', height: '3px'}} className="mr-1 fill-current" />
-                          {formatDateAdded(game.createdAt)}
+                        <Badge variant="secondary" className="text-xs">
+                          <Star className="w-3 h-3 mr-1 fill-current" />
+                          <span className="text-xs">{formatDateAdded(game.createdAt)}</span>
                         </Badge>
                       </div>
                       
-                      <p className="text-[8px] text-gray-400 mb-2 line-clamp-2">
+                      <p className="text-sm text-gray-400 mb-2 line-clamp-2">
                         {metadata.description}
                       </p>
                       
-                      <div className="flex items-center gap-4 text-[8px] text-gray-500">
+                      <div className="flex items-center gap-4 text-xs text-gray-500">
                         {metadata.rtp && (
                           <span>RTP: {metadata.rtp}</span>
                         )}
@@ -335,11 +335,11 @@ export default function FavoriteGames() {
                       />
                       <Button
                         onClick={() => handlePlayGame(metadata.path)}
-                        className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold px-6"
+                        className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold px-6 text-sm"
                         data-testid={`button-play-${game.gameName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                       >
-                        <Play style={{width: '3.5px', height: '3.5px'}} className="mr-1" />
-                        Play
+                        <Play className="w-5 h-5 mr-2" />
+                        <span className="text-sm">Play</span>
                       </Button>
                     </div>
                   </div>
