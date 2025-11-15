@@ -8,7 +8,6 @@ import { GameCanvas } from "@/components/fundora-blox/GameCanvas";
 import { GameUI } from "@/components/fundora-blox/GameUI";
 import { MobileGameLayout } from "@/components/fundora-blox/MobileGameLayout";
 import { SoundManager } from "@/components/fundora-blox/SoundManager";
-import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useLocation } from "wouter";
 import "@fontsource/roboto";
@@ -260,14 +259,14 @@ export default function FundoraBloxGame() {
         left: '20px',
         zIndex: 1000
       }}>
-        <Button
+        <button
           onClick={() => setLocation('/')}
-          variant="ghost"
-          className="text-white"
+          className="inline-flex items-center justify-center whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[#B8941A] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#F4D06F] text-black font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm gap-2"
+          data-testid="button-back-home"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft className="w-4 h-4" />
           Back to Home
-        </Button>
+        </button>
       </div>
       <div 
         style={{ 

@@ -27,7 +27,8 @@ import {
   PlayCircle,
   Layers,
   Grid3x3,
-  DicesIcon
+  DicesIcon,
+  ArrowLeft
 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { ResponsibleGamingModal } from './responsible-gaming-modal';
@@ -176,11 +177,11 @@ export function RollUpMenu({ isOpen, onClose, onSearchClick }: RollUpMenuProps) 
             <div className="p-3 border-b border-gray-800">
               <button
                 onClick={() => handleNavigate('/')}
-                className="w-full py-3 bg-gradient-to-r from-purple-700 via-purple-600 to-purple-700 hover:from-purple-800 hover:via-purple-700 hover:to-purple-800 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 shadow-lg"
-                data-testid="menu-back-to-casino"
+                className="w-full justify-center bg-gradient-to-r from-[#B8941A] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#F4D06F] text-black font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm flex items-center gap-2"
+                data-testid="button-back-home"
               >
-                <Home className="w-6 h-6" />
-                <span className="text-lg font-bold tracking-wide uppercase">Back to Home</span>
+                <ArrowLeft className="w-4 h-4" />
+                Back to Home
               </button>
             </div>
 

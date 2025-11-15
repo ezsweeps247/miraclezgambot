@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
-import { ArrowUp, ArrowDown, TrendingUp, TrendingDown, Users, Trophy, Calculator, BarChart3, Volume2, VolumeX } from 'lucide-react';
+import { ArrowUp, ArrowDown, TrendingUp, TrendingDown, Users, Trophy, Calculator, BarChart3, Volume2, VolumeX, ArrowLeft } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 import { toast } from '@/hooks/use-toast';
@@ -829,9 +829,10 @@ export default function Miracoaster() {
               <FavoriteButton gameName="Miracoaster" />
               <button
                 onClick={() => setLocation("/")}
-                className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-[8px]"
-                data-testid="button-back-casino"
+                className="bg-gradient-to-r from-[#B8941A] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#F4D06F] text-black font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm flex items-center gap-2"
+                data-testid="button-back-home"
               >
+                <ArrowLeft className="w-4 h-4" />
                 Back to Home
               </button>
             </div>

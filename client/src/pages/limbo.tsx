@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, Hash, Target, AlertCircle, Volume2, VolumeX } from 'lucide-react';
+import { TrendingUp, Hash, Target, AlertCircle, Volume2, VolumeX, ArrowLeft } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -464,9 +464,10 @@ export default function LimboPage() {
                       <FavoriteButton gameName="Limbo" />
                       <button
                         onClick={() => setLocation("/")}
-                        className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-3 py-1.5 rounded-lg text-sm"
+                        className="bg-gradient-to-r from-[#B8941A] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#F4D06F] text-black font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm flex items-center gap-2"
                         data-testid="button-back-casino"
                       >
+                        <ArrowLeft className="w-4 h-4" />
                         Back to Home
                       </button>
                     </div>

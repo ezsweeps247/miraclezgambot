@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { formatCredits } from '@/lib/utils';
-import { Loader2, Volume2, VolumeX } from 'lucide-react';
+import { Loader2, Volume2, VolumeX, ArrowLeft } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { RouletteWheel } from '@/components/RouletteWheel';
 import { useGameMode } from '@/contexts/GameModeContext';
@@ -577,9 +577,10 @@ export default function Roulette() {
             <FavoriteButton gameName="Roulette" />
             <button
               onClick={() => setLocation("/")}
-              className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-3 py-1.5 rounded-lg text-sm"
+              className="bg-gradient-to-r from-[#B8941A] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#F4D06F] text-black font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm flex items-center gap-2"
               data-testid="button-back-casino"
             >
+              <ArrowLeft className="w-4 h-4" />
               Back to Home
             </button>
           </div>

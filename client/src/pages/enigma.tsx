@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, RotateCcw, Trophy, Clock, Home, ChevronRight, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, RotateCcw, Trophy, Clock, Home, ChevronRight, Volume2, VolumeX, ArrowLeft } from 'lucide-react';
 import { useLocation } from 'wouter';
 import FavoriteButton from '@/components/FavoriteButton';
 import { useToast } from '@/hooks/use-toast';
@@ -842,9 +842,10 @@ export default function EnigmaGame() {
                 <FavoriteButton gameName="Enigma" />
                 <button
                   onClick={() => setLocation("/")}
-                  className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-2 py-1 rounded-lg text-xs"
+                  className="bg-gradient-to-r from-[#B8941A] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#F4D06F] text-black font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm flex items-center gap-2"
                   data-testid="button-back-casino"
                 >
+                  <ArrowLeft className="w-4 h-4" />
                   Back to Home
                 </button>
               </div>

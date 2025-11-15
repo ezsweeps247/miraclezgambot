@@ -165,15 +165,14 @@ export default function RecentGames() {
     return (
       <div className="container mx-auto p-4 max-w-4xl">
         <div className="mb-6">
-          <Button 
-            variant="ghost" 
+          <button
             onClick={() => setLocation('/')}
-            className="text-gray-400 hover:text-white mb-4 rounded-lg text-sm"
+            className="bg-gradient-to-r from-[#B8941A] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#F4D06F] text-black font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm flex items-center gap-2"
             data-testid="button-back-home"
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
+            <ArrowLeft className="w-4 h-4" />
             Back to Home
-          </Button>
+          </button>
         </div>
 
         <Card className="bg-casino-card border-casino-border">
@@ -199,16 +198,14 @@ export default function RecentGames() {
   return (
     <div className="container mx-auto p-4 max-w-4xl">
       <div className="mb-6">
-        <Button 
-          variant="outline" 
-          size="xs"
+        <button
           onClick={() => setLocation('/')}
-          className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black mb-4 rounded-lg text-sm"
+          className="bg-gradient-to-r from-[#B8941A] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#F4D06F] text-black font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm flex items-center gap-2"
           data-testid="button-back-home"
         >
-          <ArrowLeft className="w-5 h-5 mr-1" />
+          <ArrowLeft className="w-4 h-4" />
           Back to Home
-        </Button>
+        </button>
         
         <div className="flex items-center gap-3 mb-2">
           <Clock className="w-6 h-6 text-[#D4AF37]" />

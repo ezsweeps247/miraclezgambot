@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { Target, Play, Shield, Swords, Trophy, Volume2, VolumeX, Info } from "lucide-react";
+import { Target, Play, Shield, Swords, Trophy, Volume2, VolumeX, Info, ArrowLeft } from "lucide-react";
 import { useLocation } from "wouter";
 import FavoriteButton from "@/components/FavoriteButton";
 import { useGameMode } from "@/contexts/GameModeContext";
@@ -338,9 +338,10 @@ export default function TowerDefense() {
               <FavoriteButton gameName="Tower Defense" />
               <button
                 onClick={() => setLocation("/")}
-                className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-sm"
+                className="bg-gradient-to-r from-[#B8941A] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#F4D06F] text-black font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm flex items-center gap-2"
                 data-testid="button-back-casino"
               >
+                <ArrowLeft className="w-4 h-4" />
                 Back to Home
               </button>
             </div>

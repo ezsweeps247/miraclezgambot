@@ -7,7 +7,7 @@ import { apiRequest } from "@/lib/api";
 import { formatCredits } from "@/lib/utils";
 import { AnimatedProgressBar } from "@/components/animated-progress-bar";
 import { LiveWinsFeed } from "@/components/live-wins-feed";
-import { Coins, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { Coins, RotateCcw, Volume2, VolumeX, ArrowLeft } from "lucide-react";
 import { useLocation } from "wouter";
 import { modernSounds } from "@/lib/modern-sounds";
 import { useGameMode } from "@/contexts/GameModeContext";
@@ -211,15 +211,14 @@ export default function Slots() {
               </Button>
               <div className="flex items-center gap-2">
                 <FavoriteButton gameName="Slots" />
-                <Button
-                  variant="outline"
-                  size="xs"
+                <button
                   onClick={() => setLocation("/")}
-                  className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black rounded-lg"
+                  className="bg-gradient-to-r from-[#B8941A] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#F4D06F] text-black font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm flex items-center gap-2"
                   data-testid="button-back-casino"
                 >
+                  <ArrowLeft className="w-4 h-4" />
                   Back to Home
-                </Button>
+                </button>
               </div>
             </div>
           </div>

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, VolumeX, RotateCcw, HelpCircle, Play, Pause } from "lucide-react";
+import { Volume2, VolumeX, RotateCcw, HelpCircle, Play, Pause, ArrowLeft } from "lucide-react";
 import { useLocation } from "wouter";
 import {
   Dialog,
@@ -559,9 +559,10 @@ export default function MiraclezDice() {
                 <FavoriteButton gameName="Miraclez Dice" />
                 <button
                   onClick={() => setLocation("/")}
-                  className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-xs"
+                  className="bg-gradient-to-r from-[#B8941A] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#F4D06F] text-black font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm flex items-center gap-2"
                   data-testid="button-back-casino"
                 >
+                  <ArrowLeft className="w-4 h-4" />
                   Back to Home
                 </button>
               </div>

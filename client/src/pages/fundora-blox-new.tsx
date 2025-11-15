@@ -183,14 +183,14 @@ export default function FundoraBloxNew() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="mb-6">
-        <Button
+        <button
           onClick={() => setLocation('/')}
-          variant="ghost"
-          className="flex items-center gap-2"
+          className="bg-gradient-to-r from-[#B8941A] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#F4D06F] text-black font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm flex items-center gap-2"
+          data-testid="button-back-home"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
-        </Button>
+        </button>
       </div>
 
       {!sessionUrl ? (

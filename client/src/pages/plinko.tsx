@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { formatCredits } from "@/lib/utils";
-import { Volume2, VolumeX } from "lucide-react";
+import { Volume2, VolumeX, ArrowLeft } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useGameMode } from "@/contexts/GameModeContext";
@@ -620,9 +620,10 @@ export default function PlinkoPage() {
                   <FavoriteButton gameName="Plinko" />
                   <button
                     onClick={() => setLocation("/")}
-                    className="border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition px-1.5 py-0.5 rounded-lg text-sm"
+                    className="bg-gradient-to-r from-[#B8941A] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#F4D06F] text-black font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm flex items-center gap-2"
                     data-testid="button-back-casino"
                   >
+                    <ArrowLeft className="w-4 h-4" />
                     Back to Home
                   </button>
                 </div>

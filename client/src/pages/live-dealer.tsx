@@ -18,16 +18,14 @@ export default function LiveDealerPage() {
   return (
     <div className="container mx-auto p-4 max-w-4xl">
       <div className="mb-6">
-        <Button 
-          variant="outline" 
-          size="xs"
+        <button
           onClick={() => setLocation('/')}
-          className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black mb-4 rounded-lg"
+          className="bg-gradient-to-r from-[#B8941A] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#F4D06F] text-black font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm flex items-center gap-2 mb-4"
           data-testid="button-back-home"
         >
-          <ArrowLeft style={{width: '3px', height: '3px'}} className="mr-1" />
+          <ArrowLeft className="w-4 h-4" />
           Back to Home
-        </Button>
+        </button>
         
         <div className="flex items-center gap-3 mb-2">
           <Video style={{width: '3px', height: '3px'}} className="text-[#D4AF37]" />
